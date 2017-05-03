@@ -49,15 +49,24 @@ class Campaign:
         return len(cpcArray)-1
 
     def generateConversions(self):
-        convs = math.floor(self.convParams[0]*self.clicks)   #Conversioni uguali a probabilità di conversione per numero di clicks
+        convs = math.floor(self.convParams[0]*self.clicks[len(self.clicks)-1])   #Conversioni uguali a probabilità di conversione per numero di clicks
         self.conversions = np.append(self.conversions,convs)
 
+    def generateRevenues(self):
+        rpc = np.random.uniform(self.convParams[1], self.convParams[2], int(self.conversions[len(self.conversions)-1]))
+        revenues = np.sum(rpc)-self.costs[len(self.costs)-1]
+        self.revenues = np.append(self.revenues,revenues)
+        print "Revenue per conversione media: %f" %np.mean(rpc)
+
 clickParams=np.array([1000.0,0.2,30.0, 0.1])
-convparams=np.array([0.4]) # ho messo prob di conversione a 0.4 a caso
+convparams=np.array([0.4,100,200])
+# ho messo prob di conversione a 0.4 a caso,mentre 100 e 200 sono i due estremi della uniforme per generare le revenues
 c = Campaign(10000.0,clickParams,convparams)
 c.generateClicksAndCost(40.0,16300.0)
 c.generateConversions()
+c.generateRevenues()
 print "Numero clicks: %f" % c.clicks
 print "Costi: %f" % c.costs
 print "Ora esaurimento: %f" % c.hours
 print "Numero conversioni: %f" % c.conversions
+print "Totale revenues: %f" % c.revenues
