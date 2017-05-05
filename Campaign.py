@@ -36,10 +36,12 @@ class Campaign:
         self.clicks = np.append(self.clicks, clicks)
         self.costs = np.append(self.costs, cost)
         self.hours = np.append(self.hours, hours)
+        self.budget= np.append(self.budget,budget)
+        self.bid= np.append(self.bid,bid)
         #print self.clicks
         #print self.costs
-        print "Costo per click medio: %f" % np.mean(cpc)
-        print "Numero click potenziali: %f" % potentialClicks
+        #print "Costo per click medio: %f" % np.mean(cpc)
+        #print "Numero click potenziali: %f" % potentialClicks
         #print self.hours
 
     def findIndex(self, cpcArray, budget):
@@ -56,17 +58,36 @@ class Campaign:
         rpc = np.random.uniform(self.convParams[1], self.convParams[2], int(self.conversions[len(self.conversions)-1]))
         revenues = np.sum(rpc)-self.costs[len(self.costs)-1]
         self.revenues = np.append(self.revenues,revenues)
-        print "Revenue per conversione media: %f" %np.mean(rpc)
+        #print "Revenue per conversione media: %f" %np.mean(rpc)
+
+    def generateObservations(self,bid,budget):
+        self.generateClicksAndCost(bid,budget)
+        self.generateConversions()
+        self.generateRevenues()
+
+class Environment:
+
+    def __init__(self, campaigns=[], deadline=100):
+        self.campaigns = campaigns
+        self.deadline = deadline
+
+    def generateObservationsforCampaigns(self,bid,budget):
+        for i in range(0,len(campaigns)):
+            campaigns[i].generateObservations(bid[i],budget[i])
 
 clickParams=np.array([1000.0,0.2,30.0, 0.1])
 convparams=np.array([0.4,100,200])
 # ho messo prob di conversione a 0.4 a caso,mentre 100 e 200 sono i due estremi della uniforme per generare le revenues
-c = Campaign(10000.0,clickParams,convparams)
-c.generateClicksAndCost(40.0,16300.0)
-c.generateConversions()
-c.generateRevenues()
-print "Numero clicks: %f" % c.clicks
-print "Costi: %f" % c.costs
-print "Ora esaurimento: %f" % c.hours
-print "Numero conversioni: %f" % c.conversions
-print "Totale revenues: %f" % c.revenues
+c1 = Campaign(10000.0,clickParams,convparams)
+c2 = Campaign(9000.0,clickParams,convparams)
+bid = np.array([40.0,35.0])
+budget = np.array([14300.0,13600.0])
+campaigns = np.array([c1,c2])
+env = Environment(campaigns,100)
+env.generateObservationsforCampaigns(bid,budget)
+#c.generateObservations(40.0,14300.0)
+print "Numero clicks: %f e %f" % (c1.clicks,c2.clicks)
+print "Costi: %f e %f" % (c1.costs,c2.costs)
+print "Ora esaurimento: %f e %f" % (c1.hours,c2.hours)
+print "Numero conversioni: %f e %f" % (c1.conversions,c2.conversions)
+print "Totale revenues: %f e %f" % (c1.revenues,c2.revenues)
