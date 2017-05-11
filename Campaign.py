@@ -8,12 +8,14 @@ Created on Tue May  2 10:51:29 2017
 
 import numpy as np
 import math
+from Auction import *
 
 class Campaign:
 
-    def __init__(self, nusers=100, clickParams=[], convParams=[]):
+    def __init__(self, auction, nusers=100, probClick=0.5, convParams=[]):
         self.nusers = nusers
-        self.clickParams = clickParams
+        self.auction = auction
+        self.probClick = probClick
         self.convParams = convParams
         self.clicks = np.array([])
         self.conversions = np.array([])
@@ -23,7 +25,7 @@ class Campaign:
         self.budget = np.array([])
         self.bid = np.array([])
 
-
+    """
     def generateClicksAndCost(self, bid, budget):
 
         errore = np.random.randn()*self.clickParams[3]  # clickParams[3] è un parametro dipendente da nusers per definire la dev standard
@@ -43,12 +45,31 @@ class Campaign:
         #print "Costo per click medio: %f" % np.mean(cpc)
         #print "Numero click potenziali: %f" % potentialClicks
         #print self.hours
-
+    """
     def findIndex(self, cpcArray, budget):
         for i in range(0,len(cpcArray)):
             if (np.sum(cpcArray[0:i]) > budget):
                 return i-1
         return len(cpcArray)-1
+
+
+    def generateClicksAndCost(self, bid, budget):
+        [cpc,mypos,pobs] = self.auction.simulateMultipleAuctions(self.nusers,bid)
+        nclicks = np.zeros(self.nusers)
+        for i in range(0,self.nusers):
+            soglia = np.random.uniform(0,1)
+            obsEvent = int(pobs[i] > soglia)
+            soglia = np.random.uniform(0,1)
+            clickEvent = int(self.probClick > soglia) * obsEvent
+            nclicks[i] = clickEvent
+        costTot = cpc * nclicks
+        index = self.findIndex(costTot,budget)
+        hours = (np.sum(nclicks[0:index])/np.sum(nclicks))*24
+        self.clicks = np.append(self.clicks, np.sum(nclicks[0:index]))
+        self.costs = np.append(self.costs, np.sum(costTot[0:index]))
+        self.hours = np.append(self.hours, hours)
+
+
 
     def generateConversions(self):
         convs = math.floor(self.convParams[0]*self.clicks[len(self.clicks)-1])   #Conversioni uguali a probabilità di conversione per numero di clicks
