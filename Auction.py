@@ -13,9 +13,14 @@ class Auction:
         bids = np.random.randn(self.nbidders)*self.sigma + self.mu
         bids[::-1].sort() #decreasing order
         indexes = np.argwhere(mybid > bids).reshape(-1)
-        cpc = bids[indexes[0]]
-        mypos = indexes[0] # slot numerati da 0 a n-1
-        pobs = self.lambdas[mypos]
+        cpc=0
+        mypos=len(bids)
+        if(len(indexes)>0):
+            cpc = bids[indexes[0]]
+            mypos = indexes[0] # slot numerati da 0 a n-1
+        pobs = 0
+        if(mypos<self.nslots):
+            pobs = self.lambdas[mypos]
         return [cpc,mypos,pobs]
 
     def simulateMultipleAuctions(self, nauctions, mybid):

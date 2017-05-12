@@ -55,8 +55,8 @@ class Campaign:
 
     def generateClicksAndCost(self, bid, budget):
         [cpc,mypos,pobs] = self.auction.simulateMultipleAuctions(self.nusers,bid)
-        nclicks = np.zeros(self.nusers)
-        for i in range(0,self.nusers):
+        nclicks = np.zeros(int(self.nusers))
+        for i in range(0,int(self.nusers)):
             soglia = np.random.uniform(0,1)
             obsEvent = int(pobs[i] > soglia)
             soglia = np.random.uniform(0,1)
