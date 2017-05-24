@@ -5,11 +5,9 @@ from Campaign import *
 
 class Environment:
 
-    def __init__(self, campaigns=[], deadline=100):
+    def __init__(self, campaigns=[]):
         self.campaigns = campaigns
-        
-        self.deadline = deadline
-        self.t
+        self.t=0
 
     def generateObservationsforCampaigns(self,bid,budget):
         clicks = np.array([])
@@ -31,9 +29,7 @@ class Environment:
             
             
     def step(self,bid,budget):
- 
-        if(self.t <deadline):
-            self.t+=1
-            return self.generateObservationsforCampaigns(bid,budget)
-        return []
+
+        self.t+=1
+        return self.generateObservationsforCampaigns(bid,budget)
         

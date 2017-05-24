@@ -6,10 +6,10 @@ import time as time
 import numpy as np
 
 class Core:
-    def __init__(self,agent,environment):
+    def __init__(self,agent,environment, deadline):
         self.agent=agent
         self.environment=environment
-        self.deadline = self.agent.deadline
+        self.deadline = deadline
         self.t=0
         
 
