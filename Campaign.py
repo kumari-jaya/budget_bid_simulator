@@ -77,7 +77,7 @@ class Campaign:
 
     def generateRevenues(self):
         rpc = np.random.uniform(self.convParams[1], self.convParams[2], int(self.conversions[len(self.conversions)-1]))
-        revenues = np.sum(rpc)-self.costs[len(self.costs)-1]
+        revenues = np.sum(rpc)
         self.revenues = np.append(self.revenues,revenues)
         #print "Revenue per conversione media: %f" %np.mean(rpc)
 
@@ -85,3 +85,4 @@ class Campaign:
         self.generateClicksAndCost(bid,budget)
         self.generateConversions()
         self.generateRevenues()
+        return[self.clicks[-1],self.conversions[-1],self.costs[-1],self.revenues[-1],self.hours[-1]]

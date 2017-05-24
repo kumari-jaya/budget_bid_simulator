@@ -60,10 +60,13 @@ plt.legend(loc='upper left')
 # ----------------------------------------------------------------------
 # now the noisy case
 X = np.linspace(0.1, 9.9, 20)
+X2 = np.linspace(0.3,25.0,20)
+X= np.array([X,X2])
 X = np.atleast_2d(X).T
 
 # Observations and noise
-y = f(X).ravel()
+#y = f(X).ravel()
+y= np.sum(X,axis=1).ravel()
 dy = 0.5 + 1.0 * np.random.random(y.shape)
 noise = np.random.normal(0, dy)
 y += noise
@@ -75,6 +78,8 @@ gp = GaussianProcessRegressor(kernel=kernel, alpha=(dy / y) ** 2,
 # Fit to data using Maximum Likelihood Estimation of the parameters
 gp.fit(X, y)
 
+#x=np.array([2.0,3.0])
+#x = np.atleast_2d(x).T
 # Make the prediction on the meshed x-axis (ask for MSE as well)
 y_pred, sigma = gp.predict(x, return_std=True)
 

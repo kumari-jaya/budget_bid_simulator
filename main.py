@@ -6,14 +6,16 @@ import math
 from Campaign import *
 from Environment import *
 from Auction import *
+from Agent import *
 
 #clickParams=np.array([1000.0,0.2,30.0, 0.1])
 convparams=np.array([0.4,100,200])
 # ho messo prob di conversione a 0.4 a caso,mentre 100 e 200 sono i due estremi della uniforme per generare le revenues
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 a1= Auction(4,5,0.5,0.1, lambdas)
+a2= Auction(5,5, 0.8, 0.2, lambdas)
 c1 = Campaign(a1,1000.0,0.5,convparams)
-#c2 = Campaign(9000.0,clickParams,convparams)
+c2 = Campaign(a2,,convparams)
 #bid = np.array([40.0,35.0])
 #budget = np.array([14300.0,13600.0])
 bid = 0.5
