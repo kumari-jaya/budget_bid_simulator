@@ -62,17 +62,26 @@ class Agent:
         conversions=np.atleast_2d(conversions)
         hours=np.atleast_2d(hours)
         print np.shape(bids)
+        """
         self.prevBids=np.atleast_2d(self.prevBids)
         self.prevBudgets=np.atleast_2d(self.prevBudgets)
         self.prevClicks=np.atleast_2d(self.prevClicks)
         self.prevConversions=np.atleast_2d(self.prevConversions)
         self.prevHours=np.atleast_2d(self.prevHours)
-        
-        self.prevBudgets = np.append(self.prevBudgets,budgets, axis=0)
-        self.prevBids = np.append(self.prevBids,bids, axis=0)
-        self.prevClicks = np.append(self.prevClicks,clicks, axis=0)
-        self.prevConversions = np.append(self.prevConversions,conversions, axis=0)
-        self.prevHours = np.append(self.prevHours,hours, axis=0)
+        """
+        print bids
+        if(self.t==0):
+            self.prevBudgets = budgets
+            self.prevBids = bids
+            self.prevClicks = clicks
+            self.prevConversions = conversions
+            self.prevHours = hours
+        else:  
+            self.prevBudgets = np.append(self.prevBudgets,budgets, axis=0)
+            self.prevBids = np.append(self.prevBids,bids, axis=0)
+            self.prevClicks = np.append(self.prevClicks,clicks, axis=0)
+            self.prevConversions = np.append(self.prevConversions,conversions, axis=0)
+            self.prevHours = np.append(self.prevHours,hours, axis=0)
         self.updateMultiGP()
         self.costs += costs
         self.revenues += revenues
@@ -80,6 +89,8 @@ class Agent:
         
         
     def chooseAction(self):
-        return  [np.ones(self.ncampaigns), 100*np.ones(self.ncampaigns)]
+        bids = np.ones(self.ncampaigns) + np.random.randn()
+        budgets = np.ones(self.ncampaigns) * 100 +np.random.randn()*10
+        return  [bids,budgets]
         
     
