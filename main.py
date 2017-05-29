@@ -24,6 +24,13 @@ env = Environment([c1,c2])
 core = Core(agent, env, deadline)
 
 
-core.step()
+#core.step()
 core.runEpisode()
 
+#provo a predirre dei valori
+bids = np.array([0.8,0.9])
+budgets = np.array([95,100])
+X=np.array([bids.T,budgets.T])
+X=np.atleast_2d(X).T
+agent.gps[0].predict(X,return_std=True)
+agent.gps[1].predict(X,return_std=True)
