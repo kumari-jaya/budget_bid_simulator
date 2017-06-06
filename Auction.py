@@ -9,6 +9,9 @@ class Auction:
         self.sigma = sigma
         self.lambdas = lambdas
 
+# pclick da 10-3 10-1
+# fare sampling da una beta per la prob di click anche dei competitor
+
     def simulateAuction(self, mybid):
         bids = np.random.randn(self.nbidders)*self.sigma + self.mu
         bids[::-1].sort() #decreasing order
