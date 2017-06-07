@@ -12,7 +12,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 class Agent:
 
-    def __init__(self,budgetTot,deadline,ncampaigns):
+    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids):
         self.budgetTot = budgetTot
         self.deadline = deadline
         self.ncampaigns = ncampaigns
@@ -26,6 +26,17 @@ class Agent:
         self.prevConversions = np.array([])
         self.prevHours = np.array([])
         self.valuesPerClick = np.zeros(ncampaigns)
+
+        self.maxTotDailyBudget = 100.0
+        self.maxBid = 1.0
+        budIntervals = 10
+        self.nBudgetIntervals = budIntervals
+        self.nBids = 10
+
+        self.budgets = np.linspace(0, self.maxTotDailyBudget,budIntervals)
+        self.bids = np.linspace(0,self.maxBid,nBids)
+        self.optimalBidPerBudeget = np.zeros(ncampaigns,budIntervals)
+
 
     def updateValuesPerClick(self):
         for c in range(0,self.ncampaigns):
@@ -92,3 +103,22 @@ class Agent:
         bids = np.ones(self.ncampaigns) + np.random.randn()*0.3 #potrebbe venire negativo allora reduco varianza
         budgets = np.ones(self.ncampaigns) * 100 +np.random.randn()*10
         return  [bids,budgets]
+
+    def valuesForCampaigns(self,nIntervals,nBids):
+
+
+        values = np.zeros(shape=(self.ncampaigns, len(self.budgets)))
+        for c in range(0,self.ncampaigns):
+            for b,j in enumerate(self.budgets):
+                x= np.array([np.matlib.repmat(b,1,nBids),self.bids.T])
+                values[c,j]=self.gps[c].predict(x).max()
+
+
+
+
+
+
+
+
+        return values
+

@@ -19,7 +19,10 @@ a1= Auction(4,5,0.5,0.1, lambdas)
 a2= Auction(5,5, 0.8, 0.2, lambdas)
 c1 = Campaign(a1,1000.0,0.5,convparams)
 c2 = Campaign(a2,1500.0, 0.5,convparams)
-agent = Agent(1000, deadline, 2)
+
+nBids=10
+nIntervals=10
+agent = Agent(1000, deadline, 2,nIntervals,nBids)
 agent.initGPs()
 env = Environment([c1,c2])
 core = Core(agent, env, deadline)
@@ -33,6 +36,7 @@ bids = np.array([0.8,0.9])
 budgets = np.array([95,100])
 X=np.array([bids.T,budgets.T])
 X=np.atleast_2d(X).T
-agent.gps[0].predict(X,return_std=True)
+prediction= agent.gps[0].predict(X)
 agent.gps[1].predict(X,return_std=True)
+print prediction
 #print bids
