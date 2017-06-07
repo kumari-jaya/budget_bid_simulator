@@ -63,8 +63,11 @@ class Campaign:
             clickEvent = int(self.probClick > soglia) * obsEvent
             nclicks[i] = clickEvent
         costTot = cpc * nclicks
+        print np.sum(nclicks)
         index = self.findIndex(costTot,budget)
-        hours = (np.sum(nclicks[0:index])/np.sum(nclicks))*24
+        print index
+        sumClicks = np.maximum(np.sum(nclicks),1.0)
+        hours = (np.sum(nclicks[0:index])/sumClicks)*24
         self.clicks = np.append(self.clicks, np.sum(nclicks[0:index]))
         self.costs = np.append(self.costs, np.sum(costTot[0:index]))
         self.hours = np.append(self.hours, hours)
