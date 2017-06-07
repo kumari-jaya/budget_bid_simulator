@@ -38,5 +38,4 @@ X=np.array([bids.T,budgets.T])
 X=np.atleast_2d(X).T
 prediction= agent.gps[0].predict(X)
 agent.gps[1].predict(X,return_std=True)
-print prediction
 #print bids

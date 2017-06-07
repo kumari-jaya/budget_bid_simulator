@@ -11,11 +11,11 @@ class Core:
         self.environment=environment
         self.deadline = deadline
         self.t=0
-        
+
 
 
     def step(self):
-        [bid,budget] = self.agent.chooseAction()
+        [budget,bid] = self.agent.chooseAction()
         observations = self.environment.step(bid,budget)
         lastClicks = observations[0]
         lastConversions = observations[1]
@@ -23,13 +23,11 @@ class Core:
         lastRevenues = observations[3]
         lastHours = observations[4]
         self.agent.updateState(bid,budget,lastClicks,lastConversions,lastCosts,lastRevenues,lastHours)
-        self.t+=1            
-        
-         
-          
-  
+        self.t+=1
+
+
+
+
     def runEpisode(self):
         for t in range(0,self.deadline):
             self.step()
-            
-                      

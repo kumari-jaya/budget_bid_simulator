@@ -12,7 +12,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 class Agent:
 
-    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids):
+    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
         self.budgetTot = budgetTot
         self.deadline = deadline
         self.ncampaigns = ncampaigns
@@ -27,15 +27,14 @@ class Agent:
         self.prevHours = np.array([])
         self.valuesPerClick = np.zeros(ncampaigns)
 
-        self.maxTotDailyBudget = 100.0
-        self.maxBid = 1.0
-        budIntervals = 10
-        self.nBudgetIntervals = budIntervals
-        self.nBids = 10
+        self.maxTotDailyBudget = maxBudget
+        self.maxBid = maxBid
+        self.nBudgetIntervals = nIntervals
+        self.nBids = nBids
 
-        self.budgets = np.linspace(0, self.maxTotDailyBudget,budIntervals)
+        self.budgets = np.linspace(0, self.maxTotDailyBudget,nIntervals)
         self.bids = np.linspace(0,self.maxBid,nBids)
-        self.optimalBidPerBudeget = np.zeros(ncampaigns,budIntervals)
+        self.optimalBidPerBudget = np.zeros(ncampaigns,nIntervals)
 
 
     def updateValuesPerClick(self):
@@ -98,27 +97,70 @@ class Agent:
         self.revenues += revenues
         self.t +=1
 
+    def valueForBudget(self,itemIdx,budget):
+        idx = np.argwhere(budget>=self.budgets)
+        #print "Indici: ",idx
+        #print "maxIndice",idx.max()
+        return values[itemIdx,idx.max()]
 
-    def chooseAction(self):
-        bids = np.ones(self.ncampaigns) + np.random.randn()*0.3 #potrebbe venire negativo allora reduco varianza
-        budgets = np.ones(self.ncampaigns) * 100 +np.random.randn()*10
-        return  [bids,budgets]
+    def firstRow(self,values):
+        firstRow = np.zeros(len(self.budgets)).tolist()
+        for i,b in enumerate(self.budgets):
+            firstRow[i]=[[values[0,i]],[0],[b]]
+        return firstRow
 
-    def valuesForCampaigns(self,nIntervals,nBids):
+    def optimize(self,values):
+        valIdx = 0
+        itIdx = 1
+        bIdx = 2
+        h[0] = firstRow(values)
 
 
+        for i in range(1,self.ncampaigns):
+            for j,b in enumerate(self.budgets):
+                h[i][j] = h[i-1][j][:]
+                maxVal = 0
+                for bi in range(0,j+1):
+                    #print (np.sum(h[i-1][valIdx]) + valueForBudget(i,b - budgets[bi]))
+                    #print maxVal
+
+                    if ((np.sum(h[i-1][bi][valIdx]) + valueForBudget(i,b - self.budgets[bi])) >maxVal):
+                        val = h[i-1][bi][valIdx][:]
+                        val.append(valueForBudget(i,b - self.budgets[bi]))
+                        newValues = val[:]
+                        #print newValues
+                        #print valueForBudget(i,b - budgets[bi])
+                        items = h[i-1][bi][itIdx][:]
+                        items.append(i)
+                        newItems = items[:]
+                        print newItems
+                        selBudgets = h[i-1][bi][bIdx][:]
+                        selBudgets.append(b - self.budgets[bi])
+                        newSelBudgets = selBudgets[:]
+                        h[i][j]=[newValues,newItems,newSelBudgets]
+                        maxVal = np.sum(newValues)
+        newBudgets=h[-1][-1][2]
+        newCampaigns=h[-1][-1][1]
+        return [newBudgets,newCampaigns]
+
+    def valuesForCampaigns(self):
         values = np.zeros(shape=(self.ncampaigns, len(self.budgets)))
         for c in range(0,self.ncampaigns):
             for b,j in enumerate(self.budgets):
-                x= np.array([np.matlib.repmat(b,1,nBids),self.bids.T])
-                values[c,j]=self.gps[c].predict(x).max()
-
-
-
-
-
-
-
-
+                x= np.array([np.matlib.repmat(b,1,self.nBids),self.bids.T])
+                valuesforBids=self.gps[c].predict(x)
+                self.optimalBidPerBudget[c,j] = self.bids[np.argmax(valuesforBids)]
+                values[c,j] = valuesforBids.max()
         return values
 
+
+    def chooseAction(self):
+        values = valuesForCampaigns()
+        [newBudgets,newCampaigns] = optimize(values)
+        finalBudgets = np.zeros(self.ncampaigns)
+        finalBids = np.zeros(self.ncampaigns)
+        for i,c in enumerate(newCampaigns):
+            finalBudgets[c] = newBudgets[i]
+            idx = np.argwhere(self.budgets == newBudgets[i]).reshape(-1)
+            finalBids[c] = self.optimalBidPerBudget[c,idx]
+        return [finalBudgets,finalBids]
