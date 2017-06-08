@@ -8,7 +8,8 @@ Created on Wed May 24 10:44:49 2017
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
-#from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
+
 
 class Agent:
 
@@ -36,6 +37,9 @@ class Agent:
         self.bids = np.linspace(0,maxBid,nBids)
         self.optimalBidPerBudget = np.zeros((ncampaigns,nIntervals))
 
+        self.campaignsValues = []
+        self.ymax=np.ones((ncampaigns))
+
 
     def updateValuesPerClick(self):
         for c in range(0,self.ncampaigns):
@@ -43,8 +47,9 @@ class Agent:
 
     def initGPs(self):
         for c in range(0,self.ncampaigns):
-            kernel = C(1.0, (1e-3, 1e3)) * RBF(10, (1e-2, 1e2))
-            alpha=1e-10
+            #C(1.0, (1e-3, 1e3))
+            kernel = C(1.0, (1e-3, 1e3))*RBF(1, (1e-2, 1e2))
+            alpha=1e-1
             self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10))
 
     def dividePotentialClicks(self,numerator,denominator):
@@ -59,11 +64,10 @@ class Agent:
         self.prevClicks=np.atleast_2d(self.prevClicks)
         X=np.array([self.prevBids.T[c,:],self.prevBudgets.T[c,:]])
         X=np.atleast_2d(X).T
+        X=self.normalize(X)
         potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
         y=potentialClicks.T[c,:].ravel()
-        #kernel = C(1.0, (1e-3, 1e3)) * RBF(10, (1e-2, 1e2))
-        #alpha=0.0
-        #self.gps[c] = GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10)
+        y=self.normalizeOutput(y,c)
         self.gps[c].fit(X, y)
 
     def updateMultiGP(self):
@@ -100,6 +104,7 @@ class Agent:
         self.updateMultiGP()
         self.costs += costs
         self.revenues += revenues
+        self.updateValuesPerClick()
         self.t +=1
 
     def valueForBudget(self,itemIdx,budget,values):
@@ -150,21 +155,57 @@ class Agent:
         newCampaigns=h[-1][-1][1]
         return [newBudgets,newCampaigns]
 
-    def valuesForCampaigns(self):
+    def valuesForCampaigns(self,sampling=False):
         values = np.zeros(shape=(self.ncampaigns, len(self.budgets)))
-        for c in range(0,self.ncampaigns):
-            for j,b in enumerate(self.budgets):
-                x= np.array([np.matlib.repmat(b,1,self.nBids).reshape(-1),self.bids.T])
-                x=np.atleast_2d(x).T
-                valuesforBids=self.gps[c].predict(x)
-                idx = np.argmax(valuesforBids)
-                self.optimalBidPerBudget[c,j] = self.bids[idx]
-                values[c,j] = valuesforBids.max()
-        return values
+        if( sampling==False):
+            for c in range(0,self.ncampaigns):
+                for j,b in enumerate(self.budgets):
+                    x= np.array([self.bids.T,np.matlib.repmat(b,1,self.nBids).reshape(-1)])
+                    x=np.atleast_2d(x).T
+                    x = self.normalize(x)
+                    valuesforBids=self.denormalizeOutput(self.gps[c].predict(x),c)
+                    idxs = np.argwhere(valuesforBids == valuesforBids.max()).reshape(-1)
+                    idx = np.random.choice(idxs)
+                    self.optimalBidPerBudget[c,j] = self.bids[idx]
+                    values[c,j] = valuesforBids.max()
+            self.campaignsValues=values
+            return values
+        else:
+            for c in range(0, self.ncampaigns):
+                for j, b in enumerate(self.budgets):
+                    x= np.array([self.bids.T,np.matlib.repmat(b,1,self.nBids).reshape(-1)])
+                    x = np.atleast_2d(x).T
+                    x = self.normalize(x)
+                    print x
+                    [means,sigmas] = self.gps[c].predict(x,return_std=True)
+                    means = self.denormalizeOutput(means,c)
+                    sigmas = self.denormalizeOutput(sigmas,c)
+                    valuesForBids = np.random.normal(means,sigmas)
+                    #print valuesForBids
+                    idxs = np.argwhere(valuesForBids == valuesForBids.max()).reshape(-1)
+                    idx = np.random.choice(idxs)
+                    self.optimalBidPerBudget[c, j] = self.bids[idx]
+                    values[c, j] = valuesForBids.max()
+            self.campaignsValues=values
+
+            return values
+
+
+
+
+
+
 
 
     def chooseAction(self):
-        values = self.valuesForCampaigns()
+
+        finalBudgets = np.zeros(self.ncampaigns)
+        finalBids = np.zeros(self.ncampaigns)
+        for i in range(self.ncampaigns):
+            finalBudgets[i] = np.random.choice(self.budgets)
+            finalBids[i] = np.random.choice(self.bids)
+        """
+        values = self.valuesForCampaigns(sampling=False)
         [newBudgets,newCampaigns] = self.optimize(values)
         finalBudgets = np.zeros(self.ncampaigns)
         finalBids = np.zeros(self.ncampaigns)
@@ -172,4 +213,100 @@ class Agent:
             finalBudgets[c] = newBudgets[i]
             idx = np.argwhere(np.isclose(self.budgets,newBudgets[i])).reshape(-1)
             finalBids[c] = self.optimalBidPerBudget[c,idx]
+        """
         return [finalBudgets,finalBids]
+
+
+
+    def normalizeBudgetArray(self,budgetArray):
+        return budgetArray/self.maxTotDailyBudget
+
+    def normalizeBidsArray(self,bidsArray):
+        return bidsArray/self.maxBid
+
+
+    def normalize(self,X):
+        X[:,0] = X[:,0]/(self.maxTotDailyBudget)
+        X[:,1] = X[:,1]/(self.maxBid)
+        return X
+
+    def normalizeOutput(self,y,campaign):
+
+        if(y.max()!=0):
+            self.ymax[campaign] = y.max()
+            y=y/y.max()
+
+        return y
+
+    def denormalizeOutput(self,y,campaign):
+        return y*self.ymax[campaign]
+
+
+
+
+
+
+
+    def plotGP(self,gpIndex,fixedBid = False,bid=1):
+        if (fixedBid==False):
+            budgetPoints = np.linspace(0,self.maxTotDailyBudget,1000)
+            bidsPoints = np.linspace(0,self.maxBid,1000)
+            bestBids = self.bestBidsPerBudgetsArray(budgetPoints,bidsPoints, gpIndex)
+
+        else:
+            budgetPoints = np.linspace(0,self.maxTotDailyBudget,1000)
+            bestBids = np.ones(1000)*bid
+
+
+        fig = plt.figure()
+        observedInput = self.prevBudgets[:,gpIndex]
+        observedOutput = self.prevClicks[:,gpIndex]
+
+        x = np.array([bestBids,budgetPoints])
+        x = np.atleast_2d(x).T
+        budgetPointsNorm = self.normalizeBudgetArray(budgetPoints)
+        bestBidsNorm = self.normalizeBidsArray(bestBids)
+        xnorm = np.array([bestBidsNorm,budgetPointsNorm])
+        xnorm = np.atleast_2d(x).T
+        [means,sigmas] = self.gps[gpIndex].predict(x,return_std=True)
+        means = self.denormalizeOutput(means,gpIndex)
+        sigmas = self.denormalizeOutput(sigmas,gpIndex)
+
+        plt.plot(observedInput, observedOutput, 'r.', markersize=10, label=u'Observations')
+
+        plt.plot(budgetPoints, means, 'b-', label=u'Prediction')
+        plt.fill(np.concatenate([budgetPoints, budgetPoints[::-1]]),
+                 np.concatenate([means - 1.9600 * sigmas,
+                                 (means + 1.9600 * sigmas)[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='95% confidence interval')
+
+        plt.xlabel('$x$')
+        plt.ylabel('$f(x)$')
+        plt.ylim(-10, self.ymax[gpIndex]*1.4)
+        plt.legend(loc='upper left')
+
+
+
+
+
+
+    def findBestBidPerBudget(self,budget,bidsArray,gpIndex):
+
+        x = np.array([bidsArray.T, np.matlib.repmat(budget, 1, len(bidsArray)).reshape(-1)])
+
+
+        x = np.atleast_2d(x).T
+        x = self.normalize(x)
+        valuesforBids = self.denormalizeOutput(self.gps[gpIndex].predict(x), gpIndex)
+        idxs = np.argwhere(valuesforBids == valuesforBids.max()).reshape(-1)
+        idx = np.random.choice(idxs)
+        return bidsArray[idx]
+
+
+    def bestBidsPerBudgetsArray(self,budgetArray,bidsArray,gpIndex):
+        bestBidsArray= np.zeros(len(budgetArray))
+        for i,b in enumerate(budgetArray):
+            bestBidsArray[i]=self.findBestBidPerBudget(b,bidsArray,gpIndex)
+        return bestBidsArray
+
+

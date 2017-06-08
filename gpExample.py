@@ -74,12 +74,12 @@ y += noise
 # Instanciate a Gaussian Process model
 gp = GaussianProcessRegressor(kernel=kernel, alpha=(dy / y) ** 2,
                               n_restarts_optimizer=10)
-
+"""
 # Fit to data using Maximum Likelihood Estimation of the parameters
 gp.fit(X, y)
 
-#x=np.array([2.0,3.0])
-#x = np.atleast_2d(x).T
+x=np.array([2.0,3.0])
+x = np.atleast_2d(x).T
 # Make the prediction on the meshed x-axis (ask for MSE as well)
 y_pred, sigma = gp.predict(x, return_std=True)
 
@@ -99,3 +99,4 @@ plt.ylim(-10, 20)
 plt.legend(loc='upper left')
 
 plt.show()
+"""

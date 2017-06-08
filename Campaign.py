@@ -47,7 +47,9 @@ class Campaign:
         #print self.hours
     """
     def findIndex(self, cpcArray, budget):
+
         for i in range(0,len(cpcArray)):
+
             if (np.sum(cpcArray[0:i]) > budget):
                 return i-1
         return len(cpcArray)-1

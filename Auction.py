@@ -14,6 +14,7 @@ class Auction:
 
     def simulateAuction(self, mybid):
         bids = np.random.randn(self.nbidders)*self.sigma + self.mu
+        bids = np.maximum(bids,0)
         bids[::-1].sort() #decreasing order
         indexes = np.argwhere(mybid > bids).reshape(-1)
         cpc=0

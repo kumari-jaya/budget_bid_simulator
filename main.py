@@ -30,3 +30,4 @@ core = Core(agent, env, deadline)
 
 #core.step()
 core.runEpisode()
+agent.plotGP(0,fixedBid=True)
