@@ -48,8 +48,9 @@ class Agent:
     def initGPs(self):
         for c in range(0,self.ncampaigns):
             #C(1.0, (1e-3, 1e3))
-            kernel = C(1.0, (1e-3, 1e1))*RBF(200, (100, 300))
-            alpha=100
+            l= np.array([200,200])
+            kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
+            alpha=1
             self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10,normalize_y=True))
 
     def dividePotentialClicks(self,numerator,denominator):
