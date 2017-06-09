@@ -21,7 +21,7 @@ deadline=100
 
 
 a1= Auction(nbidders=5 , nslots=5, mu=0.31 , sigma=0.41, lambdas=lambdas)
-a2= Auction(nbidders=4 , nslots=5, mu=0.41 , sigma=0.2, lambdas=lambdas)
+a2= Auction(nbidders=4 , nslots=5, mu=0.71 , sigma=0.2, lambdas=lambdas)
 
 
 
@@ -30,7 +30,7 @@ c2 = Campaign(a2,1500.0, 0.5,convparams)
 
 nBids=10
 nIntervals=100
-agent = Agent(1000, deadline, 2,nIntervals,nBids,1500)
+agent = Agent(1000, deadline, 2,nIntervals,nBids,100)
 agent.initGPs()
 env = Environment([c1,c2])
 core = Core(agent, env, deadline)
@@ -38,6 +38,10 @@ core = Core(agent, env, deadline)
 
 #core.step()
 core.runEpisode()
+agent.plotGP(0,fixedBid=True,bid=0.1111)
 
+agent.plotGP(0,fixedBid=True,bid=0.55555)
 agent.plotGP(0,fixedBid=True,bid=1.0)
+
+
 #agent.plotGP(0,fixedBid=False)
