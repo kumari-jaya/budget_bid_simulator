@@ -48,9 +48,9 @@ class Agent:
     def initGPs(self):
         for c in range(0,self.ncampaigns):
             #C(1.0, (1e-3, 1e3))
-            kernel = C(1.0, (1e-3, 1e3))*RBF(1, (1e-2, 1e2))
-            alpha=1e-1
-            self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10))
+            kernel = C(1.0, (1e-3, 1e1))*RBF(200, (100, 300))
+            alpha=1
+            self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10,normalize_y=True))
 
     def dividePotentialClicks(self,numerator,denominator):
         div = numerator/denominator
@@ -231,7 +231,7 @@ class Agent:
         return X
 
     def normalizeOutput(self,y,campaign):
-
+        return y
         if(y.max()!=0):
             self.ymax[campaign] = y.max()
             y=y/y.max()
@@ -239,6 +239,7 @@ class Agent:
         return y
 
     def denormalizeOutput(self,y,campaign):
+        return y
         return y*self.ymax[campaign]
 
 
@@ -247,7 +248,7 @@ class Agent:
 
 
 
-    def plotGP(self,gpIndex,fixedBid = False,bid=1):
+    def plotGP(self,gpIndex,fixedBid = False,bid=1.0):
         if (fixedBid==False):
             budgetPoints = np.linspace(0,self.maxTotDailyBudget,1000)
             bidsPoints = np.linspace(0,self.maxBid,1000)
@@ -282,7 +283,7 @@ class Agent:
 
         plt.xlabel('$x$')
         plt.ylabel('$f(x)$')
-        plt.ylim(-10, self.ymax[gpIndex]*1.4)
+        plt.ylim(-10, np.max(self.prevClicks[:,gpIndex])*1.5)
         plt.legend(loc='upper left')
 
 
@@ -308,5 +309,4 @@ class Agent:
         for i,b in enumerate(budgetArray):
             bestBidsArray[i]=self.findBestBidPerBudget(b,bidsArray,gpIndex)
         return bestBidsArray
-
 
