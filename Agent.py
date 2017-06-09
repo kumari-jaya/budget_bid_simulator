@@ -50,11 +50,11 @@ class Agent:
             #C(1.0, (1e-3, 1e3))
             #l= np.array([200,200])
             #kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
-            l = np.array([100.0, 100.0])
-            kernel = C(10.0, (1e-3, 1e3))*RBF(l, ((1.0, 300.0),(1.0,300.0)))
+            l = np.array([1.0, 1.0])
+            kernel = C(1.0, (1e-3, 1e3))*RBF(l, ((1e-3, 1e3),(1e-3, 1e3)))
             #l=1.0
             #kernel = C(1.0, (1e-3, 1e3)) * RBF(l, (1e-3, 1e3))
-            alpha=100
+            alpha=200
             self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10,normalize_y=True))
 
     def dividePotentialClicks(self,numerator,denominator):
@@ -74,8 +74,10 @@ class Agent:
         #y=potentialClicks.T[c,:].ravel()
         y=self.prevClicks.T[c,:].ravel()
         y=self.normalizeOutput(y,c)
+        if(self.t>=self.deadline-1):
+            self.gps[c].fit(X, y)
 
-        self.gps[c].fit(X, y)
+
     def updateMultiGP(self):
         for c in range(0,self.ncampaigns):
             self.updateGP(c)
@@ -203,7 +205,7 @@ class Agent:
 
 
 
-    def chooseAction(self, fixedBid=True, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
+    def chooseAction(self, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
 
 
         finalBudgets = np.zeros(self.ncampaigns)
@@ -278,14 +280,21 @@ class Agent:
 
         fig = plt.figure()
         observedInput = self.prevBudgets[:,gpIndex]
+        observedBids = self.prevBids[:,gpIndex]
         observedOutput = self.prevClicks[:,gpIndex]
+
+        idxs = np.isclose(observedBids,bid,atol=0.2*bid)
+        observedInput = observedInput[idxs]
+        observedOutput = observedOutput[idxs]
 
         x = np.array([bestBids,budgetPoints])
         x = np.atleast_2d(x).T
+        x= self.normalize(x)
         budgetPointsNorm = self.normalizeBudgetArray(budgetPoints)
         bestBidsNorm = self.normalizeBidsArray(bestBids)
         xnorm = np.array([bestBidsNorm,budgetPointsNorm])
         xnorm = np.atleast_2d(x).T
+
         [means,sigmas] = self.gps[gpIndex].predict(x,return_std=True)
         means = self.denormalizeOutput(means,gpIndex)
         sigmas = self.denormalizeOutput(sigmas,gpIndex)
