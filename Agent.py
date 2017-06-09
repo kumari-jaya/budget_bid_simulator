@@ -49,7 +49,7 @@ class Agent:
         for c in range(0,self.ncampaigns):
             #C(1.0, (1e-3, 1e3))
             kernel = C(1.0, (1e-3, 1e1))*RBF(200, (100, 300))
-            alpha=1
+            alpha=100
             self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10,normalize_y=True))
 
     def dividePotentialClicks(self,numerator,denominator):
@@ -184,6 +184,7 @@ class Agent:
                     #print valuesForBids
                     idxs = np.argwhere(valuesForBids == valuesForBids.max()).reshape(-1)
                     idx = np.random.choice(idxs)
+                    print "best Bid",self.bids[idx]
                     self.optimalBidPerBudget[c, j] = self.bids[idx]
                     values[c, j] = valuesForBids.max()
             self.campaignsValues=values
@@ -201,7 +202,7 @@ class Agent:
 
         finalBudgets = np.zeros(self.ncampaigns)
         finalBids = np.zeros(self.ncampaigns)
-        for i in range(self.ncampaigns):
+        for i in range(0,self.ncampaigns):
             finalBudgets[i] = np.random.choice(self.budgets)
             finalBids[i] = np.random.choice(self.bids)
         """
@@ -248,7 +249,7 @@ class Agent:
 
 
 
-    def plotGP(self,gpIndex,fixedBid = False,bid=1.0):
+    def plotGP(self,gpIndex,fixedBid = False,bid=0.1):
         if (fixedBid==False):
             budgetPoints = np.linspace(0,self.maxTotDailyBudget,1000)
             bidsPoints = np.linspace(0,self.maxBid,1000)
