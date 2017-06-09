@@ -4,6 +4,7 @@ from Agent import Agent
 from Environment import Environment
 import time as time
 import numpy as np
+import time
 
 class Core:
     def __init__(self,agent,environment, deadline):
@@ -17,12 +18,14 @@ class Core:
     def step(self):
         [budget,bid] = self.agent.chooseAction()
         observations = self.environment.step(bid,budget)
+
         lastClicks = observations[0]
         lastConversions = observations[1]
         lastCosts = observations[2]
         lastRevenues = observations[3]
         lastHours = observations[4]
         self.agent.updateState(bid,budget,lastClicks,lastConversions,lastCosts,lastRevenues,lastHours)
+
         self.t+=1
 
 

@@ -127,6 +127,7 @@ class Agent:
             firstRow[i]=[[values[0,i]],[0],[b]]
         return firstRow
 
+
     def optimize(self,values):
         valIdx = 0
         itIdx = 1
@@ -134,26 +135,19 @@ class Agent:
         h = np.zeros(shape=(self.ncampaigns,len(self.budgets)))
         h=h.tolist()
         h[0] = self.firstRow(values)
-
-
         for i in range(1,self.ncampaigns):
             for j,b in enumerate(self.budgets):
                 h[i][j] = h[i-1][j][:]
                 maxVal = 0
                 for bi in range(0,j+1):
-                    #print (np.sum(h[i-1][valIdx]) + valueForBudget(i,b - budgets[bi]))
-                    #print maxVal
 
                     if ((np.sum(h[i-1][bi][valIdx]) + self.valueForBudget(i,b - self.budgets[bi],values)) >maxVal):
                         val = h[i-1][bi][valIdx][:]
                         val.append(self.valueForBudget(i,b - self.budgets[bi],values))
                         newValues = val[:]
-                        #print newValues
-                        #print valueForBudget(i,b - budgets[bi])
                         items = h[i-1][bi][itIdx][:]
                         items.append(i)
                         newItems = items[:]
-                        #print newItems
                         selBudgets = h[i-1][bi][bIdx][:]
                         selBudgets.append(b - self.budgets[bi])
                         newSelBudgets = selBudgets[:]
@@ -189,7 +183,6 @@ class Agent:
                     means = self.denormalizeOutput(means,c)
                     sigmas = self.denormalizeOutput(sigmas,c)
                     valuesForBids = np.random.normal(means,sigmas)
-                    #print valuesForBids
                     idxs = np.argwhere(valuesForBids == valuesForBids.max()).reshape(-1)
                     idx = np.random.choice(idxs)
                     self.optimalBidPerBudget[c, j] = self.bids[idx]
@@ -209,10 +202,7 @@ class Agent:
 
 
         finalBudgets = np.zeros(self.ncampaigns)
-        finalBudgets = np.zeros(self.ncampaigns)
-
         finalBids = np.zeros(self.ncampaigns)
-        #finalBids=np.ones(self.ncampaigns)*fixedBid
 
         for i in range(0,self.ncampaigns):
             finalBudgets[i] = np.random.choice(self.budgets)
@@ -318,10 +308,7 @@ class Agent:
 
 
     def findBestBidPerBudget(self,budget,bidsArray,gpIndex):
-
         x = np.array([bidsArray.T, np.matlib.repmat(budget, 1, len(bidsArray)).reshape(-1)])
-
-
         x = np.atleast_2d(x).T
         x = self.normalize(x)
         valuesforBids = self.denormalizeOutput(self.gps[gpIndex].predict(x), gpIndex)

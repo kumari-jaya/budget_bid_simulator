@@ -20,13 +20,13 @@ deadline=100
 
 
 
-a1= Auction(nbidders=5 , nslots=5, mu=0.1 , sigma=0.1, lambdas=lambdas)
-a2= Auction(nbidders=4 , nslots=5, mu=0.1 , sigma=0.2, lambdas=lambdas)
+a1= Auction(nbidders=5 , nslots=5, mu=0.31 , sigma=0.41, lambdas=lambdas)
+a2= Auction(nbidders=4 , nslots=5, mu=0.41 , sigma=0.2, lambdas=lambdas)
 
 
 
-c1 = Campaign(a1, nusers=10000.0 , probClick=0.5 ,convParams= convparams)
-c2 = Campaign(a2,15000.0, 0.5,convparams)
+c1 = Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams)
+c2 = Campaign(a2,1500.0, 0.5,convparams)
 
 nBids=10
 nIntervals=100
