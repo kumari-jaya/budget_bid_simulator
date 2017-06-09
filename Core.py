@@ -30,4 +30,5 @@ class Core:
 
     def runEpisode(self):
         for t in range(0,self.deadline):
+            print "Day : ",t
             self.step()

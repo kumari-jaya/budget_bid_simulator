@@ -48,9 +48,13 @@ class Agent:
     def initGPs(self):
         for c in range(0,self.ncampaigns):
             #C(1.0, (1e-3, 1e3))
-            l= np.array([200,200])
-            kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
-            alpha=1
+            #l= np.array([200,200])
+            #kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
+            l = np.array([100.0, 100.0])
+            kernel = C(10.0, (1e-3, 1e3))*RBF(l, ((1.0, 300.0),(1.0,300.0)))
+            #l=1.0
+            #kernel = C(1.0, (1e-3, 1e3)) * RBF(l, (1e-3, 1e3))
+            alpha=100
             self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10,normalize_y=True))
 
     def dividePotentialClicks(self,numerator,denominator):
@@ -66,11 +70,12 @@ class Agent:
         X=np.array([self.prevBids.T[c,:],self.prevBudgets.T[c,:]])
         X=np.atleast_2d(X).T
         X=self.normalize(X)
-        potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
-        y=potentialClicks.T[c,:].ravel()
+        #potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
+        #y=potentialClicks.T[c,:].ravel()
+        y=self.prevClicks.T[c,:].ravel()
         y=self.normalizeOutput(y,c)
-        self.gps[c].fit(X, y)
 
+        self.gps[c].fit(X, y)
     def updateMultiGP(self):
         for c in range(0,self.ncampaigns):
             self.updateGP(c)
@@ -185,7 +190,6 @@ class Agent:
                     #print valuesForBids
                     idxs = np.argwhere(valuesForBids == valuesForBids.max()).reshape(-1)
                     idx = np.random.choice(idxs)
-                    print "best Bid",self.bids[idx]
                     self.optimalBidPerBudget[c, j] = self.bids[idx]
                     values[c, j] = valuesForBids.max()
             self.campaignsValues=values
@@ -199,13 +203,24 @@ class Agent:
 
 
 
-    def chooseAction(self):
+    def chooseAction(self, fixedBid=True, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
+
 
         finalBudgets = np.zeros(self.ncampaigns)
+        finalBudgets = np.zeros(self.ncampaigns)
+
         finalBids = np.zeros(self.ncampaigns)
+        #finalBids=np.ones(self.ncampaigns)*fixedBid
+
         for i in range(0,self.ncampaigns):
             finalBudgets[i] = np.random.choice(self.budgets)
             finalBids[i] = np.random.choice(self.bids)
+
+        if (fixedBid == True):
+            finalBids = np.ones(self.ncampaigns) * fixedBidValue
+
+        if (fixedBudget == True):
+            finalBudgets = np.ones(self.ncampaigns)* fixedBudgetValue
         """
         values = self.valuesForCampaigns(sampling=False)
         [newBudgets,newCampaigns] = self.optimize(values)
@@ -228,8 +243,8 @@ class Agent:
 
 
     def normalize(self,X):
-        X[:,0] = X[:,0]/(self.maxTotDailyBudget)
-        X[:,1] = X[:,1]/(self.maxBid)
+        X[:,0] = X[:,0]/(self.maxBid)
+        X[:,1] = X[:,1]/(self.maxTotDailyBudget)
         return X
 
     def normalizeOutput(self,y,campaign):
