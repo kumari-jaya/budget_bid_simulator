@@ -301,7 +301,7 @@ class Agent:
         plt.ylabel('$f(x)$')
         plt.ylim(-10, np.max(self.prevClicks[:,gpIndex])*1.5)
         plt.legend(loc='upper left')
-
+        plt.show()
 
 
 
@@ -322,4 +322,3 @@ class Agent:
         for i,b in enumerate(budgetArray):
             bestBidsArray[i]=self.findBestBidPerBudget(b,bidsArray,gpIndex)
         return bestBidsArray
-
