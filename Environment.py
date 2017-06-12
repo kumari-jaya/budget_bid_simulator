@@ -23,13 +23,12 @@ class Environment:
             costs = np.append(costs,observations[2])
             revenues= np.append(revenues,observations[3])
             hours = np.append(hours,observations[4])
-            
+
         return [clicks,conversions,costs,revenues,hours]
-            
-            
-            
+
+
+
     def step(self,bid,budget):
 
         self.t+=1
         return self.generateObservationsforCampaigns(bid,budget)
-        

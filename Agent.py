@@ -294,7 +294,7 @@ class Agent:
         plt.ylabel('$f(x)$')
         plt.ylim(-10, np.max(self.prevClicks[:,gpIndex])*1.5)
         plt.legend(loc='upper left')
-
+        plt.show()
 
     def findBestBidPerBudget(self,budget,bidsArray,gpIndex):
         x = np.array([bidsArray.T, np.matlib.repmat(budget, 1, len(bidsArray)).reshape(-1)])
@@ -311,4 +311,3 @@ class Agent:
         for i,b in enumerate(budgetArray):
             bestBidsArray[i]=self.findBestBidPerBudget(b,bidsArray,gpIndex)
         return bestBidsArray
-
