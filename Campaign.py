@@ -73,6 +73,8 @@ class Campaign:
         self.clicks = np.append(self.clicks, np.sum(nclicks[0:index]))
         self.costs = np.append(self.costs, np.sum(costTot[0:index]))
         self.hours = np.append(self.hours, hours)
+        self.budget = np.append(self.budget,budget)
+        self.bid = np.append(self.bid,bid)
 
 
 

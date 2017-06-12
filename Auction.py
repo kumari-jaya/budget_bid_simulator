@@ -8,6 +8,8 @@ class Auction:
         self.mu = mu
         self.sigma = sigma
         self.lambdas = lambdas
+        if(nbidders<nslots):
+            print "nBidders should be >= than nslots"
 
 # pclick da 10-3 10-1
 # fare sampling da una beta per la prob di click anche dei competitor

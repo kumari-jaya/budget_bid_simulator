@@ -16,7 +16,7 @@ class Core:
 
 
     def step(self):
-        [budget,bid] = self.agent.chooseAction()
+        [budget,bid] = self.agent.chooseAction(sampling=True)
         observations = self.environment.step(bid,budget)
 
         lastClicks = observations[0]
@@ -35,3 +35,4 @@ class Core:
         for t in range(0,self.deadline):
             print "Day : ",t
             self.step()
+
