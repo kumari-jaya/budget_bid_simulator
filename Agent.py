@@ -194,9 +194,9 @@ class Agent:
                     idx = np.random.choice(idxs)
                     self.optimalBidPerBudget[c, j] = self.bids[idx]
                     estimatedClicks[c, j] = estimatedClicksforBids.max()
-            self.campaignsValues=estimatedClicks*self.valuesPerClick.reshape((2,1))
+            self.campaignsValues=estimatedClicks*self.valuesPerClick.reshape((self.ncampaigns,1))
 
-            return estimatedClicks*self.valuesPerClick.reshape((2,1))
+            return estimatedClicks*self.valuesPerClick.reshape((self.ncampaigns,1))
 
 
 
@@ -252,49 +252,6 @@ class Agent:
         return y
         return y*self.ymax[campaign]
 
-
-
-    def plotGP(self,gpIndex,fixedBid = False,bid=0.1):
-        if (fixedBid==False):
-            budgetPoints = np.linspace(0,self.maxTotDailyBudget,1000)
-            bidsPoints = np.linspace(0,self.maxBid,1000)
-            bestBids = self.bestBidsPerBudgetsArray(budgetPoints,bidsPoints, gpIndex)
-
-        else:
-            budgetPoints = np.linspace(0,self.maxTotDailyBudget,1000)
-            bestBids = np.ones(1000)*bid
-
-        fig = plt.figure()
-        observedInput = self.prevBudgets[:,gpIndex]
-        observedBids = self.prevBids[:,gpIndex]
-        observedOutput = self.prevClicks[:,gpIndex]
-        idxs = np.isclose(observedBids,bid,atol=0.2*bid)
-        observedInput = observedInput[idxs]
-        observedOutput = observedOutput[idxs]
-        x = np.array([bestBids,budgetPoints])
-        x = np.atleast_2d(x).T
-        x = self.normalize(x)
-        budgetPointsNorm = self.normalizeBudgetArray(budgetPoints)
-        bestBidsNorm = self.normalizeBidsArray(bestBids)
-        xnorm = np.array([bestBidsNorm,budgetPointsNorm])
-        xnorm = np.atleast_2d(x).T
-        [means,sigmas] = self.gps[gpIndex].predict(x,return_std=True)
-        means = self.denormalizeOutput(means,gpIndex)
-        sigmas = self.denormalizeOutput(sigmas,gpIndex)
-
-        plt.plot(observedInput, observedOutput, 'r.', markersize=10, label=u'Observations')
-
-        plt.plot(budgetPoints, means, 'b-', label=u'Prediction')
-        plt.fill(np.concatenate([budgetPoints, budgetPoints[::-1]]),
-                 np.concatenate([means - 1.9600 * sigmas,
-                                 (means + 1.9600 * sigmas)[::-1]]),
-                 alpha=.5, fc='b', ec='None', label='95% confidence interval')
-
-        plt.xlabel('$x$')
-        plt.ylabel('$f(x)$')
-        plt.ylim(-10, np.max(self.prevClicks[:,gpIndex])*1.5)
-        plt.legend(loc='upper left')
-        plt.show()
 
     def findBestBidPerBudget(self,budget,bidsArray,gpIndex):
         x = np.array([bidsArray.T, np.matlib.repmat(budget, 1, len(bidsArray)).reshape(-1)])
