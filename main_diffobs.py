@@ -9,7 +9,7 @@ from Auction import *
 from Agent import *
 from Core import *
 from matplotlib import pyplot as plt
-
+from trueFunctionSimulation import trueSample
 
 convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
@@ -44,23 +44,27 @@ deadline = 100
 #deadline = 250
 
 
-
-agent = Agent(1000, deadline, 2,nIntervals,nBids,100)
+maxBudget = 100
+agent = Agent(1000, deadline, 2,nIntervals,nBids,maxBudget)
 agent.initGPs()
 core = Core(agent, env, deadline)
 core.runEpisode()
 
+[clicks,budgets] = trueSample(env,bid2,maxBudget)
+
 #campagna 1
-agent.plotGP(0,fixedBid=True,bid=bid1)
-agent.plotGP(0,fixedBid=True,bid=bid2)
-agent.plotGP(0,fixedBid=True,bid=bid3)
-agent.plotGP(0,fixedBid=True,bid=bid4)
+#### uguale a plotGP ma gli passo in fondo i veri valori per plottarli insieme
+agent.plotGPComparison(0,clicks,budgets,fixedBid=True,bid=bid2)
+#agent.plotGP(0,fixedBid=True,bid=bid2)
+#agent.plotGP(0,fixedBid=True,bid=bid3)
+#agent.plotGP(0,fixedBid=True,bid=bid4)
 
 #campagna 2
-agent.plotGP(1,fixedBid=True,bid=bid1)
-agent.plotGP(1,fixedBid=True,bid=bid2)
-agent.plotGP(1,fixedBid=True,bid=bid3b)
-agent.plotGP(1,fixedBid=True,bid=bid4)
+agent.plotGPComparison(1,clicks,budgets,fixedBid=True,bid=bid2)
+#agent.plotGP(1,fixedBid=True,bid=bid2)
+#agent.plotGP(1,fixedBid=True,bid=bid3b)
+#agent.plotGP(1,fixedBid=True,bid=bid4)
+
 
 
 
@@ -82,8 +86,8 @@ for i,d in enumerate(deadline):
     agent.plotGP(0,fixedBid=True,bid=bid2)
     #agent.plotGP(0,fixedBid=True,bid=bid3)
     #agent.plotGP(0,fixedBid=True,bid=bid4)
-    
-    
+
+
     #campagna 2
     #agent.plotGP(1,fixedBid=True,bid=bid1)
     #agent.plotGP(1,fixedBid=True,bid=bid2)
@@ -91,6 +95,3 @@ for i,d in enumerate(deadline):
     #agent.plotGP(1,fixedBid=True,bid=bid4)
 
 """
-
-
-
