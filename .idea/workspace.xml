@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fd58c8f4-8ecf-4165-82d9-5d8732e9ee0d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Plotter.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Agent.py" afterPath="$PROJECT_DIR$/Agent.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -38,18 +35,8 @@
       <file leaf-file-name="main_diffobs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main_diffobs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="864">
-              <caret line="55" column="38" lean-forward="true" selection-start-line="55" selection-start-column="38" selection-end-line="55" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="true_function_simulation.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/true_function_simulation.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="900">
+              <caret line="57" column="38" lean-forward="true" selection-start-line="57" selection-start-column="38" selection-end-line="57" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -58,8 +45,8 @@
       <file leaf-file-name="Agent.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4572">
-              <caret line="254" column="0" lean-forward="true" selection-start-line="254" selection-start-column="0" selection-end-line="254" selection-end-column="0" />
+            <state relative-caret-position="342">
+              <caret line="130" column="55" lean-forward="true" selection-start-line="130" selection-start-column="55" selection-end-line="130" selection-end-column="55" />
               <folding>
                 <element signature="e#90#108#0" expanded="true" />
               </folding>
@@ -908,8 +895,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main_diffobs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="864">
-          <caret line="55" column="38" lean-forward="true" selection-start-line="55" selection-start-column="38" selection-end-line="55" selection-end-column="38" />
+        <state relative-caret-position="900">
+          <caret line="57" column="38" lean-forward="true" selection-start-line="57" selection-start-column="38" selection-end-line="57" selection-end-column="38" />
           <folding />
         </state>
       </provider>
@@ -978,8 +965,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4572">
-          <caret line="254" column="0" lean-forward="true" selection-start-line="254" selection-start-column="0" selection-end-line="254" selection-end-column="0" />
+        <state relative-caret-position="342">
+          <caret line="130" column="55" lean-forward="true" selection-start-line="130" selection-start-column="55" selection-end-line="130" selection-end-column="55" />
           <folding>
             <element signature="e#90#108#0" expanded="true" />
           </folding>
