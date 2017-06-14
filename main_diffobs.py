@@ -10,6 +10,7 @@ from Agent import *
 from Core import *
 from matplotlib import pyplot as plt
 from trueFunctionSimulation import trueSample
+from Plotter import *
 
 convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
@@ -36,7 +37,7 @@ bid3 = 0.65
 bid3b = 0.77
 bid4=  1.0
 
-deadline = 100
+deadline = 20
 #deadline = 120
 #deadline = 150
 #deadline = 180
@@ -51,16 +52,16 @@ core = Core(agent, env, deadline)
 core.runEpisode()
 
 [clicks,budgets] = trueSample(env,bid2,maxBudget)
-
+plotter = Plotter(agent=agent)
 #campagna 1
 #### uguale a plotGP ma gli passo in fondo i veri valori per plottarli insieme
-agent.plotGPComparison(0,clicks,budgets,fixedBid=True,bid=bid2)
+plotter.plotGPComparison(0,clicks,budgets,fixedBid=True,bid=bid2)
 #agent.plotGP(0,fixedBid=True,bid=bid2)
 #agent.plotGP(0,fixedBid=True,bid=bid3)
 #agent.plotGP(0,fixedBid=True,bid=bid4)
 
 #campagna 2
-agent.plotGPComparison(1,clicks,budgets,fixedBid=True,bid=bid2)
+plotter.plotGPComparison(1,clicks,budgets,fixedBid=True,bid=bid2)
 #agent.plotGP(1,fixedBid=True,bid=bid2)
 #agent.plotGP(1,fixedBid=True,bid=bid3b)
 #agent.plotGP(1,fixedBid=True,bid=bid4)

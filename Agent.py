@@ -227,7 +227,6 @@ class Agent:
         return [finalBudgets,finalBids]
 
 
-
     def normalizeBudgetArray(self,budgetArray):
         return budgetArray/self.maxTotDailyBudget
 

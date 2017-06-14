@@ -4,7 +4,7 @@ from Agent import Agent
 from Environment import Environment
 import time as time
 import numpy as np
-import time
+import time as time
 
 class Core:
     def __init__(self,agent,environment, deadline):
@@ -34,5 +34,7 @@ class Core:
     def runEpisode(self):
         for t in range(0,self.deadline):
             print "Day : ",t
+            #start = time.time()
             self.step()
+            #print time.time() - start
 
