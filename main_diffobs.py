@@ -16,7 +16,7 @@ convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 
 
-a1= Auction(nbidders=5 , nslots=5, mu=0.31 , sigma=0.2, lambdas=lambdas)
+a1= Auction(nbidders=5 , nslots=5, mu=0.51 , sigma=0.2, lambdas=lambdas)
 a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
 
 
@@ -45,14 +45,14 @@ deadline = 20
 #deadline = 250
 
 
-maxBudget = 100
+maxBudget = 200
 agent = Agent(1000, deadline, 2,nIntervals,nBids,maxBudget)
 agent.initGPs()
 core = Core(agent, env, deadline)
 core.runEpisode()
 
-[clicks,budgets] = trueSample(env,bid2,maxBudget)
-plotter = Plotter(agent=agent)
+plotter = Plotter(agent=agent,env=env)
+[clicks,budgets] = plotter.trueSample(bid2,maxBudget)
 #campagna 1
 #### uguale a plotGP ma gli passo in fondo i veri valori per plottarli insieme
 plotter.plotGPComparison(0,clicks,budgets,fixedBid=True,bid=bid2)

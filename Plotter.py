@@ -8,10 +8,9 @@ from matplotlib import pyplot as plt
 
 class Plotter:
 
-    def __init__(self,agent=[],campaigns=[]):
+    def __init__(self,agent=[],env=[]):
         self.agent = agent
-        self.campaigns = campaigns
-
+        self.environment = env
 
 
     def plotGP(self,gpIndex,fixedBid = False,bid=0.1):
@@ -96,5 +95,27 @@ class Plotter:
         plt.legend(loc='upper left')
         plt.show()
 
+    def trueSample(self,bid,maxBudget):
+        ncampaigns = len(self.environment.campaigns)
+        budgets = np.linspace(0,maxBudget,200)
 
+        for i,b in enumerate(budgets):
+            vettBids = np.matlib.repmat(bid,1,ncampaigns).reshape(-1)
+            vettBudgets = np.matlib.repmat(b,1,ncampaigns).reshape(-1)
+            observations = self.environment.generateObservationsforCampaigns(vettBids,vettBudgets)
+            if i == 0:
+                clicks = np.array([observations[0]])
+            else:
+                clicks = np.append(clicks, [observations[0]],axis=0)
+            if i%10 == 0:
+                print "Simulation ",i," out of 200"
 
+        fig = plt.figure()
+        plt.plot(budgets,clicks , 'r-', label=u'Campaigns')
+        #plt.plot(budgets,clicks[:,1] , 'b-', label=u'Campaign 2')
+        plt.xlabel('Budget')
+        plt.ylabel('Clicks')
+        #plt.ylim(-10, np.max(self.prevClicks[:,gpIndex])*1.5)
+        plt.legend(loc='upper left')
+        plt.show()
+        return [clicks,budgets]
