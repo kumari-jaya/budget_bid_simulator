@@ -95,23 +95,30 @@ class Plotter:
         plt.legend(loc='upper left')
         plt.show()
 
-    def trueSample(self,bid,maxBudget):
+    def trueSample(self,bid,maxBudget,nsimul=5):
         ncampaigns = len(self.environment.campaigns)
         budgets = np.linspace(0,maxBudget,200)
 
         for i,b in enumerate(budgets):
             vettBids = np.matlib.repmat(bid,1,ncampaigns).reshape(-1)
             vettBudgets = np.matlib.repmat(b,1,ncampaigns).reshape(-1)
-            observations = self.environment.generateObservationsforCampaigns(vettBids,vettBudgets)
+            observations = np.zeros((nsimul,ncampaigns))
+            for j in range(0,nsimul):
+                observations[j,:] = self.environment.generateObservationsforCampaigns(vettBids,vettBudgets)[0]
+            meanValues = np.mean(observations,axis=0)
             if i == 0:
-                clicks = np.array([observations[0]])
+                clicks = np.array([meanValues])
             else:
-                clicks = np.append(clicks, [observations[0]],axis=0)
+                clicks = np.append(clicks, [meanValues],axis=0)
             if i%10 == 0:
                 print "Simulation ",i," out of 200"
 
         fig = plt.figure()
-        plt.plot(budgets,clicks , 'r-', label=u'Campaigns')
+        cmap = plt.get_cmap('gnuplot')
+        colors = [cmap(i) for i in np.linspace(0, 1, ncampaigns)]
+        for i, color in enumerate(colors, start=1):
+            label = "Campaign "+str(i)
+            plt.plot(budgets,clicks[:,i-1] , color=color, label=label)
         #plt.plot(budgets,clicks[:,1] , 'b-', label=u'Campaign 2')
         plt.xlabel('Budget')
         plt.ylabel('Clicks')

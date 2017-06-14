@@ -9,7 +9,6 @@ from Auction import *
 from Agent import *
 from Core import *
 from matplotlib import pyplot as plt
-from trueFunctionSimulation import trueSample
 from Plotter import *
 
 convparams=np.array([0.4,100,200])
@@ -52,7 +51,7 @@ core = Core(agent, env, deadline)
 core.runEpisode()
 
 plotter = Plotter(agent=agent,env=env)
-[clicks,budgets] = plotter.trueSample(bid2,maxBudget)
+[clicks,budgets] = plotter.trueSample(bid2,maxBudget,nsimul=10)
 #campagna 1
 #### uguale a plotGP ma gli passo in fondo i veri valori per plottarli insieme
 plotter.plotGPComparison(0,clicks,budgets,fixedBid=True,bid=bid2)
