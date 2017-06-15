@@ -126,3 +126,17 @@ class Plotter:
         plt.legend(loc='upper left')
         plt.show()
         return [clicks,budgets]
+
+    def oracleMatrix(self,indexCamp,nsimul=10):
+        budgets = self.agent.budgets
+        bids = self.agent.bids
+        trueMatrix = np.zeros((len(budgets),len(bids)))
+        for i in range(0,len(budgets)):
+            print "Simulation budget: ",i+1," out of ",len(budgets)
+            for j in range(0,len(bids)):
+                observations = np.zeros((nsimul))
+                for k in range(0,nsimul):
+                    observations[k] = self.environment.campaigns[indexCamp].generateObservations(bids[j],budgets[i])[0]
+                meanValue = np.mean(observations)
+                trueMatrix[i,j] = meanValue
+        return trueMatrix
