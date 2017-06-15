@@ -12,6 +12,7 @@ from Plotter import *
 from matplotlib import pyplot as plt
 
 
+
 convparams1=np.array([0.2,100,101])
 convparams2=np.array([0.25,150,151])
 # ho messo prob di conversione a 0.4 a caso,mentre 100 e 200 sono i due estremi della uniforme per generare le revenues
@@ -23,8 +24,6 @@ a1= Auction(nbidders=10 , nslots=6, mu=0.21 , sigma=0.1, lambdas=lambdas)
 a2= Auction(nbidders=10 , nslots=6, mu=0.21 , sigma=0.1, lambdas=lambdas) # nbidders deve essere > nslots
 c1 = Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams1)
 c2 = Campaign(a2,nusers=1500.0,probClick= 0.5,convParams=convparams2)
-
-
 
 nBids=10
 nIntervals=20

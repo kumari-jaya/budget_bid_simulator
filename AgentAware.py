@@ -11,16 +11,15 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from matplotlib import pyplot as plt
 
 
-class Agent:
+class AgentAware:
 
-    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
+    def __init__(self,budgetTot,deadline,ncampaigns,environment,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
         self.budgetTot = budgetTot
         self.deadline = deadline
         self.ncampaigns = ncampaigns
         self.costs = np.array([])
         self.revenues = np.array([])
         self.t = 0
-        self.gps = []
         self.prevBudgets = np.array([])
         self.prevBids = np.array([])
         self.prevClicks = np.array([])
@@ -35,33 +34,23 @@ class Agent:
         self.budgets = np.linspace(0, maxBudget,nIntervals)
         self.bids = np.linspace(0,maxBid,nBids)
         self.optimalBidPerBudget = np.zeros((ncampaigns,nIntervals))
-
-        self.campaignsValues = []
+        self.environment = environment
         self.ymax=np.ones((ncampaigns))
-
+        self.campaignsValues=self.valuesForCampaigns()
 
     def updateValuesPerClick(self):
         for c in range(0,self.ncampaigns):
-            value = np.sum(self.prevConversions[:,c])/np.sum(self.prevClicks[:,c])
+            convParams = self.environment.campaigns[c].convParams
+            value = convParams[0]*np.mean(convParams[1:2])
             if(np.isnan(value) or np.isinf(value)):
                 self.valuesPerClick[c] = 0
             else:
                 self.valuesPerClick[c] = value
+        return self.valuesPerClick
 
 
-
-
-    def initGPs(self):
-        for c in range(0,self.ncampaigns):
-            #C(1.0, (1e-3, 1e3))
-            #l= np.array([200,200])
-            #kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
-            l = np.array([1.0, 1.0])
-            kernel = C(1.0, (1e-3, 1e3))*RBF(l, ((1e-3, 1e3),(1e-3, 1e3)))
-            #l=1.0
-            #kernel = C(1.0, (1e-3, 1e3)) * RBF(l, (1e-3, 1e3))
-            alpha=200
-            self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10,normalize_y=True))
+    def setValuesPerClick(self,values):
+        self.valuesPerClick=values
 
     def dividePotentialClicks(self,numerator,denominator):
         div = numerator/denominator
@@ -69,24 +58,7 @@ class Agent:
         div[np.isinf(div)]=0
         return div
 
-    def updateGP(self,c):
-        self.prevBids=np.atleast_2d(self.prevBids)
-        self.prevBudgets=np.atleast_2d(self.prevBudgets)
-        self.prevClicks=np.atleast_2d(self.prevClicks)
-        X=np.array([self.prevBids.T[c,:],self.prevBudgets.T[c,:]])
-        X=np.atleast_2d(X).T
-        X=self.normalize(X)
-        #potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
-        #y=potentialClicks.T[c,:].ravel()
-        y=self.prevClicks.T[c,:].ravel()
-        y=self.normalizeOutput(y,c)
-        self.gps[c].fit(X, y)
 
-
-
-    def updateMultiGP(self):
-        for c in range(0,self.ncampaigns):
-            self.updateGP(c)
 
     def updateState(self,bids,budgets,clicks,conversions,costs,revenues,hours):
         bids=np.atleast_2d(bids)
@@ -119,7 +91,6 @@ class Agent:
             self.prevHours = np.append(self.prevHours,hours, axis=0)
             self.costs = np.append(self.costs, costs, axis=0)
             self.revenues = np.append(self.revenues, revenues, axis=0)
-        self.updateMultiGP()
         self.updateValuesPerClick()
         self.t +=1
 
@@ -132,6 +103,27 @@ class Agent:
         for i,b in enumerate(self.budgets):
             firstRow[i]=[[values[0,i]],[0],[b]]
         return firstRow
+
+    def valuesForCampaigns(self):
+        self.updateValuesPerClick()
+        estimatedClicks = np.zeros(shape=(self.ncampaigns, len(self.budgets)))
+        for c in range(0, self.ncampaigns):
+            for j, budget in enumerate(self.budgets):
+                estimatedClicksforBids = np.zeros(len(self.bids))
+                for k,bid in enumerate(self.bids):
+                    nExperiments = 1
+                    estimatedClicksForBidForExperiment= np.zeros(nExperiments)
+                    for e in range(0,nExperiments):
+                        clicks = self.environment.campaigns[c].generateObservations(bid,budget)[0]
+                        estimatedClicksForBidForExperiment[e] = clicks
+                    estimatedClicksforBids[k] = np.mean(estimatedClicksForBidForExperiment)
+                # if self.t>2:self.plotGP(c)
+                idxs = np.argwhere(estimatedClicksforBids == estimatedClicksforBids.max()).reshape(-1)
+                idx = np.random.choice(idxs)
+                self.optimalBidPerBudget[c, j] = self.bids[idx]
+                estimatedClicks[c, j] = estimatedClicksforBids.max()
+        self.campaignsValues = estimatedClicks * self.valuesPerClick.reshape((self.ncampaigns, 1))
+        return estimatedClicks * self.valuesPerClick.reshape((self.ncampaigns, 1))  # TESTARE !!!
 
 
     def optimize(self,values):
@@ -162,60 +154,11 @@ class Agent:
         newCampaigns=h[-1][-1][1]
         return [newBudgets,newCampaigns]
 
-    def valuesForCampaigns(self,sampling=False):
-        estimatedClicks = np.zeros(shape=(self.ncampaigns, len(self.budgets)))
-        if( sampling==False):
-            for c in range(0,self.ncampaigns):
-                for j,b in enumerate(self.budgets):
-                    x= np.array([self.bids.T,np.matlib.repmat(b,1,self.nBids).reshape(-1)])
-                    x=np.atleast_2d(x).T
-                    x = self.normalize(x)
-                    estimatedClicksforBids=self.denormalizeOutput(self.gps[c].predict(x),c)
-
-                    #if self.t>2:self.plotGP(c)
-                    idxs = np.argwhere(estimatedClicksforBids == estimatedClicksforBids.max()).reshape(-1)
-                    idx = np.random.choice(idxs)
-                    self.optimalBidPerBudget[c,j] = self.bids[idx]
-                    estimatedClicks[c,j] = estimatedClicksforBids.max()
-            self.campaignsValues=estimatedClicks*self.valuesPerClick.reshape((2,1))
-            return estimatedClicks*self.valuesPerClick.reshape((2,1)) #TESTARE !!!
-        else:
-            for c in range(0, self.ncampaigns):
-                for j, b in enumerate(self.budgets):
-                    x= np.array([self.bids.T,np.matlib.repmat(b,1,self.nBids).reshape(-1)])
-                    x = np.atleast_2d(x).T
-                    x = self.normalize(x)
-                    [means,sigmas] = self.gps[c].predict(x,return_std=True)
-
-                    means = self.denormalizeOutput(means,c)
-                    sigmas = self.denormalizeOutput(sigmas,c)
-                    estimatedClicksforBids = np.random.normal(means,sigmas)
-                    idxs = np.argwhere(estimatedClicksforBids == estimatedClicksforBids.max()).reshape(-1)
-                    idx = np.random.choice(idxs)
-                    self.optimalBidPerBudget[c, j] = self.bids[idx]
-                    estimatedClicks[c, j] = estimatedClicksforBids.max()
-            self.campaignsValues=estimatedClicks*self.valuesPerClick.reshape((self.ncampaigns,1))
-
-            return estimatedClicks*self.valuesPerClick.reshape((self.ncampaigns,1))
 
 
     def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
 
-        """
-        finalBudgets = np.zeros(self.ncampaigns)
-        finalBids = np.zeros(self.ncampaigns)
-
-        for i in range(0,self.ncampaigns):
-            finalBudgets[i] = np.random.choice(self.budgets)
-            finalBids[i] = np.random.choice(self.bids)
-
-        if (fixedBid == True):
-            finalBids = np.ones(self.ncampaigns) * fixedBidValue
-
-        if (fixedBudget == True):
-            finalBudgets = np.ones(self.ncampaigns)* fixedBudgetValue
-        """
-        values = self.valuesForCampaigns(sampling=sampling)
+        values = self.campaignsValues
         [newBudgets,newCampaigns] = self.optimize(values)
         finalBudgets = np.zeros(self.ncampaigns)
         finalBids = np.zeros(self.ncampaigns)
