@@ -17,7 +17,7 @@ convparams2=np.array([0.25,150,151])
 # ho messo prob di conversione a 0.4 a caso,mentre 100 e 200 sono i due estremi della uniforme per generare le revenues
 # 1 0.71 0.56 0.53 0.49 0.47 0.44 0.44 0.43 0.43
 lambdas = np.array([1.0 ,0.71, 0.56, 0.53, 0.49, 0.47])
-deadline=100
+deadline=50
 nExperiments =10
 revenuesOpt = np.zeros((nExperiments,deadline))
 revenuesTest = np.zeros((nExperiments,deadline))
@@ -71,4 +71,4 @@ for e in range(0,nExperiments):
 plt.figure(4)
 plt.plot(np.mean(revenuesOpt,axis=0))
 plt.plot(np.mean(revenuesTest,axis=0))
-plt.ylim(0,25000)
+plt.ylim(-10000,25000)
