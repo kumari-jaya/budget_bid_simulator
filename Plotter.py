@@ -185,6 +185,7 @@ class Plotter:
         budgets = self.agent.budgets
         bids = self.agent.bids
         trueMatrix = np.zeros((len(budgets),len(bids)))
+        print "Simulation campaign: ",indexCamp+1
         for i in range(0,len(budgets)):
             print "Simulation budget: ",i+1," out of ",len(budgets)
             for j in range(0,len(bids)):
@@ -194,3 +195,13 @@ class Plotter:
                 meanValue = np.mean(observations)
                 trueMatrix[i,j] = meanValue
         return trueMatrix
+
+    def performancePlot(self, optValue, ChoiceValues):
+        optArray = np.repeat(optValue,len(ChoiceValues))
+        plt.plot(ChoiceValues, 'r-', label=u'Thompson predictions')
+        plt.plot(optArray, 'b-', label=u'Optimum')
+        plt.xlabel('Time step')
+        plt.ylabel('Clicks')
+        plt.ylim(0, optValue * 1.5)
+        plt.legend(loc='upper left')
+        plt.show()

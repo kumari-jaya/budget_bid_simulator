@@ -25,24 +25,33 @@ c2 = Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
 
 env = Environment([c1,c2])
 nBids=5
-nIntervals=8
-deadline = 20
+nIntervals=10
+deadline = 100
 maxBudget = 100
 agent = Agent(1000, deadline, 2,nIntervals,nBids,maxBudget)
 agent.initGPs()
 plotter = Plotter(agent=agent,env=env)
 ## questa funzione data una campagna, mi restituisce la matrice di dimensione budgetsxbids con
 ## all'interno i valori veri dei click mediati su nsimul simulazioni.
-matrix0 = plotter.oracleMatrix(indexCamp=0,nsimul=10)
-matrix1 = plotter.oracleMatrix(indexCamp=1,nsimul=10)
+matrix0 = plotter.oracleMatrix(indexCamp=0,nsimul=8)
+matrix1 = plotter.oracleMatrix(indexCamp=1,nsimul=8)
 # mi salvo il massimo sulle righe delle matrici e compngo la matrice per l'ottimizzazione.
 optMatrix = np.array([matrix0.max(axis=1),matrix1.max(axis=1)])
 [newBudgets,newCampaigns] = agent.optimize(optMatrix)
 # ora ricerco nelle matrici originali il numero di click nell'allocazione ottima
-indexes = np.array([np.argwhere(agent.budgets == newBudgets[0]), np.argwhere(agent.budgets == newBudgets[1])])
+indexes = np.array([np.argwhere(np.isclose(agent.budgets, newBudgets[0])), np.argwhere(np.isclose(agent.budgets, newBudgets[1]))])
 optValue = matrix0[indexes[0],:].max() + matrix1[indexes[1],:].max()
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
-"""
 core = Core(agent, env, deadline)
-core.runEpisode()
-"""
+chosenValues = np.zeros((deadline))
+for t in range(0,deadline):
+    print "Day : ",t
+    core.step()
+    lastBudgets = agent.prevBudgets[-1,:]
+    lastBids = agent.prevBids[-1,:]
+    indBud = np.array([np.argwhere(np.isclose(agent.budgets, lastBudgets[0])), np.argwhere(np.isclose(agent.budgets, lastBudgets[1]))])
+    indBid = np.array([np.argwhere(np.isclose(agent.bids, lastBids[0])), np.argwhere(np.isclose(agent.bids, lastBids[1]))])
+    # il valore dei click medio relativi ai bid e budget scelti li prendo dalle matrici dell'oracolo!
+    chosenValues[t] = matrix0[indBud[0],indBid[0]] + matrix1[indBud[1],indBid[1]]
+
+plotter.performancePlot(optValue,chosenValues)
