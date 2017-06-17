@@ -15,29 +15,43 @@ convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 
 
-a1= Auction(nbidders=5 , nslots=5, mu=0.51 , sigma=0.2, lambdas=lambdas)
+a1= Auction(nbidders=5 , nslots=5, mu=0.61 , sigma=0.2, lambdas=lambdas)
 a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
+a3= Auction(nbidders=8 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas)
+a4= Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas)
 
 
-ncampaigns=2
-c1 = Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams)
+ncampaigns=5
+c1 = Campaign(a1, nusers=1000.0 , probClick=0.1 ,convParams= convparams)
 c2 = Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
+c3 = Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
+c4 = Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams)
+c5 = Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams)
 
-env = Environment([c1,c2])
-nBids=5
-nIntervals=10
+
+env = Environment([c1,c2,c3,c4,c5])
+nBids=7
+nIntervals=5
 deadline = 100
-maxBudget = 100
+maxBudget = 200
 agent = Agent(1000, deadline, 2,nIntervals,nBids,maxBudget)
 agent.initGPs()
 plotter = Plotter(agent=agent,env=env)
-## questa funzione data una campagna, mi restituisce la matrice di dimensione budgetsxbids con
-## all'interno i valori veri dei click mediati su nsimul simulazioni.
-matrix0 = plotter.oracleMatrix(indexCamp=0,nsimul=8)
-matrix1 = plotter.oracleMatrix(indexCamp=1,nsimul=8)
-# mi salvo il massimo sulle righe delle matrici e compngo la matrice per l'ottimizzazione.
-optMatrix = np.array([matrix0.max(axis=1),matrix1.max(axis=1)])
+
+# mi creo una lista con tutte le matrici dell'oracolo di ogni campagna
+listMatrices = list()
+for i in range(0,ncampaigns):
+    matrix = plotter.oracleMatrix(indexCamp=i,nsimul=8)
+    listMatrices.append(matrix)
+    if i==0:
+        optMatrix = np.array([matrix.max(axis=1)])
+    else:
+        maxrow = np.array([matrix.max(axis=1)])
+        optMatrix = np.concatenate((optMatrix,maxrow))
+
+
 [newBudgets,newCampaigns] = agent.optimize(optMatrix)
+"""
 # ora ricerco nelle matrici originali il numero di click nell'allocazione ottima
 indexes = np.array([np.argwhere(np.isclose(agent.budgets, newBudgets[0])), np.argwhere(np.isclose(agent.budgets, newBudgets[1]))])
 optValue = (matrix0[indexes[0],:].max() + matrix1[indexes[1],:].max()) * convparams[0]
@@ -69,3 +83,4 @@ for k in range(0,nexperiments):
 finalValues = matrixValues.mean(axis=0)
 finalEst = matrixEst.mean(axis=0)
 plotter.performancePlot(optValue,finalValues,finalEst)
+"""
