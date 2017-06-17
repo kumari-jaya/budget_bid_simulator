@@ -196,12 +196,13 @@ class Plotter:
                 trueMatrix[i,j] = meanValue
         return trueMatrix
 
-    def performancePlot(self, optValue, ChoiceValues):
-        optArray = np.repeat(optValue,len(ChoiceValues))
-        plt.plot(ChoiceValues, 'r-', label=u'Thompson predictions')
+    def performancePlot(self, optValue, choiceValues, estValues):
+        optArray = np.repeat(optValue,len(choiceValues))
         plt.plot(optArray, 'b-', label=u'Optimum')
+        plt.plot(choiceValues, 'r-', label=u'Thompson real values')
+        plt.plot(estValues, 'g-', label=u'Thompson estimated values')
         plt.xlabel('Time step')
-        plt.ylabel('Clicks')
+        plt.ylabel('Conversions')
         plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
         plt.show()

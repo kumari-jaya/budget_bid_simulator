@@ -26,7 +26,7 @@ c2 = Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
 env = Environment([c1,c2])
 nBids=5
 nIntervals=10
-deadline = 100
+deadline = 150
 maxBudget = 100
 agent = Agent(1000, deadline, 2,nIntervals,nBids,maxBudget)
 agent.initGPs()
@@ -40,10 +40,11 @@ optMatrix = np.array([matrix0.max(axis=1),matrix1.max(axis=1)])
 [newBudgets,newCampaigns] = agent.optimize(optMatrix)
 # ora ricerco nelle matrici originali il numero di click nell'allocazione ottima
 indexes = np.array([np.argwhere(np.isclose(agent.budgets, newBudgets[0])), np.argwhere(np.isclose(agent.budgets, newBudgets[1]))])
-optValue = matrix0[indexes[0],:].max() + matrix1[indexes[1],:].max()
+optValue = (matrix0[indexes[0],:].max() + matrix1[indexes[1],:].max()) * convparams[0]
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
 core = Core(agent, env, deadline)
 chosenValues = np.zeros((deadline))
+estValues = np.zeros((deadline))
 for t in range(0,deadline):
     print "Day : ",t
     core.step()
@@ -52,6 +53,8 @@ for t in range(0,deadline):
     indBud = np.array([np.argwhere(np.isclose(agent.budgets, lastBudgets[0])), np.argwhere(np.isclose(agent.budgets, lastBudgets[1]))])
     indBid = np.array([np.argwhere(np.isclose(agent.bids, lastBids[0])), np.argwhere(np.isclose(agent.bids, lastBids[1]))])
     # il valore dei click medio relativi ai bid e budget scelti li prendo dalle matrici dell'oracolo!
-    chosenValues[t] = matrix0[indBud[0],indBid[0]] + matrix1[indBud[1],indBid[1]]
+    chosenValues[t] = (matrix0[indBud[0],indBid[0]] + matrix1[indBud[1],indBid[1]]) * convparams[0]
+    estValues[t] = agent.campaignsValues[0,indBud[0]] + agent.campaignsValues[1,indBud[1]]
 
-plotter.performancePlot(optValue,chosenValues)
+
+plotter.performancePlot(optValue,chosenValues,estValues)
