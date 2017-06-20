@@ -31,8 +31,8 @@ c5 = Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams)
 
 env = Environment([c1,c2,c3,c4,c5])
 nBids=5
-nIntervals=9
-deadline = 150
+nIntervals=10
+deadline = 250
 maxBudget = 100
 agent = Agent(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
 agent.initGPs()
@@ -41,7 +41,7 @@ plotter = Plotter(agent=agent,env=env)
 # mi creo una lista con tutte le matrici dell'oracolo di ogni campagna
 listMatrices = list()
 for i in range(0,ncampaigns):
-    matrix = plotter.oracleMatrix(indexCamp=i,nsimul=8)
+    matrix = plotter.oracleMatrix(indexCamp=i,nsimul=10)
     listMatrices.append(matrix)
     if i==0:
         optMatrix = np.array([matrix.max(axis=1)])
@@ -51,9 +51,11 @@ for i in range(0,ncampaigns):
 
 
 [newBudgets,newCampaigns] = agent.optimize(optMatrix)
+
 # ora ricerco nelle matrici originali il numero di click nell'allocazione ottima
 optValue = 0
 for i in range(0,ncampaigns):
+    print i
     index = np.argwhere(np.isclose(agent.budgets,newBudgets[i]))
     tempValue = listMatrices[i][index,:].max()
     optValue += tempValue
@@ -87,3 +89,4 @@ for k in range(0,nexperiments):
 finalValues = matrixValues.mean(axis=0)
 finalEst = matrixEst.mean(axis=0)
 plotter.performancePlot(optValue,finalValues,finalEst)
+plotter.regretPlot(optValue, finalValues)

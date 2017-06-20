@@ -206,3 +206,16 @@ class Plotter:
         plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
         plt.show()
+        plt.savefig("thompson.pdf")
+
+    def regretPlot(self, optValue, choiceValues):
+        optArray = np.repeat(optValue,len(choiceValues))
+        diff = optArray - choiceValues
+        cumRegret = diff.cumsum()
+        plt.plot(cumRegret, 'r-', label=u'Cumulative regret')
+        plt.xlabel('Time step')
+        plt.ylabel('Conversions')
+        #plt.ylim(0, optValue * 1.5)
+        plt.legend(loc='upper left')
+        plt.show()
+        plt.savefig("regret_thompson.pdf")
