@@ -160,6 +160,12 @@ class Agent:
                         maxVal = np.sum(newValues)
         newBudgets=h[-1][-1][2]
         newCampaigns=h[-1][-1][1]
+        # se non mi lista alcune campagne le listo comunque con budget 0!
+        if len(newBudgets) < self.ncampaigns:
+            temp = np.zeros(self.ncampaigns)
+            temp[newCampaigns] = newBudgets
+            newBudgets = temp
+            newCampaigns = np.array(range(0,self.ncampaigns))
         return [newBudgets,newCampaigns]
 
     def valuesForCampaigns(self,sampling=False):
