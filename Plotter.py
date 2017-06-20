@@ -196,7 +196,7 @@ class Plotter:
                 trueMatrix[i,j] = meanValue
         return trueMatrix
 
-    def performancePlot(self, optValue, choiceValues, estValues):
+    def performancePlot(self, optValue, choiceValues, estValues, nomefile):
         optArray = np.repeat(optValue,len(choiceValues))
         plt.plot(optArray, 'b-', label=u'Optimum')
         plt.plot(choiceValues, 'r-', label=u'Thompson real values')
@@ -205,10 +205,9 @@ class Plotter:
         plt.ylabel('Conversions')
         plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
-        plt.show()
-        plt.savefig("thompson.pdf")
+        plt.savefig(nomefile)
 
-    def regretPlot(self, optValue, choiceValues):
+    def regretPlot(self, optValue, choiceValues, nomefile):
         optArray = np.repeat(optValue,len(choiceValues))
         diff = optArray - choiceValues
         cumRegret = diff.cumsum()
@@ -217,5 +216,4 @@ class Plotter:
         plt.ylabel('Conversions')
         #plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
-        plt.show()
-        plt.savefig("regret_thompson.pdf")
+        plt.savefig(nomefile)
