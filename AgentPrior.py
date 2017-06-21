@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 import time as time
 
 
-class Agent:
+class AgentPrior:
 
     def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
         self.budgetTot = budgetTot
@@ -74,14 +74,14 @@ class Agent:
         self.prevBids=np.atleast_2d(self.prevBids)
         self.prevBudgets=np.atleast_2d(self.prevBudgets)
         self.prevClicks=np.atleast_2d(self.prevClicks)
-        X=np.array([self.prevBids.T[c,:],self.prevBudgets.T[c,:]])
-        X=np.atleast_2d(X).T
-        X=self.normalize(X)
+        x=np.array([self.prevBids.T[c,:],self.prevBudgets.T[c,:]])
+        x=np.atleast_2d(x).T
+        X=self.normalize(x)
         #potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
         #y=potentialClicks.T[c,:].ravel()
         y=self.prevClicks.T[c,:].ravel()
         y=self.normalizeOutput(y,c)
-        self.gps[c].fit(X, y)
+        self.fitPrior(c,x,y)
 
 
 
@@ -181,13 +181,14 @@ class Agent:
                     x=np.atleast_2d(x).T
                     x = self.normalize(x)
                     if(bidSampling==False):
-                        estimatedClicksforBids=self.denormalizeOutput(self.gps[c].predict(x),c)
+                        estimatedClicksforBids=self.predictPrior(c,x,False)
+
                         idxs = np.argwhere(estimatedClicksforBids == estimatedClicksforBids.max()).reshape(-1)
                         idx = np.random.choice(idxs)
                         self.optimalBidPerBudget[c,j] = self.bids[idx]
                         estimatedClicks[c,j] = estimatedClicksforBids.max()
                     else:
-                        [meanEstimatedClicksForBids,sigmaEstimatedClicksForBids] = self.denormalizeOutput(self.gps[c].predict(x,return_std = True),c)
+                        [meanEstimatedClicksForBids,sigmaEstimatedClicksForBids] = self.predictPrior(c,x,True)
                         estimatedClicksforBids = np.random.normal(meanEstimatedClicksForBids,sigmaEstimatedClicksForBids)
                         idxs = np.argwhere(estimatedClicksforBids == estimatedClicksforBids.max()).reshape(-1)
                         idx = np.random.choice(idxs)
@@ -199,8 +200,7 @@ class Agent:
                     x= np.array([self.bids.T,np.matlib.repmat(b,1,self.nBids).reshape(-1)])
                     x = np.atleast_2d(x).T
                     x = self.normalize(x)
-                    [means,sigmas] = self.gps[c].predict(x,return_std=True)
-
+                    [means,sigmas] = self.predictPrior(c,x,True)
                     means = self.denormalizeOutput(means,c)
                     sigmas = self.denormalizeOutput(sigmas,c)
                     estimatedClicksforBids = np.random.normal(means,sigmas)
@@ -230,9 +230,6 @@ class Agent:
             finalBudgets = np.ones(self.ncampaigns)* fixedBudgetValue
         """
         values = self.valuesForCampaigns(sampling=sampling)
-
-        #values = self.valuesCorrection(values)
-
         [newBudgets,newCampaigns] = self.optimize(values)
         finalBudgets = np.zeros(self.ncampaigns)
         finalBids = np.zeros(self.ncampaigns)
@@ -242,13 +239,6 @@ class Agent:
             finalBids[c] = self.optimalBidPerBudget[c,idx]
         return [finalBudgets,finalBids]
 
-
-    def valuesCorrection(self,values):
-        for c in range(0,self.ncampaigns):
-            for b in range(1,self.nBudgetIntervals):
-                if(values[c,b]<values[c,b-1]):
-                    values[c,b] = values[c,b-1]
-            return values
 
     def normalizeBudgetArray(self,budgetArray):
         return budgetArray/self.maxTotDailyBudget
@@ -279,7 +269,7 @@ class Agent:
         x = np.array([bidsArray.T, np.matlib.repmat(budget, 1, len(bidsArray)).reshape(-1)])
         x = np.atleast_2d(x).T
         x = self.normalize(x)
-        valuesforBids = self.denormalizeOutput(self.gps[gpIndex].predict(x), gpIndex)
+        valuesforBids = self.predictPrior(gpIndex,x,False)
         idxs = np.argwhere(valuesforBids == valuesforBids.max()).reshape(-1)
         idx = np.random.choice(idxs)
         return bidsArray[idx]
@@ -290,5 +280,36 @@ class Agent:
         for i,b in enumerate(budgetArray):
             bestBidsArray[i]=self.findBestBidPerBudget(b,bidsArray,gpIndex)
         return bestBidsArray
+
+
+    def prior(self,x,y):
+        if(len(y)==0):
+            return 0
+        max_y= np.max(y)
+        return (max_y / self.maxTotDailyBudget) * x[:,1]
+
+    def fitPrior(self,gpIndex,x,y):
+
+        y_new = y - self.prior(x,y)
+        self.gps[gpIndex].fit(x,y_new)
+
+    def predictPrior(self,gpIndex,x,returnStd = False):
+        if(returnStd ==False):
+            y = self.gps[gpIndex].predict(x,return_std=returnStd)
+            y_new = y + self.prior(x,self.prevClicks[:,gpIndex])
+            return y_new
+        else:
+
+            [mean_y,sigma_y] = self.gps[gpIndex].predict(x,return_std=returnStd)
+            if (len(self.prevClicks)==0):
+                return mean_y,sigma_y
+            print "\n"
+            print "prediction without prior:",mean_y
+            y_new = mean_y + self.prior(x,self.prevClicks[:,gpIndex])
+            print "prediction with prior",y_new
+            print "x ",x
+            print "prior ",self.prior(x,self.prevClicks[:,gpIndex])
+
+            return y_new,sigma_y
 
 
