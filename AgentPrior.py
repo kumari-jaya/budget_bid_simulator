@@ -286,7 +286,7 @@ class AgentPrior:
         if(len(y)==0):
             return 0
         max_y= np.max(y)
-        return (max_y / self.maxTotDailyBudget) * x[:,1]
+        return max_y * x[:,1]
 
     def fitPrior(self,gpIndex,x,y):
 
@@ -311,5 +311,3 @@ class AgentPrior:
             print "prior ",self.prior(x,self.prevClicks[:,gpIndex])
 
             return y_new,sigma_y
-
-

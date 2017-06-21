@@ -169,16 +169,12 @@ class Agent:
                         maxVal = np.sum(newValues)
         newBudgets=h[-1][-1][2]
         newCampaigns=h[-1][-1][1]
-<<<<<<< HEAD
-        #print "Time Optimization :",time.time() - start
-=======
         # se non mi lista alcune campagne le listo comunque con budget 0!
         if len(newBudgets) < self.ncampaigns:
             temp = np.zeros(self.ncampaigns)
             temp[newCampaigns] = newBudgets
             newBudgets = temp
             newCampaigns = np.array(range(0,self.ncampaigns))
->>>>>>> 2970c2e3013938562ef9c1fd2eff0f530e51bf57
         return [newBudgets,newCampaigns]
 
     def valuesForCampaigns(self,sampling=False ,bidSampling = True):
@@ -299,5 +295,3 @@ class Agent:
         for i,b in enumerate(budgetArray):
             bestBidsArray[i]=self.findBestBidPerBudget(b,bidsArray,gpIndex)
         return bestBidsArray
-
-

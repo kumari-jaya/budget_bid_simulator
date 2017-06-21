@@ -86,6 +86,8 @@ for k in range(0,nexperiments):
     matrixValues[k,:] = chosenValues
     matrixEst [k,:] = estValues
 
+np.save("matrice_valori",matrixValues)
+np.save("matrice_stime",matrixEst)
 finalValues = matrixValues.mean(axis=0)
 finalEst = matrixEst.mean(axis=0)
 plotter.performancePlot(optValue,finalValues,finalEst,"thompson.pdf")

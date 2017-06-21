@@ -57,7 +57,7 @@ class Plotter:
         plt.ylim(-10, np.max(self.agent.prevClicks[:,gpIndex])*1.5)
         plt.legend(loc='upper left')
         plt.show()
-        
+
     """
 
 
@@ -248,6 +248,7 @@ class Plotter:
         plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
         plt.savefig(nomefile)
+        plt.show()
 
     def regretPlot(self, optValue, choiceValues, nomefile):
         optArray = np.repeat(optValue,len(choiceValues))
@@ -259,3 +260,4 @@ class Plotter:
         #plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
         plt.savefig(nomefile)
+        plt.show()
