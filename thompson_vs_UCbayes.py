@@ -6,6 +6,7 @@ import math
 from Campaign import *
 from Environment import *
 from Auction import *
+from Agent import *
 from AgentPrior import *
 from AgentUCB import *
 from Core import *
@@ -16,9 +17,9 @@ convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 
 
-a1= Auction(nbidders=5 , nslots=5, mu=0.61 , sigma=0.2, lambdas=lambdas)
+a1= Auction(nbidders=5 , nslots=5, mu=0.59 , sigma=0.2, lambdas=lambdas)
 a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
-a3= Auction(nbidders=8 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas)
+a3= Auction(nbidders=6 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas)
 a4= Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas)
 
 
@@ -32,10 +33,10 @@ c3 = Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
 
 env = Environment([c1,c2,c3])
 nBids=5
-nIntervals=5
-deadline = 150
+nIntervals=10
+deadline = 100
 maxBudget = 100
-agent = AgentPrior(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
+agent = Agent(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
 agent.initGPs()
 plotter = Plotter(agent=agent,env=env)
 
@@ -64,32 +65,39 @@ optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
 nexperiments = 3
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!
-matrixValues = np.zeros((nexperiments,deadline))
-matrixEst = np.zeros((nexperiments,deadline))
+matrixValuesThomp = np.zeros((nexperiments,deadline))
+matrixValuesUCB = np.zeros((nexperiments,deadline))
 for k in range(0,nexperiments):
     print "Experiment: ",k+1
-    agent = AgentPrior(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
-    agent.initGPs()
-    core = Core(agent, env, deadline)
-    chosenValues = np.zeros((deadline))
-    estValues = np.zeros((deadline))
+    agentThomp = Agent(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
+    agentUCB = AgentUCB(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
+    agentThomp.initGPs()
+    agentUCB.initGPs()
+    coreThomp = Core(agentThomp, env, deadline)
+    coreUCB = Core(agentUCB, env, deadline)
+    chosenValuesThomp = np.zeros((deadline))
+    chosenValuesUCB = np.zeros((deadline))
     for t in range(0,deadline):
         print "Day: ",t+1
-        core.step()
-        lastBudgets = agent.prevBudgets[-1,:]
-        lastBids = agent.prevBids[-1,:]
+        coreThomp.step()
+        coreUCB.step()
+        lastBudgetsT = agentThomp.prevBudgets[-1,:]
+        lastBidsT = agentThomp.prevBids[-1,:]
+        lastBudgetsUC = agentUCB.prevBudgets[-1,:]
+        lastBidsUC = agentUCB.prevBids[-1,:]
         for i in range(0,ncampaigns):
-            indBud = np.argwhere(np.isclose(agent.budgets, lastBudgets[i]))
-            indBid = np.argwhere(np.isclose(agent.bids, lastBids[i]))
-            # il valore dei click medio relativi ai bid e budget scelti li prendo dalle matrici dell'oracolo!
-            chosenValues[t] += listMatrices[i][indBud,indBid] *convparams[0]
-            estValues[t] += agent.campaignsValues[i,indBud]
-    matrixValues[k,:] = chosenValues
-    matrixEst [k,:] = estValues
+            indBudT = np.argwhere(np.isclose(agentThomp.budgets, lastBudgetsT[i]))
+            indBidT = np.argwhere(np.isclose(agentThomp.bids, lastBidsT[i]))
+            chosenValuesThomp[t] += listMatrices[i][indBudT,indBidT] *convparams[0]
+            indBudUC = np.argwhere(np.isclose(agentUCB.budgets, lastBudgetsUC[i]))
+            indBidUC = np.argwhere(np.isclose(agentUCB.bids, lastBidsUC[i]))
+            chosenValuesUCB[t] += listMatrices[i][indBudUC,indBidUC] *convparams[0]
+    matrixValuesThomp[k,:] = chosenValuesThomp
+    matrixValuesUCB[k,:] = chosenValuesUCB
 
-np.save("matrice_valori",matrixValues)
-np.save("matrice_stime",matrixEst)
-finalValues = matrixValues.mean(axis=0)
-finalEst = matrixEst.mean(axis=0)
-plotter.performancePlot(optValue,finalValues,finalEst,"thompson.pdf")
-plotter.regretPlot(optValue, finalValues,"regret_thompson.pdf")
+np.save("/home/gugohb/Dropbox/thesis_agos/plot/dati_plot/valore_ottimo",optValue)
+np.save("/home/gugohb/Dropbox/thesis_agos/plot/dati_plot/matrice_thompson",matrixValuesThomp)
+np.save("/home/gugohb/Dropbox/thesis_agos/plot/dati_plot/matrice_UCB",matrixValuesUCB)
+finalValuesThomp = matrixValuesThomp.mean(axis=0)
+finalValuesUCB = matrixValuesUCB.mean(axis=0)
+plotter.performancePlotComparison(optValue,finalValuesThomp,finalValuesUCB,"/home/gugohb/Dropbox/thesis_agos/plot/thompson_vs_UCB.pdf")
