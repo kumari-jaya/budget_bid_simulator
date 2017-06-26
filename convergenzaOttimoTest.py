@@ -7,6 +7,8 @@ from Campaign import *
 from Environment import *
 from Auction import *
 from AgentAware import *
+from AgentPrior import *
+
 from Core import *
 from Plotter import *
 from matplotlib import pyplot as plt
@@ -22,8 +24,8 @@ lambdas = np.array([1.0 ,0.71, 0.56, 0.53, 0.49, 0.47])
 convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 
-deadline=100
-nExperiments = 2
+deadline=80
+nExperiments = 1
 revenuesOpt = np.zeros((nExperiments,deadline))
 revenuesTest = np.zeros((nExperiments,deadline))
 
@@ -56,7 +58,7 @@ for e in range(0,nExperiments):
     print "\n"
     print "Experiment: ", e
     agentOpt = copy.copy(agentAware)
-    agentTest = Agent(budgetTot=1000, deadline= deadline, ncampaigns=len(campaigns), nIntervals=nIntervals, nBids=nBids,maxBudget=100.0)
+    agentTest = AgentPrior(budgetTot=1000, deadline= deadline, ncampaigns=len(campaigns), nIntervals=nIntervals, nBids=nBids,maxBudget=100.0)
     agentTest.initGPs()
     envOpt = Environment(copy.copy(campaigns))
     envTest =Environment(copy.copy(campaigns))

@@ -12,9 +12,9 @@ from matplotlib import pyplot as plt
 import time as time
 
 
-class AgentPrior:
+class AgentRandomPolicy:
 
-    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
+    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,minBid=1.0,maxBid=1.0):
         self.budgetTot = budgetTot
         self.deadline = deadline
         self.ncampaigns = ncampaigns
@@ -214,29 +214,11 @@ class AgentPrior:
 
 
     def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
+        finalBudgets = np.random.choice(self.budgets,self.ncampaigns)
+        finalBids = np.random.choice(self.bids,self.ncampaigns)
 
-        """
-        finalBudgets = np.zeros(self.ncampaigns)
-        finalBids = np.zeros(self.ncampaigns)
-
-        for i in range(0,self.ncampaigns):
-            finalBudgets[i] = np.random.choice(self.budgets)
-            finalBids[i] = np.random.choice(self.bids)
-
-        if (fixedBid == True):
-            finalBids = np.ones(self.ncampaigns) * fixedBidValue
-
-        if (fixedBudget == True):
-            finalBudgets = np.ones(self.ncampaigns)* fixedBudgetValue
-        """
-        values = self.valuesForCampaigns(sampling=sampling,bidSampling=True)
-        [newBudgets,newCampaigns] = self.optimize(values)
-        finalBudgets = np.zeros(self.ncampaigns)
-        finalBids = np.zeros(self.ncampaigns)
-        for i,c in enumerate(newCampaigns):
-            finalBudgets[c] = newBudgets[i]
-            idx = np.argwhere(np.isclose(self.budgets,newBudgets[i])).reshape(-1)
-            finalBids[c] = self.optimalBidPerBudget[c,idx]
+        if(fixedBid == True):
+            finalBids = np.ones(self.ncampaigns)*fixedBidValue
         return [finalBudgets,finalBids]
 
 
@@ -283,9 +265,12 @@ class AgentPrior:
 
 
     def prior(self,x,y):
-        if(self.t<=10):
-            return 0
+        #if(self.t<=10):
+        #    return 0
+
         max_y= np.max(y)
+        if(max_y==0):
+            return 0
         return max_y * x[:,1]
 
     def fitPrior(self,gpIndex,x,y):

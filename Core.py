@@ -7,18 +7,20 @@ import numpy as np
 import time as time
 
 class Core:
-    def __init__(self,agent,environment, deadline):
+    def __init__(self,agent,environment, deadline,plotter =None):
         self.agent=agent
         self.environment=environment
         self.deadline = deadline
+        self.plotter = plotter
         self.t=0
 
 
 
-    def step(self):
-        [budget,bid] = self.agent.chooseAction(sampling=True)
+    def step(self,fixedBid=True):
+        [budget,bid] = self.agent.chooseAction(sampling=True,fixedBid=fixedBid,fixedBidValue=1.0)
         observations = self.environment.step(bid,budget)
-
+        if(fixedBid == True):
+            print("Fixed bid in the step function")
         lastClicks = observations[0]
         lastConversions = observations[1]
         lastCosts = observations[2]

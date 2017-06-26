@@ -102,7 +102,7 @@ class Plotter:
 
 
 
-    def plotGP_prior(self,gpIndex,fixedBid = False,bid=0.1):
+    def plotGP_prior(self,gpIndex,fixedBid = False,bid=0.1,y_min=0,y_max=200):
         if (fixedBid==False):
             budgetPoints = np.linspace(0,self.agent.maxTotDailyBudget,1000)
             bidsPoints = np.linspace(0,self.agent.maxBid,1000)
@@ -134,9 +134,9 @@ class Plotter:
                  np.concatenate([means - 1.9600 * sigmas,
                                  (means + 1.9600 * sigmas)[::-1]]),
                  alpha=.5, fc='b', ec='None', label='95% confidence interval')
-        plt.xlabel('$x$')
-        plt.ylabel('$f(x)$')
-        plt.ylim(-10, np.max(self.agent.prevClicks[:,gpIndex])*1.5)
+        plt.xlabel('$Budget$')
+        plt.ylabel('$Clicks$')
+        plt.ylim(y_min,y_max)
         plt.legend(loc='upper left')
         plt.show()
 
@@ -145,7 +145,45 @@ class Plotter:
 
 
 
+    def plotGP_trueFun(self,trueClicks,trueBudgets,gpIndex,fixedBid = False,bid=0.1,y_min=0,y_max=200):
+        if (fixedBid==False):
+            budgetPoints = np.linspace(0,self.agent.maxTotDailyBudget,1000)
+            bidsPoints = np.linspace(0,self.agent.maxBid,1000)
+            bestBids = self.agent.bestBidsPerBudgetsArray(budgetPoints,bidsPoints, gpIndex)
 
+        else:
+            budgetPoints = np.linspace(0,self.agent.maxTotDailyBudget,1000)
+            bestBids = np.ones(1000)*bid
+
+        fig = plt.figure()
+        observedInput = self.agent.prevBudgets[:,gpIndex]
+        observedBids = self.agent.prevBids[:,gpIndex]
+        observedOutput = self.agent.prevClicks[:,gpIndex]
+        idxs = np.isclose(observedBids,bid,atol=0.2*bid)
+        observedInput = observedInput[idxs]
+        observedOutput = observedOutput[idxs]
+        x = np.array([bestBids,budgetPoints])
+        x = np.atleast_2d(x).T
+        x = self.agent.normalize(x)
+        budgetPointsNorm = self.agent.normalizeBudgetArray(budgetPoints)
+        bestBidsNorm = self.agent.normalizeBidsArray(bestBids)
+        xnorm = np.array([bestBidsNorm,budgetPointsNorm])
+        xnorm = np.atleast_2d(x).T
+        [means,sigmas] = self.agent.predictPrior(gpIndex,x,True)
+        plt.plot(observedInput, observedOutput, 'r.', markersize=10, label=u'Observations')
+
+        plt.plot(budgetPoints, means, 'b-', label=u'Prediction')
+        plt.plot(trueBudgets,trueClicks)
+
+        plt.fill(np.concatenate([budgetPoints, budgetPoints[::-1]]),
+                 np.concatenate([means - 1.9600 * sigmas,
+                                 (means + 1.9600 * sigmas)[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='95% confidence interval')
+        plt.xlabel('$x$')
+        plt.ylabel('$f(x)$')
+        plt.ylim(y_min,y_max)
+        plt.legend(loc='upper left')
+        plt.show()
 
     def plotGPComparison(self, gpIndex, trueClicks, trueBudgets, fixedBid=False, bid=0.1):
         if (fixedBid == False):
@@ -171,7 +209,7 @@ class Plotter:
         bestBidsNorm = self.agent.normalizeBidsArray(bestBids)
         xnorm = np.array([bestBidsNorm, budgetPointsNorm])
         xnorm = np.atleast_2d(x).T
-        [means, sigmas] = self.agent.gps[gpIndex].predict(x, return_std=True)
+        [means, sigmas] = self.agent.predictPrior(gpIndex,x,True)
         means = self.agent.denormalizeOutput(means, gpIndex)
         sigmas = self.agent.denormalizeOutput(sigmas, gpIndex)
 
@@ -193,7 +231,7 @@ class Plotter:
 
     def trueSample(self,bid,maxBudget,nsimul=5):
         ncampaigns = len(self.environment.campaigns)
-        budgets = np.linspace(0,maxBudget,200)
+        budgets = np.linspace(0,maxBudget,150)
 
         for i,b in enumerate(budgets):
             vettBids = np.matlib.repmat(bid,1,ncampaigns).reshape(-1)
