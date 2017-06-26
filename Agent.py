@@ -125,6 +125,9 @@ class Agent:
         self.t +=1
 
     def valueForBudget(self,itemIdx,budget,values):
+        idx = np.isclose(budget,self.budgets)
+        if (len(idx)>0):
+            return values[itemIdx,idx]
         idx = np.argwhere(budget>=self.budgets)
         return values[itemIdx,idx.max()]
 

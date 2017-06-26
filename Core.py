@@ -16,7 +16,7 @@ class Core:
 
 
 
-    def step(self,fixedBid=True):
+    def step(self,fixedBid=False):
         [budget,bid] = self.agent.chooseAction(sampling=True,fixedBid=fixedBid,fixedBidValue=1.0)
         observations = self.environment.step(bid,budget)
         if(fixedBid == True):
