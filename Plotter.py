@@ -311,3 +311,7 @@ class Plotter:
         plt.legend(loc='upper left')
         plt.savefig(nomefile)
         plt.show()
+
+    def running_mean(x, N):
+        cumsum = np.cumsum(np.insert(x, 0, 0))
+        return (cumsum[N:] - cumsum[:-N]) / N

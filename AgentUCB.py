@@ -127,6 +127,9 @@ class AgentUCB:
         self.t +=1
 
     def valueForBudget(self,itemIdx,budget,values):
+        idx = np.isclose(budget,self.budgets)
+        if (len(idx)>0):
+            return values[itemIdx,idx]
         idx = np.argwhere(budget>=self.budgets)
         return values[itemIdx,idx.max()]
 
@@ -135,13 +138,6 @@ class AgentUCB:
         for i,b in enumerate(self.budgets):
             firstRow[i]=[[values[0,i]],[0],[b]]
         return firstRow
-
-
-
-    def optimize2(self,values):
-        valIdx = 0
-        itIdx = 1
-        bIdx = 2
 
 
     def optimize(self,values):
