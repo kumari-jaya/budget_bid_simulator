@@ -76,7 +76,7 @@ class AgentPrior:
         self.prevClicks=np.atleast_2d(self.prevClicks)
         x=np.array([self.prevBids.T[c,:],self.prevBudgets.T[c,:]])
         x=np.atleast_2d(x).T
-        X=self.normalize(x)
+        x=self.normalize(x)
         #potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
         #y=potentialClicks.T[c,:].ravel()
         y=self.prevClicks.T[c,:].ravel()
