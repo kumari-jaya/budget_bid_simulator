@@ -315,3 +315,59 @@ class Plotter:
     def running_mean(x, N):
         cumsum = np.cumsum(np.insert(x, 0, 0))
         return (cumsum[N:] - cumsum[:-N]) / N
+
+
+    def plotClicksAgentBid(self,gpIndex):
+        #bids = self.agent.bids
+        bidPoints = np.linspace(0,self.agent.maxBid,100)
+
+        x = np.array([bidPoints.T])
+        x = np.atleast_2d(x).T
+        x = self.agent.normalize(x)
+        [means,sigmas]=self.agent.gpsClicks[gpIndex].predict(x,return_std=True)
+
+        observedInput = self.agent.prevBids[:, gpIndex]
+        observedOutput = self.agent.dividePotentialClicks(self.agent.prevClicks[:, gpIndex]*24.0,self.agent.prevHours[:,gpIndex])
+        plt.figure(gpIndex)
+        plt.plot(observedInput, observedOutput, 'r.', markersize=10, label=u'Observations')
+
+        plt.plot(bidPoints, means, 'b-', label=u'Prediction')
+        plt.fill(np.concatenate([bidPoints, bidPoints[::-1]]),
+                 np.concatenate([means - 1.9600 * sigmas,
+                                 (means + 1.9600 * sigmas)[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='95% confidence interval')
+        plt.xlabel('$x$')
+        plt.ylabel('$f(x)$')
+        plt.ylim(-10, np.max(observedOutput.max() * 1.5))
+        plt.legend(loc='upper left')
+        plt.show()
+
+
+
+
+
+    def plotCostsAgentBid(self, gpIndex):
+        # bids = self.agent.bids
+        bidPoints = np.linspace(0, self.agent.maxBid, 100)
+
+        x = np.array([bidPoints.T])
+        x = np.atleast_2d(x).T
+        x = self.agent.normalize(x)
+        [means, sigmas] = self.agent.gpsCosts[gpIndex].predict(x, return_std=True)
+
+        observedInput = self.agent.prevBids[:, gpIndex]
+        observedOutput = self.agent.dividePotentialClicks(self.agent.prevCosts[:, gpIndex] * 24.0, self.agent.prevHours[:, gpIndex])
+        plt.figure(gpIndex+10)
+
+        plt.plot(observedInput, observedOutput, 'r.', markersize=10, label=u'Observations')
+
+        plt.plot(bidPoints, means, 'b-', label=u'Prediction')
+        plt.fill(np.concatenate([bidPoints, bidPoints[::-1]]),
+                 np.concatenate([means - 1.9600 * sigmas,
+                                 (means + 1.9600 * sigmas)[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='95% confidence interval')
+        plt.xlabel('$x$')
+        plt.ylabel('$f(x)$')
+        plt.ylim(-10, np.max(observedOutput.max() * 1.5))
+        plt.legend(loc='upper left')
+        plt.show()

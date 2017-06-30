@@ -8,7 +8,7 @@ from Environment import *
 from Auction import *
 from AgentAware import *
 from AgentPrior import *
-
+from AgentAle import *
 from Core import *
 from Plotter import *
 from matplotlib import pyplot as plt
@@ -24,7 +24,7 @@ lambdas = np.array([1.0 ,0.71, 0.56, 0.53, 0.49, 0.47])
 convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 
-deadline=80
+deadline=40
 nExperiments = 1
 revenuesOpt = np.zeros((nExperiments,deadline))
 revenuesTest = np.zeros((nExperiments,deadline))
@@ -43,15 +43,15 @@ campaigns=[]
 campaigns.append(Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
 campaigns.append(Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
 campaigns.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
-campaigns.append( Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
+#campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
+#campaigns.append( Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
 
 
 
 env2 = Environment(copy.copy(campaigns))
 
 
-agentAware = AgentAware(budgetTot=1000, deadline= deadline,environment=env2, ncampaigns=len(campaigns), nIntervals=nIntervals, nBids=nBids,maxBudget=100.0)
+agentAware = AgentAle(budgetTot=1000, deadline= deadline,environment=env2, ncampaigns=len(campaigns), nIntervals=nIntervals, nBids=nBids,maxBudget=100.0)
 #agentAware.setValuesPerClick(values)
 
 for e in range(0,nExperiments):
