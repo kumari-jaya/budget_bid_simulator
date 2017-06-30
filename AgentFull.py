@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 import time as time
 
 
-class Agent:
+class AgentFull:
 
     def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
         self.budgetTot = budgetTot
@@ -124,42 +124,64 @@ class Agent:
         self.updateValuesPerClick()
         self.t +=1
 
-    def valueForBudget(self,itemIdx,budget,values):
-        idx = np.isclose(budget,self.budgets)
+    def valueForBudget(self,itemIdx,budget,budgetArray,values,maxBudget):
+        idx = np.argwhere(np.isclose(budget,budgetArray))
         if (len(idx)>0):
             return values[itemIdx,idx]
-        idx = np.argwhere(budget>=self.budgets)
+        minimo = min(budget,maxBudget)
+        idx = np.argwhere(minimo>=budgetArray)
+        if (len(idx)==0): #caso in cui ho settato il minimo e budget è fuori dalla matrice
+            return -100
         return values[itemIdx,idx.max()]
 
-    def firstRow(self,values):
-        firstRow = np.zeros(len(self.budgets)).tolist()
-        for i,b in enumerate(self.budgets):
+    def firstRow(self,values,budgets):
+        firstRow = np.zeros(len(budgets)).tolist()
+        for i,b in enumerate(budgets):
             firstRow[i]=[[values[0,i]],[0],[b]]
         return firstRow
 
+    def cutMinBud(self,values, minBud):
+        indexEq = np.argwhere(np.isclose(self.budgets,minBud))
+        indexUp = np.argwhere(self.budgets > minBud)
+        indexes = np.append(indexEq,indexUp)
+        values = values[:,indexes]
+        return values,indexes
 
-    def optimize(self,values):
+    def cutMaxBud(self,values,maxBud):
+        index = np.argwhere(self.budgets > maxBud)
+        values[:,index] = 0
+        return values
+
+    def optimize(self,values, maxBud, minBud):
         #start = time.time()
+        budgets = self.budgets
+        if maxBud < self.maxTotDailyBudget:
+            # nel caso del massimo metto a 0 tutti i valori delle colonne sopra il massimo
+            values = self.cutMaxBud(values,maxBud)
+        if minBud > 0:
+            # nel caso del minimo tolgo le colonne prima del minimo e tolgo anche i budgets
+            values,indexes = self.cutMinBud(values,minBud)
+            budgets = self.budgets[indexes]
         valIdx = 0
         itIdx = 1
         bIdx = 2
-        h = np.zeros(shape=(self.ncampaigns,len(self.budgets)))
+        h = np.zeros(shape=(self.ncampaigns,len(budgets)))
         h=h.tolist()
-        h[0] = self.firstRow(values)
+        h[0] = self.firstRow(values,budgets)
         for i in range(1,self.ncampaigns):
-            for j,b in enumerate(self.budgets):
+            for j,b in enumerate(budgets):
                 h[i][j] = h[i-1][j][:]
                 maxVal = 0
                 for bi in range(0,j+1):
-                    if ((np.sum(h[i-1][bi][valIdx]) + self.valueForBudget(i,b - self.budgets[bi],values)) >maxVal):
+                    if ((np.sum(h[i-1][bi][valIdx]) + self.valueForBudget(i,b - budgets[bi],budgets,values,maxBud)) >maxVal):
                         val = h[i-1][bi][valIdx][:]
-                        val.append(self.valueForBudget(i,b - self.budgets[bi],values))
+                        val.append(self.valueForBudget(i,b - budgets[bi],budgets,values,maxBud))
                         newValues = val[:]
                         items = h[i-1][bi][itIdx][:]
                         items.append(i)
                         newItems = items[:]
                         selBudgets = h[i-1][bi][bIdx][:]
-                        selBudgets.append(b - self.budgets[bi])
+                        selBudgets.append(b - budgets[bi])
                         newSelBudgets = selBudgets[:]
                         h[i][j]=[newValues,newItems,newSelBudgets]
                         maxVal = np.sum(newValues)
