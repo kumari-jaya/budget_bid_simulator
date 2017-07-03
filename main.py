@@ -35,8 +35,8 @@ a4= Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas)
 c=[]
 c.append(Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
 c.append(Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-#c.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-#c.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
+c.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
+c.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
 #c.append(Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
 ncampaigns=len(c)
 
@@ -61,6 +61,7 @@ core = Core(agent, env, deadline)
 for t in range(0,deadline):
     print t
     core.step()
+
     #plotter.plotGP_prior(0, fixedBid=True, bid=1.0, y_min=0,y_max=200)
     #plt.savefig('myfig_'+str(t))
 
@@ -81,9 +82,10 @@ for t in range(0,deadline):
 plt.figure(3)
 plt.plot(np.sum(agent.prevClicks,axis=1))
 
-
+"""
 plt.ylim(-10,600)
-plotter.plotClicksAgentBid(0)
+plotter.plotClicksAgentBid(1)
 
-plotter.plotCostsAgentBid(0)
+plotter.plotCostsAgentBid(1)
 #plotter.plotCostsAgentBid(2)
+"""

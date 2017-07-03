@@ -9,6 +9,7 @@ from Auction import *
 from Agent import *
 from AgentPrior import *
 from AgentUCB import *
+from AgentMarcello import *
 from Core import *
 from matplotlib import pyplot as plt
 from Plotter import *
@@ -64,7 +65,7 @@ c3 = Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
 env = Environment([c1,c2,c3])
 nBids=5
 nIntervals=10
-deadline = 100
+deadline = 2
 maxBudget = 100
 agent = Agent(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
 agent.initGPs()
@@ -93,21 +94,22 @@ for i in range(0,ncampaigns):
     optValue += tempValue
 optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
-nexperiments = 40
+nexperiments = 3
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!
 matrixValuesThomp = np.zeros((nexperiments,deadline))
 matrixValuesUCB = np.zeros((nexperiments,deadline))
 
-out = Parallel(n_jobs=-1)(
+out = Parallel(n_jobs=3)(
         delayed(experiment)(k) for k in xrange(nexperiments))
 
 for i in range(nexperiments):
     matrixValuesThomp[i,:] = out[i][0]
     matrixValuesUCB[i,:] = out[i][1]
 
-np.save("/home/gugohb/Dropbox/thesis_agos/plot/dati_plot/valore_ottimo_3c",optValue)
-np.save("/home/gugohb/Dropbox/thesis_agos/plot/dati_plot/matrice_thompson_3c",matrixValuesThomp)
-np.save("/home/gugohb/Dropbox/thesis_agos/plot/dati_plot/matrice_UCB_3c",matrixValuesUCB)
+print "opt value:", optValue
+#np.save("/home/alessandro/Dropbox/thesis_agos/plot/dati_plot_alessandro/valore_ottimo_3c",optValue)
+#np.save("/home/alessandro/Dropbox/thesis_agos/plot/dati_plot_alessandro/matrice_thompson_3c",matrixValuesThomp)
+#np.save("/home/alessandro/Dropbox/thesis_agos/plot/dati_plot_alessandro/matrice_UCB_3c",matrixValuesUCB)
 finalValuesThomp = matrixValuesThomp.mean(axis=0)
 finalValuesUCB = matrixValuesUCB.mean(axis=0)
-plotter.performancePlotComparison(optValue,finalValuesThomp,finalValuesUCB,"/home/gugohb/Dropbox/thesis_agos/plot/thompson_vs_UCB_3c.pdf")
+plotter.performancePlotComparison(optValue,finalValuesThomp,finalValuesUCB,"/home/gugohb/Dropbox/thesis_agos/plot/thompson_vs_marc_3c.pdf")

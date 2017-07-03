@@ -84,30 +84,48 @@ class AgentMarcello:
     def updateClickGP(self,c):
         self.prevBids=np.atleast_2d(self.prevBids)
         self.prevClicks=np.atleast_2d(self.prevClicks)
-        x=np.array([self.prevBids.T[c,:]])
+        self.prevBudgets = np.atleast_2d(self.prevBudgets)
+        bud =self.prevBudgets.T[c,:]
+        x=self.prevBids.T[c,:]
         #x=np.atleast_2d(x).T
+
         xnorm=self.normalize(x)
+        idxsNoZero = np.argwhere(bud!=0).reshape(-1)
+        xnorm = xnorm[idxsNoZero]
+        xnorm = np.atleast_2d(xnorm)
         potentialClicks = self.dividePotentialClicks(self.prevClicks* 24.0, self.prevHours)
         y = potentialClicks.T[c, :].ravel()
-        self.gpsClicks[c].fit(xnorm.T, y)
+
+        # remove 0 in training
+        y = y[idxsNoZero]
+        if(len(y)>0):
+            self.gpsClicks[c].fit(xnorm.T, y)
 
 
     def updateCostGP(self,c):
         self.prevBids=np.atleast_2d(self.prevBids)
         self.prevCosts=np.atleast_2d(self.prevCosts)
-        x=np.array([self.prevBids.T[c,:]])
+        self.prevBudgets = np.atleast_2d(self.prevBudgets)
+        bud = self.prevBudgets.T[c, :]
+
+        x=self.prevBids.T[c,:]
         #x=np.atleast_2d(x).T
         xnorm=self.normalize(x)
+
+        idxsNoZero = np.argwhere(bud!=0).reshape(-1)
+        xnorm = xnorm[idxsNoZero]
+        xnorm = np.atleast_2d(xnorm)
         potentialCosts = self.dividePotentialClicks(self.prevCosts * 24.0, self.prevHours)
         y = potentialCosts.T[c, :].ravel()
-        self.gpsCosts[c].fit(xnorm.T, y)
+        y = y[idxsNoZero]
+        if(len(y)>0):
+            self.gpsCosts[c].fit(xnorm.T, y)
 
 
 
 
     def updateGP(self,c):
         self.updateCostGP(c)
-
         self.updateClickGP(c)
 
 
@@ -199,21 +217,43 @@ class AgentMarcello:
 
     def updateCostsPerBids(self):
         for c in range(0,self.ncampaigns):
-            x = self.normalize(self.bids.T)
+            bidPoints = self.bids[:]
+            x = np.array([bidPoints.T])
             x = np.atleast_2d(x).T
+            x = self.normalize(x)
+
             [mean,sigma]=self.gpsCosts[c].predict(x,return_std=True)
             self.costsPerBid[c,:] = np.random.normal(mean,sigma)
+            idxs = np.argwhere(self.bids==0).reshape(-1)
+            for i in idxs:
+                self.costsPerBid[c,i]=0.0
+        return self.costsPerBid
 
 
     def updateClicksPerBids(self):
+
         for c in range(0,self.ncampaigns):
-            x = self.normalize(self.bids.T)
+            bidPoints = self.bids[:]
+            x = np.array([bidPoints.T])
             x = np.atleast_2d(x).T
+            x = self.normalize(x)
 
             [mean,sigma]=self.gpsClicks[c].predict(x,return_std=True)
             self.clicksPerBid[c,:] = np.random.normal(mean,sigma)
-            return self.clicksPerBid[c,:]
 
+            idxs = np.argwhere(self.bids==0).reshape(-1)
+            for i in idxs:
+                self.clicksPerBid[c,i]=0.0
+        return self.clicksPerBid
+
+
+    def divideFloat(self,numerator,denominator):
+        res = numerator/denominator
+        if np.isnan(res):
+            return 0.0
+        if np.isinf(res):
+            return 0.0
+        return res
 
     def generateBidBudgetMatrix(self):
         for c in range(0,self.ncampaigns):
@@ -222,13 +262,13 @@ class AgentMarcello:
                     if(self.costsPerBid[c,i]<bud):
                         self.bidBudgetMatrix[c,i,j] = self.clicksPerBid[c,i]
                     else:
-                        self.bidBudgetMatrix[c,i,j] = self.clicksPerBid[c,i] * bud/self.costsPerBid[c,i]
+                        self.bidBudgetMatrix[c,i,j] = self.divideFloat(self.clicksPerBid[c,i] * bud,self.costsPerBid[c,i])
 
 
     def updateOptimalBidPerBudget(self):
         for c in range(0,self.ncampaigns):
             for b in range(0,self.nBudgetIntervals):
-                idx = np.argwhere(self.bidBudgetMatrix[c,b,:]==self.bidBudgetMatrix[c,b,:].max()).reshape(-1)
+                idx = np.argwhere(self.bidBudgetMatrix[c,:,b]==self.bidBudgetMatrix[c,:,b].max()).reshape(-1)
                 idx = np.random.choice(idx)
                 self.optimalBidPerBudget[c,b] = self.bids[idx]
 
@@ -236,7 +276,7 @@ class AgentMarcello:
     def valuesForCampaigns(self,sampling=False):
         for c in range(0,self.ncampaigns):
             for b in range(0,self.nBudgetIntervals):
-                self.campaignsValues[c,b] = self.bidBudgetMatrix[c,b,:].max() * self.valuesPerClick[c]
+                self.campaignsValues[c,b] = self.bidBudgetMatrix[c,:,b].max() * self.valuesPerClick[c]
 
         return self.campaignsValues
 
@@ -271,7 +311,7 @@ class AgentMarcello:
 
     def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
 
-        if self.t<=5:
+        if self.t<=4:
             return [ np.ones(self.ncampaigns)*self.maxTotDailyBudget/self.ncampaigns , np.random.choice(self.bids,self.ncampaigns)]
         self.updateCostsPerBids()
         self.updateClicksPerBids()
@@ -285,7 +325,7 @@ class AgentMarcello:
             finalBudgets[c] = newBudgets[i]
             idx = np.argwhere(np.isclose(self.budgets,newBudgets[i])).reshape(-1)
             finalBids[c] = self.optimalBidPerBudget[c,idx]
-        return [np.maximum(finalBudgets,10.0),finalBids]
+        return [finalBudgets,finalBids]
 
 
     def normalizeBudgetArray(self,budgetArray):
