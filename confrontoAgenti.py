@@ -30,14 +30,16 @@ campaigns.append(Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convpar
 campaigns.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
 campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
 campaigns.append(Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
+campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.35 ,convParams= convparams))
+campaigns.append(Campaign(a4, nusers=1350.0 , probClick=0.41 ,convParams= convparams))
 
 ncampaigns = len(campaigns)
-nIntervals = 10
-nBids = 10
+nIntervals = 15
+nBids = 15
 maxBudget = 100
-deadline = 60
+deadline = 150
 
-nExperiments = 20
+nExperiments = 80
 nAlgorithms =2
 
 results2D = np.zeros(shape=(nExperiments,deadline))
@@ -68,7 +70,7 @@ def experiment(k):
 
 
 
-out = Parallel(n_jobs=3)(
+out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
 for e in range(0,nExperiments):
@@ -82,6 +84,7 @@ fileName3D = "results3D_" + str(len(campaigns)) + "_campagne"
 np.save(fileName2D,results2D)
 np.save(fileName3D,results3D)
 
+"""
 optimum = np.ones(deadline)*146.2
 
 plt.figure(0)
@@ -89,6 +92,7 @@ plt.plot(np.mean(results2D,axis=0),color='r')
 plt.plot(np.mean(results3D,axis=0),color = 'b')
 plt.plot(optimum,color='g')
 plt.legend({'2D','3D'})
+"""
 
 
 
