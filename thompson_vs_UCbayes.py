@@ -58,12 +58,12 @@ ncampaigns=3
 c1 = Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams)
 c2 = Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
 c3 = Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
-#c4 = Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams)
-#c5 = Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams)
+c4 = Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams)
+c5 = Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams)
 
 
 env = Environment([c1,c2,c3])
-nBids=5
+nBids=10
 nIntervals=10
 deadline = 2
 maxBudget = 100
