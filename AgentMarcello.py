@@ -310,7 +310,6 @@ class AgentMarcello:
 
 
     def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
-
         if self.t<=4:
             return [ np.ones(self.ncampaigns)*self.maxTotDailyBudget/self.ncampaigns , np.random.choice(self.bids,self.ncampaigns)]
         self.updateCostsPerBids()
@@ -404,4 +403,3 @@ class AgentMarcello:
             print "prior ",self.prior(x,self.prevClicks[:,gpIndex])
             """
             return y_new,sigma_y
-

@@ -291,13 +291,13 @@ class PlotterFinal:
     def performancePlotComparison(self, optValue, valuesThomp, valuesUCB, nomefile):
         optArray = np.repeat(optValue,len(valuesThomp))
         plt.plot(optArray, 'b-', label=u'Optimum')
-        plt.plot(valuesThomp, 'r-', label=u'Thompson values')
-        plt.plot(valuesUCB, 'g-', label=u'UCBayes values')
+        plt.plot(valuesThomp, 'r-', label=u'2D')
+        plt.plot(valuesUCB, 'g-', label=u'3D')
         plt.xlabel('Time step')
         plt.ylabel('Conversions')
         plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
-        plt.savefig(nomefile,bbox_inches='tight')
+        #plt.savefig(nomefile,bbox_inches='tight')
         plt.show()
 
     def regretPlot(self, optValue, choiceValues, nomefile):

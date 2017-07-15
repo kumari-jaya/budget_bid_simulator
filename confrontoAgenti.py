@@ -39,7 +39,7 @@ nBids = 10
 maxBudget = 100
 deadline = 60
 
-nExperiments = 20
+nExperiments = 4
 nAlgorithms =2
 
 results2D = np.zeros(shape=(nExperiments,deadline))
@@ -70,24 +70,21 @@ def experiment(k):
 
 
 
-out = Parallel(n_jobs=20)(
+out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
 for e in range(0,nExperiments):
     results2D[e,:] = out[e][0]
     results3D[e,:] = out[e][1]
 
-
+'''
 fileName2D = "results2D_" + str(len(campaigns)) + "_campagne"
 fileName3D = "results3D_" + str(len(campaigns)) + "_campagne"
 
 np.save(fileName2D,results2D)
 np.save(fileName3D,results3D)
-
+'''
 plt.figure(0)
 plt.plot(np.mean(results2D,axis=0),color='r')
 plt.plot(np.mean(results3D,axis=0),color = 'b')
 plt.legend({'2D','3D'})
-
-
-
