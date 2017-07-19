@@ -57,23 +57,27 @@ a1= Auction(nbidders=5 , nslots=5, mu=0.59 , sigma=0.2, lambdas=lambdas)
 a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
 a3= Auction(nbidders=6 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas)
 a4= Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas)
+a5= Auction(nbidders=5 , nslots=5, mu=0.5 , sigma=0.15, lambdas=lambdas)
 
 
 campaigns=[]
 campaigns.append(Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
 campaigns.append(Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
 campaigns.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-#campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
-#campaigns.append(Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
-#campaigns.append(Campaign(a2, nusers=4000.0 , probClick=0.1 ,convParams= convparams))
-#campaigns.append(Campaign(a1, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
+campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
+campaigns.append(Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
+campaigns.append(Campaign(a2, nusers=4000.0 , probClick=0.1 ,convParams= convparams))
+campaigns.append(Campaign(a1, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
+campaigns.append(Campaign(a5, nusers=2000.0 , probClick=0.5 ,convParams= convparams))
+campaigns.append(Campaign(a5, nusers=4000.0 , probClick=0.2 ,convParams= convparams))
+campaigns.append(Campaign(a3, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
 
 ncampaigns = len(campaigns)
 
 env = Environment(campaigns)
-nBids=5
-nIntervals=7
-deadline = 60
+nBids=10
+nIntervals=10
+deadline = 100
 maxBudget = 100
 
 agent = AgentPrior(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
@@ -121,10 +125,10 @@ for i in range(nexperiments):
     results3D[i,:] = out[i][3]
 
 print "opt value:", optValue
-#np.save("/home/alessandro/Dropbox/thesis_agos/plot/dati_plot_alessandro/valore_ottimo_3c",optValue)
-#np.save("/home/alessandro/Dropbox/thesis_agos/plot/dati_plot_alessandro/matrice_thompson_3c",matrixValuesThomp)
-#np.save("/home/alessandro/Dropbox/thesis_agos/plot/dati_plot_alessandro/matrice_UCB_3c",matrixValuesUCB)
+#np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/valore_ottimo_10c",optValue)
+#np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/matrice_valori_2D_10c",results2D)
+#np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/matrice_valori_3D_10c",results3D)
 finalValues2D = matrixValues2D.mean(axis=0)
 finalValues3D = matrixValues3D.mean(axis=0)
-plotter.performancePlotComparison(optValue,finalValues2D,finalValues3D,"/home/gugohb/Desktop/2D_vs_3D_3c.pdf")
-plotter.performancePlotComparison(optValue,np.mean(results2D,axis=0),np.mean(results3D,axis=0),"/home/gugohb/Desktop/2D_vs_3D_3c.pdf")
+plotter.performancePlotComparison(optValue,finalValues2D,finalValues3D,"/home/gugohb/Dropbox/Tesi/figures/2D_vs_3D_10c_100.pdf")
+plotter.performancePlotComparison(optValue,np.mean(results2D,axis=0),np.mean(results3D,axis=0),"/home/gugohb/Dropbox/Tesi/figures/2D_vs_3D_10c_sumconv_100.pdf")

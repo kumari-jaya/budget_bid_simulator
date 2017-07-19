@@ -311,7 +311,11 @@ class AgentMarcello:
 
     def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
         if self.t<=4:
-            return [ np.ones(self.ncampaigns)*self.maxTotDailyBudget/self.ncampaigns , np.random.choice(self.bids,self.ncampaigns)]
+            equalBud = self.maxTotDailyBudget/self.ncampaigns
+            bud = self.budgets[np.max(np.argwhere(self.budgets <= equalBud))] #prendo il primo budget più piccolo della ripartiizone equa
+            buds = np.ones(self.ncampaigns)*bud
+            buds[-1] = (self.maxTotDailyBudget - (self.ncampaigns - 1)*bud)
+            return [buds , np.random.choice(self.bids,self.ncampaigns)]
         self.updateCostsPerBids()
         self.updateClicksPerBids()
         self.generateBidBudgetMatrix()
