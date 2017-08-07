@@ -25,9 +25,9 @@ def experiment(k):
     env3D = Environment(copy.copy(campaigns))
     core2D = Core(agent2D, env2D, deadline)
     core3D = Core(agent3D,env3D,deadline)
-
     chosenValues2D = np.zeros((deadline))
     chosenValues3D = np.zeros((deadline))
+    """
     for t in range(0,deadline):
         print "Day: ",t+1
         core2D.step()
@@ -43,8 +43,15 @@ def experiment(k):
             indBudUC = np.argwhere(np.isclose(agent3D.budgets, lastBudgets3D[i]))
             indBidUC = np.argwhere(np.isclose(agent3D.bids, lastBids3D[i]))
             chosenValues3D[t] += listMatrices[i][indBudUC,indBidUC] *convparams[0]
+    """
+    core2D.runEpisode()
+    core3D.runEpisode()
     conv2D=np.sum(agent2D.prevConversions,axis=1)
     conv3D= np.sum(agent3D.prevConversions,axis=1)
+    position2d =  "/home/mmm/cartella_guglielmo/dati/2dvs3d/valori_2d_" + str(k)
+    np.save(postiion2d,conv2D)
+    position3d =  "/home/mmm/cartella_guglielmo/dati/2dvs3d/valori_3d_" + str(k)
+    np.save(postiion3d,conv3D)
     return chosenValues2D,chosenValues3D,conv2D,conv3D
 
 
@@ -108,14 +115,14 @@ for i in range(0,ncampaigns):
 optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
 
-nexperiments = 4
+nexperiments = 100
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!
 matrixValues2D = np.zeros((nexperiments,deadline))
 matrixValues3D = np.zeros((nexperiments,deadline))
 results2D = np.zeros(shape=(nexperiments,deadline))
 results3D = np.zeros(shape=(nexperiments,deadline))
 
-out = Parallel(n_jobs=-1)(
+out = Parallel(n_jobs=20)(
         delayed(experiment)(k) for k in xrange(nexperiments))
 
 for i in range(nexperiments):
@@ -125,10 +132,14 @@ for i in range(nexperiments):
     results3D[i,:] = out[i][3]
 
 print "opt value:", optValue
-#np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/valore_ottimo_10c",optValue)
-#np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/matrice_valori_2D_10c",results2D)
-#np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/matrice_valori_3D_10c",results3D)
-finalValues2D = matrixValues2D.mean(axis=0)
-finalValues3D = matrixValues3D.mean(axis=0)
-plotter.performancePlotComparison(optValue,finalValues2D,finalValues3D,"/home/gugohb/Dropbox/Tesi/figures/2D_vs_3D_10c_100.pdf")
-plotter.performancePlotComparison(optValue,np.mean(results2D,axis=0),np.mean(results3D,axis=0),"/home/gugohb/Dropbox/Tesi/figures/2D_vs_3D_10c_sumconv_100.pdf")
+np.save("/home/mmm/cartella_guglielmo/dati/2dvs3d/valore_ottimo_10c",optValue)
+#np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_2D_10c",results2D)
+#np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_3D_10c",results3D)
+#finalValues2D = matrixValues2D.mean(axis=0)
+#finalValues3D = matrixValues3D.mean(axis=0)
+#plotter.performancePlotComparison(optValue,finalValues2D,finalValues3D,"/home/gugohb/Dropbox/Tesi/figures/2D_vs_3D_10c_100.pdf")
+means2d = np.mean(results2D,axis=0)
+means3d = np.mean(results3D,axis=0)
+sigmas2d = np.sqrt(np.var(result2D,axis=0))
+sigmas3d = np.sqrt(np.var(result3D,axis=0))
+plotter.performancePlotComparison(optValue,means2D,sigmas2D,means3D,sigmas3D,"/home/mmm/cartella_guglielmo/figure/2dvs3d/2D_vs_3D_10c_sumconv_100.pdf")

@@ -288,17 +288,27 @@ class PlotterFinal:
         plt.savefig(nomefile,bbox_inches='tight')
         plt.show()
 
-    def performancePlotComparison(self, optValue, valuesThomp, valuesUCB, nomefile):
+    def performancePlotComparison(self, optValue, values1, sigmas1, values2, sigmas2, nomefile):
         optArray = np.repeat(optValue,len(valuesThomp))
         plt.plot(optArray, 'b-', label=u'Optimum')
-        plt.plot(valuesThomp, 'r-', label=u'2D')
-        plt.plot(valuesUCB, 'g-', label=u'3D')
+        plt.plot(values1, 'r-', label=u'2D')
+        plt.plot(values2, 'g-', label=u'3D')
+        plt.fill(np.concatenate([range(0,100), range(0,100)[::-1]]),
+                 np.concatenate([values1 - 1.9600 * sigmas1,
+                                 (values1 + 1.9600 * sigmas1)[::-1]]),
+                 alpha=.5, fc='r', ec='None', label='95% confidence interval 2D')
+        plt.fill(np.concatenate([range(0,100), range(0,100)[::-1]]),
+                 np.concatenate([values2 - 1.9600 * sigmas2,
+                                 (values2 + 1.9600 * sigmas2)[::-1]]),
+                 alpha=.5, fc='g', ec='None', label='95% confidence interval 3D')
+
+
         plt.xlabel('Time step')
         plt.ylabel('Conversions')
         plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
         plt.savefig(nomefile,bbox_inches='tight')
-        plt.show()
+        #plt.show()
 
     def regretPlot(self, optValue, choiceValues, nomefile):
         optArray = np.repeat(optValue,len(choiceValues))
