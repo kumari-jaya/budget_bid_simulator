@@ -96,7 +96,7 @@ class Plotter:
                  alpha=.5, fc='b', ec='None', label='95% confidence interval')
         plt.xlabel('$x$')
         plt.ylabel('$f(x)$')
-        plt.ylim(-10, np.max(self.agent.prevClicks[:,gpIndex])*1.5)
+        plt.ylim(-10, np.max(self.agent.prevClicks[gpIndex,:])*1.5)
         plt.legend(loc='upper left')
         plt.show()
 

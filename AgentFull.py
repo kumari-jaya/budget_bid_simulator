@@ -7,7 +7,7 @@ Created on Wed May 24 10:44:49 2017
 
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF,DotProduct, ConstantKernel as C
 from matplotlib import pyplot as plt
 import time as time
 
@@ -59,6 +59,7 @@ class AgentFull:
             #kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
             l = np.array([1.0, 1.0])
             kernel = C(1.0, (1e-3, 1e3))*RBF(l, ((1e-3, 1e3),(1e-3, 1e3)))
+            kernel = kernel*DotProduct(1.0)
             #l=1.0
             #kernel = C(1.0, (1e-3, 1e3)) * RBF(l, (1e-3, 1e3))
             alpha=200
@@ -187,6 +188,7 @@ class AgentFull:
                         maxVal = np.sum(newValues)
         newBudgets=h[-1][-1][2]
         newCampaigns=h[-1][-1][1]
+        print h[-1]
         # se non mi lista alcune campagne le listo comunque con budget 0!
         if len(newBudgets) < self.ncampaigns:
             temp = np.zeros(self.ncampaigns)

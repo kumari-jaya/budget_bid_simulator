@@ -49,7 +49,7 @@ agent = Agent(1000, deadline, 2,nIntervals,nBids,maxBudget)
 agent.initGPs()
 core = Core(agent, env, deadline)
 core.runEpisode()
-
+"""
 plotter = Plotter(agent=agent,env=env)
 [clicks,budgets] = plotter.trueSample(bid2,maxBudget,nsimul=10)
 #campagna 1
@@ -67,7 +67,7 @@ plotter.plotGPComparison(1,clicks,budgets,fixedBid=True,bid=bid2)
 
 
 
-
+"""
 
 
 """
