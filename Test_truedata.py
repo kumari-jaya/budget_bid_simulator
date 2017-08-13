@@ -29,12 +29,10 @@ def experiment(k):
     core3D.runEpisode()
     conv2D=np.sum(agent2D.prevConversions,axis=1)
     conv3D= np.sum(agent3D.prevConversions,axis=1)
-    """
-    position2d =  "/home/mmm/cartella_guglielmo/dati/2dvs3d/valori_2d_" + str(k)
+    position2d =  "/home/mmm/cartella_guglielmo/dati/truedata/valori_2d_" + str(k)
     np.save(postiion2d,conv2D)
-    position3d =  "/home/mmm/cartella_guglielmo/dati/2dvs3d/valori_3d_" + str(k)
+    position3d =  "/home/mmm/cartella_guglielmo/dati/truedata/valori_3d_" + str(k)
     np.save(postiion3d,conv3D)
-    """
     return conv2D,conv3D
 
 
@@ -54,8 +52,8 @@ campaigns=[]
 campaigns.append(Campaign_TrueData(a1, nusers=1000.0 ,convParams= convparams))
 campaigns.append(Campaign_TrueData(a2, nusers=1500.0 ,convParams= convparams))
 campaigns.append(Campaign_TrueData(a3, nusers=1500.0 ,convParams= convparams))
-#campaigns.append(Campaign_TrueData(a2, nusers=1000.0 ,convParams= convparams))
-#campaigns.append(Campaign_TrueData(a4, nusers=1250.0 ,convParams= convparams))
+campaigns.append(Campaign_TrueData(a2, nusers=1000.0 ,convParams= convparams))
+campaigns.append(Campaign_TrueData(a4, nusers=1250.0 ,convParams= convparams))
 #campaigns.append(Campaign_TrueData(a2, nusers=4000.0 ,convParams= convparams))
 #campaigns.append(Campaign_TrueData(a1, nusers=1250.0 ,convParams= convparams))
 #campaigns.append(Campaign_TrueData(a5, nusers=2000.0 ,convParams= convparams))
@@ -65,9 +63,9 @@ campaigns.append(Campaign_TrueData(a3, nusers=1500.0 ,convParams= convparams))
 ncampaigns = len(campaigns)
 
 env = Environment(campaigns)
-nBids=5
-nIntervals=5
-deadline = 50
+nBids=10
+nIntervals=10
+deadline = 100
 maxBudget = 100
 
 agent = AgentPrior(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
@@ -77,7 +75,7 @@ plotter = PlotterFinal(agent=agent,env=env)
 # mi creo una lista con tutte le matrici dell'oracolo di ogni campagna
 listMatrices = list()
 for i in range(0,ncampaigns):
-    matrix = plotter.oracleMatrix(indexCamp=i,nsimul=2)
+    matrix = plotter.oracleMatrix(indexCamp=i,nsimul=8)
     listMatrices.append(matrix)
     if i==0:
         optMatrix = np.array([matrix.max(axis=1)])
@@ -97,8 +95,9 @@ for i in range(0,ncampaigns):
     optValue += tempValue
 optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
+np.save("/home/mmm/cartella_guglielmo/dati/truedata/valore_ottimo",optValue)
 
-nexperiments = 2
+nexperiments = 50
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!
 results2D = np.zeros(shape=(nexperiments,deadline))
 results3D = np.zeros(shape=(nexperiments,deadline))
@@ -110,7 +109,6 @@ for i in range(nexperiments):
     results2D[i,:] = out[i][0]
     results3D[i,:] = out[i][1]
 
-print "opt value:", optValue
 #np.save("/home/mmm/cartella_guglielmo/dati/2dvs3d/valore_ottimo_10c",optValue)
 #np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_2D_10c",results2D)
 #np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_3D_10c",results3D)
@@ -121,4 +119,4 @@ means2d = np.mean(results2D,axis=0)
 means3d = np.mean(results3D,axis=0)
 sigmas2d = np.sqrt(np.var(results2D,axis=0))
 sigmas3d = np.sqrt(np.var(results3D,axis=0))
-plotter.performancePlotComparison(optValue,means2d,sigmas2d,means3d,sigmas3d,"/home/mmm/cartella_guglielmo/figure/2dvs3d/2D_vs_3D_10c_sumconv_100.pdf")
+plotter.performancePlotComparison(optValue,means2d,sigmas2d,means3d,sigmas3d,"/home/mmm/cartella_guglielmo/figure/truedata/2D_vs_3D_truedata.pdf")

@@ -114,7 +114,8 @@ for i in range(0,ncampaigns):
     optValue += tempValue
 optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
-
+np.save("/home/mmm/cartella_guglielmo/dati/2dvs3d/valore_ottimo",optValue)
+"""
 nexperiments = 100
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!
 matrixValues2D = np.zeros((nexperiments,deadline))
@@ -132,10 +133,9 @@ for i in range(nexperiments):
     results3D[i,:] = out[i][3]
 
 print "opt value:", optValue
-np.save("/home/mmm/cartella_guglielmo/dati/2dvs3d/valore_ottimo_10c",optValue)
 #np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_2D_10c",results2D)
 #np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_3D_10c",results3D)
-#finalValues2D = matrixValues2D.mean(axis=0)
+#finalValues2D = matrixValues2D.mean(axis=0
 #finalValues3D = matrixValues3D.mean(axis=0)
 #plotter.performancePlotComparison(optValue,finalValues2D,finalValues3D,"/home/gugohb/Dropbox/Tesi/figures/2D_vs_3D_10c_100.pdf")
 means2d = np.mean(results2D,axis=0)
@@ -143,3 +143,4 @@ means3d = np.mean(results3D,axis=0)
 sigmas2d = np.sqrt(np.var(results2D,axis=0))
 sigmas3d = np.sqrt(np.var(results3D,axis=0))
 plotter.performancePlotComparison(optValue,means2d,sigmas2d,means3d,sigmas3d,"/home/mmm/cartella_guglielmo/figure/2dvs3d/2D_vs_3D_10c_sumconv_100.pdf")
+"""

@@ -89,7 +89,7 @@ def experiment(k):
     position20 =  "/home/mmm/cartella_guglielmo/dati/diversebid/valori_20bid_" + str(k)
     np.save(position20,conv3)
     position50 =  "/home/mmm/cartella_guglielmo/dati/diversebid/valori_50bid_" + str(k)
-    np.save(postiion50,conv4)
+    np.save(position50,conv4)
     return [conv1,conv2,conv3,conv4]
 
 

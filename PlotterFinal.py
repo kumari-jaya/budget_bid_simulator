@@ -307,8 +307,8 @@ class PlotterFinal:
         plt.ylabel('Conversions')
         plt.ylim(0, optValue * 1.5)
         plt.legend(loc='upper left')
-        #plt.savefig(nomefile,bbox_inches='tight')
-        plt.show()
+        plt.savefig(nomefile,bbox_inches='tight')
+        #plt.show()
 
     def regretPlot(self, optValue, choiceValues, nomefile):
         optArray = np.repeat(optValue,len(choiceValues))
