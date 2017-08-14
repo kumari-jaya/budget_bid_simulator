@@ -30,22 +30,24 @@ def experiment(k):
     conv2D=np.sum(agent2D.prevConversions,axis=1)
     conv3D= np.sum(agent3D.prevConversions,axis=1)
     position2d =  "/home/mmm/cartella_guglielmo/dati/truedata/valori_2d_" + str(k)
-    np.save(postiion2d,conv2D)
+    np.save(position2d,conv2D)
     position3d =  "/home/mmm/cartella_guglielmo/dati/truedata/valori_3d_" + str(k)
-    np.save(postiion3d,conv3D)
+    np.save(position3d,conv3D)
     return conv2D,conv3D
 
 
 
 convparams=np.array([0.4,100,200])
-lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
+lambdas1 = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
+lambdas2 = np.array([0.9, 0.8, 0.7])
+lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])
 
 
-a1= Auction_TrueData(nbidders=5 , nslots=5, lambdas=lambdas)
-a2= Auction_TrueData(nbidders=6 , nslots=5, lambdas=lambdas)
-a3= Auction_TrueData(nbidders=4 , nslots=3, lambdas=lambdas)
-a4= Auction_TrueData(nbidders=7 , nslots=7, lambdas=lambdas)
-a5= Auction_TrueData(nbidders=8 , nslots=7, lambdas=lambdas)
+a1= Auction_TrueData(nbidders=5 , nslots=5, lambdas=lambdas1)
+a2= Auction_TrueData(nbidders=6 , nslots=5, lambdas=lambdas1)
+a3= Auction_TrueData(nbidders=4 , nslots=3, lambdas=lambdas2)
+a4= Auction_TrueData(nbidders=7 , nslots=7, lambdas=lambdas3)
+a5= Auction_TrueData(nbidders=8 , nslots=7, lambdas=lambdas3)
 
 
 campaigns=[]
@@ -65,7 +67,7 @@ ncampaigns = len(campaigns)
 env = Environment(campaigns)
 nBids=10
 nIntervals=10
-deadline = 100
+deadline = 60
 maxBudget = 100
 
 agent = AgentPrior(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
