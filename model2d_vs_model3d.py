@@ -68,16 +68,16 @@ a5= Auction(nbidders=5 , nslots=5, mu=0.5 , sigma=0.15, lambdas=lambdas)
 
 
 campaigns=[]
-campaigns.append(Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
-campaigns.append(Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-campaigns.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
-campaigns.append(Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
-campaigns.append(Campaign(a2, nusers=4000.0 , probClick=0.1 ,convParams= convparams))
-campaigns.append(Campaign(a1, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
-campaigns.append(Campaign(a5, nusers=2000.0 , probClick=0.5 ,convParams= convparams))
-campaigns.append(Campaign(a5, nusers=4000.0 , probClick=0.2 ,convParams= convparams))
-campaigns.append(Campaign(a3, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
+campaigns.append(Campaign(a1, nUsers=1000.0, probClick=0.5, convParams= convparams))
+campaigns.append(Campaign(a2, nUsers=1500.0, probClick=0.6, convParams= convparams))
+campaigns.append(Campaign(a3, nUsers=1500.0, probClick=0.6, convParams= convparams))
+campaigns.append(Campaign(a2, nUsers=1000.0, probClick=0.5, convParams= convparams))
+campaigns.append(Campaign(a4, nUsers=1250.0, probClick=0.4, convParams= convparams))
+campaigns.append(Campaign(a2, nUsers=4000.0, probClick=0.1, convParams= convparams))
+campaigns.append(Campaign(a1, nUsers=1250.0, probClick=0.4, convParams= convparams))
+campaigns.append(Campaign(a5, nUsers=2000.0, probClick=0.5, convParams= convparams))
+campaigns.append(Campaign(a5, nUsers=4000.0, probClick=0.2, convParams= convparams))
+campaigns.append(Campaign(a3, nUsers=1250.0, probClick=0.4, convParams= convparams))
 
 ncampaigns = len(campaigns)
 

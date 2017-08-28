@@ -261,7 +261,7 @@ class PlotterFinal:
         plt.show()
         return [clicks,budgets]
 
-    def oracleMatrix(self,indexCamp,nsimul=10):
+    def oracleMatrix(self,indexCamp,nsimul=1):
         budgets = self.agent.budgets
         bids = self.agent.bids
         trueMatrix = np.zeros((len(budgets),len(bids)))

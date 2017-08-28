@@ -5,7 +5,7 @@ import numpy as np
 import math
 from Campaign_TrueData import *
 from Environment import *
-from Auction_TrueData import *
+from AuctionTrueData import *
 from AgentMarcello import *
 from AgentPrior import *
 from Core import *
@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from PlotterFinal import *
 from joblib import Parallel, delayed
 import copy
+
 
 def experiment(k):
     np.random.seed()
@@ -42,44 +43,38 @@ lambdas1 = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 lambdas2 = np.array([0.9, 0.8, 0.7])
 lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])
 
+probClick = np.array([0.5, 0.3, 0.4, 0.6])
 
-a1= Auction_TrueData(nbidders=5 , nslots=5, lambdas=lambdas1)
-a2= Auction_TrueData(nbidders=6 , nslots=5, lambdas=lambdas1)
-a3= Auction_TrueData(nbidders=4 , nslots=3, lambdas=lambdas2)
-a4= Auction_TrueData(nbidders=7 , nslots=7, lambdas=lambdas3)
-a5= Auction_TrueData(nbidders=8 , nslots=7, lambdas=lambdas3)
+a1 = AuctionTrueData(nbidders=5, nslots=5, lambdas=lambdas1, myClickProb=probClick[0])
+a2 = AuctionTrueData(nbidders=6, nslots=5, lambdas=lambdas1, myClickProb=probClick[1])
+a3 = AuctionTrueData(nbidders=4, nslots=3, lambdas=lambdas2, myClickProb=probClick[2])
+a4 = AuctionTrueData(nbidders=7, nslots=7, lambdas=lambdas3, myClickProb=probClick[3])
 
+campaigns = []
+campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=probClick[0], convParams=convparams))
+campaigns.append(Campaign(a2, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[1], convParams=convparams))
+campaigns.append(Campaign(a3, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[2], convParams=convparams))
+campaigns.append(Campaign(a4, nMeanResearch=1250.0, nStdResearch=50.0, probClick=probClick[3], convParams=convparams))
 
-campaigns=[]
-campaigns.append(Campaign_TrueData(a1, nusers=1000.0 ,convParams= convparams))
-campaigns.append(Campaign_TrueData(a2, nusers=1500.0 ,convParams= convparams))
-campaigns.append(Campaign_TrueData(a3, nusers=1500.0 ,convParams= convparams))
-campaigns.append(Campaign_TrueData(a2, nusers=1000.0 ,convParams= convparams))
-campaigns.append(Campaign_TrueData(a4, nusers=1250.0 ,convParams= convparams))
-#campaigns.append(Campaign_TrueData(a2, nusers=4000.0 ,convParams= convparams))
-#campaigns.append(Campaign_TrueData(a1, nusers=1250.0 ,convParams= convparams))
-#campaigns.append(Campaign_TrueData(a5, nusers=2000.0 ,convParams= convparams))
-#campaigns.append(Campaign_TrueData(a5, nusers=4000.0 ,convParams= convparams))
-#campaigns.append(Campaign_TrueData(a3, nusers=1250.0 ,convParams= convparams))
 
 ncampaigns = len(campaigns)
 
 env = Environment(campaigns)
-nBids=10
-nIntervals=10
-deadline = 60
+nBids = 5
+nIntervals = 5
+deadline = 20
 maxBudget = 100
 
 agent = AgentPrior(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
 agent.initGPs()
-plotter = PlotterFinal(agent=agent,env=env)
+plotter = PlotterFinal(agent=agent, env=env)
 
 # mi creo una lista con tutte le matrici dell'oracolo di ogni campagna
 listMatrices = list()
-for i in range(0,ncampaigns):
+for i in range(0, ncampaigns):
     matrix = plotter.oracleMatrix(indexCamp=i,nsimul=8)
     listMatrices.append(matrix)
-    if i==0:
+    if i == 0:
         optMatrix = np.array([matrix.max(axis=1)])
     else:
         maxrow = np.array([matrix.max(axis=1)])
@@ -90,21 +85,21 @@ for i in range(0,ncampaigns):
 
 # ora ricerco nelle matrici originali il numero di click nell'allocazione ottima
 optValue = 0
-for i in range(0,ncampaigns):
+for i in range(0, ncampaigns):
     print i
-    index = np.argwhere(np.isclose(agent.budgets,newBudgets[i]))
-    tempValue = listMatrices[i][index,:].max()
+    index = np.argwhere(np.isclose(agent.budgets, newBudgets[i]))
+    tempValue = listMatrices[i][index, :].max()
     optValue += tempValue
 optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
-np.save("/home/mmm/cartella_guglielmo/dati/truedata/valore_ottimo",optValue)
+np.save("./data/valore_ottimo", optValue)
 
-nexperiments = 50
+nexperiments = 2
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!
 results2D = np.zeros(shape=(nexperiments,deadline))
 results3D = np.zeros(shape=(nexperiments,deadline))
 
-out = Parallel(n_jobs=20)(
+out = Parallel(n_jobs=1)(
         delayed(experiment)(k) for k in xrange(nexperiments))
 
 for i in range(nexperiments):

@@ -10,59 +10,59 @@ from matplotlib import pyplot as plt
 import copy
 from joblib import Parallel, delayed
 
-
-
-convparams=np.array([0.4,100,200])
+# Parameters of the auction (conversions and slot discounts)
+convParams = np.array([0.4, 100, 200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
+probClick = np.array([0.5, 0.6, 0.6, 0.4])
+
+a1 = Auction(nbidders=5 , nslots=5, mu=0.59 , sigma=0.2, lambdas=lambdas, myClickProb=probClick[0])
+a2 = Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas, myClickProb=probClick[1])
+a3 = Auction(nbidders=6 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas, myClickProb=probClick[2])
+a4 = Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas, myClickProb=probClick[3])
+
+# Campaign initialization
+campaigns = []
+campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=0.5, convParams=convParams))
+campaigns.append(Campaign(a2, nMeanResearch=1500.0, nStdResearch=50.0, probClick=0.6, convParams=convParams))
+campaigns.append(Campaign(a3, nMeanResearch=1500.0, nStdResearch=50.0, probClick=0.6, convParams=convParams))
+campaigns.append(Campaign(a4, nMeanResearch=1250.0, nStdResearch=50.0, probClick=0.4, convParams=convParams))
 
 
-a1= Auction(nbidders=5 , nslots=5, mu=0.59 , sigma=0.2, lambdas=lambdas)
-a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
-a3= Auction(nbidders=6 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas)
-a4= Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas)
-
-
-campaigns=[]
-campaigns.append(Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
-campaigns.append(Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-campaigns.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
-campaigns.append(Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
-#campaigns.append(Campaign(a2, nusers=4000.0 , probClick=0.1 ,convParams= convparams))
-#campaigns.append(Campaign(a1, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
-
-ncampaigns = len(campaigns)
+nCampaigns = len(campaigns)
 nIntervals = 10
+
 nBids1 = 5
 nBids2 = 10
 nBids3 = 20
 nBids4 = 50
+
 maxBudget = 100
 deadline = 60
 
+# Initialize experiments
 nExperiments = 50
+results1 = np.zeros(shape=(nExperiments, deadline))
+results2 = np.zeros(shape=(nExperiments, deadline))
+results3 = np.zeros(shape=(nExperiments, deadline))
+results4 = np.zeros(shape=(nExperiments, deadline))
 
-results1 = np.zeros(shape=(nExperiments,deadline))
-results2 = np.zeros(shape=(nExperiments,deadline))
-results3 = np.zeros(shape=(nExperiments,deadline))
-results4 = np.zeros(shape=(nExperiments,deadline))
+savePath = "../save"
+
 
 def experiment(k):
     np.random.seed()
 
-    print "Experiment: ",k
-    agent1 = AgentMarcello(1000, deadline, ncampaigns,nIntervals,nBids1,maxBudget)
-    agent2 = AgentMarcello(1000, deadline, ncampaigns,nIntervals,nBids2,maxBudget)
-    agent3 = AgentMarcello(1000, deadline, ncampaigns,nIntervals,nBids3,maxBudget)
-    agent4 = AgentMarcello(1000, deadline, ncampaigns,nIntervals,nBids4,maxBudget)
-    env1 = Environment()
-    env2 = Environment()
-    env3 = Environment()
-    env4 = Environment()
+    print "Experiment: ", k
+    agent1 = AgentMarcello(1000, deadline, nCampaigns, nIntervals, nBids1, maxBudget)
+    agent2 = AgentMarcello(1000, deadline, nCampaigns, nIntervals, nBids2, maxBudget)
+    agent3 = AgentMarcello(1000, deadline, nCampaigns, nIntervals, nBids3, maxBudget)
+    agent4 = AgentMarcello(1000, deadline, nCampaigns, nIntervals, nBids4, maxBudget)
+
     env1 = Environment(copy.copy(campaigns))
     env2 = Environment(copy.copy(campaigns))
     env3 = Environment(copy.copy(campaigns))
     env4 = Environment(copy.copy(campaigns))
+
     core1 = Core(agent1, env1, deadline)
     core2 = Core(agent2, env2, deadline)
     core3 = Core(agent3, env3, deadline)
@@ -82,19 +82,18 @@ def experiment(k):
     conv2 = np.sum(agent2.prevConversions,axis=1)
     conv3 = np.sum(agent3.prevConversions,axis=1)
     conv4 = np.sum(agent4.prevConversions,axis=1)
-    position5 =  "/home/mmm/cartella_guglielmo/dati/diversebid/valori_5bid_" + str(k)
+
+    position5 = savePath + "/valori_5bid_" + str(k)
     np.save(position5,conv1)
-    position10 =  "/home/mmm/cartella_guglielmo/dati/diversebid/valori_10bid_" + str(k)
+    position10 = savePath + "/valori_10bid_" + str(k)
     np.save(position10,conv2)
-    position20 =  "/home/mmm/cartella_guglielmo/dati/diversebid/valori_20bid_" + str(k)
+    position20 = savePath + "/valori_20bid_" + str(k)
     np.save(position20,conv3)
-    position50 =  "/home/mmm/cartella_guglielmo/dati/diversebid/valori_50bid_" + str(k)
-    np.save(position50,conv4)
-    return [conv1,conv2,conv3,conv4]
+    position50 = savePath + "/valori_50bid_" + str(k)
+    np.save(position50, conv4)
+    return [conv1, conv2, conv3, conv4]
 
-
-
-out = Parallel(n_jobs=20)(
+out = Parallel(n_jobs=1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
 for e in range(0,nExperiments):
@@ -107,14 +106,15 @@ for e in range(0,nExperiments):
 #np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/2D_10bid",results2)
 #np.save("/home/gugohb/Dropbox/Tesi/figures/risultati/2D_50bid",results3)
 
-means5 = np.mean(results1,axis=0)
-means10 = np.mean(results2,axis=0)
-means20 = np.mean(results3,axis=0)
-means50 = np.mean(results4,axis=0)
-sigmas5 = np.sqrt(np.var(results1,axis=0))
-sigmas10 = np.sqrt(np.var(results2,axis=0))
-sigmas20 = np.sqrt(np.var(results3,axis=0))
-sigmas50 = np.sqrt(np.var(results4,axis=0))
+means5 = np.mean(results1, axis=0)
+means10 = np.mean(results2, axis=0)
+means20 = np.mean(results3, axis=0)
+means50 = np.mean(results4, axis=0)
+
+sigmas5 = np.sqrt(np.var(results1, axis=0))
+sigmas10 = np.sqrt(np.var(results2, axis=0))
+sigmas20 = np.sqrt(np.var(results3, axis=0))
+sigmas50 = np.sqrt(np.var(results4, axis=0))
 
 
 plt.plot(means5,color='r',label = u'5 bid')

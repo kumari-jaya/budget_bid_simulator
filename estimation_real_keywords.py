@@ -45,7 +45,7 @@ for i in range(0,len(keywords)):
     bud_k = budgets[idx]
     clicks_k = clicks[idx]
     ora_k = ora[idx]
-    agent= Agent(budgetTot=1000, deadline= 100, ncampaigns=1, nIntervals=10, nBids=10,maxBudget=1000.0)
+    agent= Agent(budgetTot=1000, deadline= 100, nCampaigns=1, nIntervals=10, nBids=10, maxBudget=1000.0)
     agent.prevBids = np.atleast_2d(bid_k)
     agent.prevBudgets = np.atleast_2d(bud_k)
     agent.prevClicks = np.atleast_2d(clicks_k)

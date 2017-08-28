@@ -20,8 +20,8 @@ a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
 
 
 ncampaigns=2
-c1 = Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams)
-c2 = Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams)
+c1 = Campaign(a1, nUsers=1000.0, probClick=0.5, convParams= convparams)
+c2 = Campaign(a2, nUsers=1500.0, probClick=0.6, convParams= convparams)
 
 env = Environment([c1,c2])
 

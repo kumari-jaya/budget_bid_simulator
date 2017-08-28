@@ -1,2 +1,4 @@
 ## Metto un ignore per i file compilati
 *.pyc
+.idea
+.DS_Store

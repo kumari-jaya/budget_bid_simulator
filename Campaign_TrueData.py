@@ -8,7 +8,8 @@ Created on Tue May  2 10:51:29 2017
 
 import numpy as np
 import math
-from Auction_TrueData import *
+from AuctionTrueData import *
+
 
 class Campaign_TrueData:
 
@@ -46,16 +47,13 @@ class Campaign_TrueData:
         #print self.hours
     """
     def findIndex(self, cpcArray, budget):
-
         for i in range(0,len(cpcArray)):
-
             if (np.sum(cpcArray[0:i]) > budget):
                 return i-1
         return len(cpcArray)-1
 
-
     def generateClicksAndCost(self, bid, budget):
-        [cpc,mypos,pobs,pClick] = self.auction.simulateMultipleAuctions(self.nusers,bid)
+        [cpc, mypos, pobs, pClick] = self.auction.simulateMultipleAuctions(self.nusers, bid)
         nclicks = np.zeros(int(self.nusers))
         for i in range(0,int(self.nusers)):
             soglia = np.random.uniform(0,1)

@@ -40,9 +40,9 @@ a3= Auction(nbidders=8 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas)
 a4= Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas)
 
 campaigns=[]
-campaigns.append(Campaign(a1, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
-campaigns.append(Campaign(a2, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
-campaigns.append(Campaign(a3, nusers=1500.0 , probClick=0.6 ,convParams= convparams))
+campaigns.append(Campaign(a1, nUsers=1000.0, probClick=0.5, convParams= convparams))
+campaigns.append(Campaign(a2, nUsers=1500.0, probClick=0.6, convParams= convparams))
+campaigns.append(Campaign(a3, nUsers=1500.0, probClick=0.6, convParams= convparams))
 #campaigns.append(Campaign(a2, nusers=1000.0 , probClick=0.5 ,convParams= convparams))
 #campaigns.append( Campaign(a4, nusers=1250.0 , probClick=0.4 ,convParams= convparams))
 
