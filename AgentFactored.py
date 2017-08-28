@@ -10,46 +10,52 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from matplotlib import pyplot as plt
 import time as time
+from Agent import Agent
 
+class AgentFactored(Agent):
 
-class AgentMarcello:
-
-    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=2.0):
+    def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=2.0):
         self.budgetTot = budgetTot
         self.deadline = deadline
-        self.ncampaigns = ncampaigns
+        self.nCampaigns = nCampaigns
         self.costs = np.array([])
         self.revenues = np.array([])
         self.t = 0
+
+        # Historical data: GP prediction
         self.gpsClicks = []
         self.gpsCosts = []
+
+        # Historical data: realizations
         self.prevBudgets = np.array([])
         self.prevBids = np.array([])
         self.prevClicks = np.array([])
         self.prevConversions = np.array([])
         self.prevCosts = np.array([])
         self.prevHours = np.array([])
-        self.valuesPerClick = np.zeros(ncampaigns)
+
+        # Estimated value per click (initially small)
+        self.valuesPerClick = np.zeros(nCampaigns)
+
         self.maxTotDailyBudget = maxBudget
         self.maxBid = maxBid
-        self.nBudgetIntervals = nIntervals
+        self.nBudget = nBudget
         self.nBids = nBids
-        self.bidBudgetMatrix = np.zeros(shape=(self.ncampaigns,self.nBids,self.nBudgetIntervals))
+        self.bidBudgetMatrix = np.zeros(shape=(self.nCampaigns, self.nBids, self.nBudget))
 
-        self.budgets = np.linspace(0, maxBudget,nIntervals)
-        self.bids = np.linspace(0,maxBid,nBids)
-        self.optimalBidPerBudget = np.zeros((ncampaigns,nIntervals))
+        self.budgets = np.linspace(0, maxBudget, nBudget)
+        self.bids = np.linspace(0, maxBid, nBids)
+        self.optimalBidPerBudget = np.zeros((nCampaigns, nBudget))
 
-        self.campaignsValues = np.zeros(shape=(self.ncampaigns, len(self.budgets)))
-        self.clicksPerBid = np.zeros(shape=(self.ncampaigns, len(self.bids)))
-        self.costsPerBid = np.zeros(shape=(self.ncampaigns, len(self.bids)))
-        self.budgetPerBid =  np.zeros(shape=(self.ncampaigns, len(self.bids)))
-        self.ymax=np.ones((ncampaigns))
-
+        self.campaignsValues = np.zeros(shape=(self.nCampaigns, nBudget))
+        self.clicksPerBid = np.zeros(shape=(self.nCampaigns, nBids))
+        self.costsPerBid = np.zeros(shape=(self.nCampaigns, nBids))
+        self.budgetPerBid =  np.zeros(shape=(self.nCampaigns, nBids))
+        self.ymax = np.ones((nCampaigns))
 
     def updateValuesPerClick(self):
-        for c in range(0,self.ncampaigns):
-            value = np.sum(self.prevConversions[:,c])/np.sum(self.prevClicks[:,c])
+        for c in range(0, self.nCampaigns):
+            value = np.sum(self.prevConversions[:,c]) / np.sum(self.prevClicks[:,c])
             if(np.isnan(value) or np.isinf(value)):
                 self.valuesPerClick[c] = 0
             else:
@@ -59,7 +65,7 @@ class AgentMarcello:
 
 
     def initGPs(self):
-        for c in range(0,self.ncampaigns):
+        for c in range(0, self.nCampaigns):
             #C(1.0, (1e-3, 1e3))
             #l= np.array([200,200])
             #kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
@@ -131,7 +137,7 @@ class AgentMarcello:
 
 
     def updateMultiGP(self):
-        for c in range(0,self.ncampaigns):
+        for c in range(0, self.nCampaigns):
             self.updateGP(c)
 
     def updateState(self,bids,budgets,clicks,conversions,costs,revenues,hours):
@@ -189,10 +195,10 @@ class AgentMarcello:
         valIdx = 0
         itIdx = 1
         bIdx = 2
-        h = np.zeros(shape=(self.ncampaigns,len(self.budgets)))
+        h = np.zeros(shape=(self.nCampaigns, len(self.budgets)))
         h=h.tolist()
         h[0] = self.firstRow(values)
-        for i in range(1,self.ncampaigns):
+        for i in range(1, self.nCampaigns):
             for j,b in enumerate(self.budgets):
                 h[i][j] = h[i-1][j][:]
                 maxVal = 0
@@ -216,7 +222,7 @@ class AgentMarcello:
 
 
     def updateCostsPerBids(self):
-        for c in range(0,self.ncampaigns):
+        for c in range(0, self.nCampaigns):
             bidPoints = self.bids[:]
             x = np.array([bidPoints.T])
             x = np.atleast_2d(x).T
@@ -232,7 +238,7 @@ class AgentMarcello:
 
     def updateClicksPerBids(self):
 
-        for c in range(0,self.ncampaigns):
+        for c in range(0, self.nCampaigns):
             bidPoints = self.bids[:]
             x = np.array([bidPoints.T])
             x = np.atleast_2d(x).T
@@ -256,7 +262,7 @@ class AgentMarcello:
         return res
 
     def generateBidBudgetMatrix(self):
-        for c in range(0,self.ncampaigns):
+        for c in range(0, self.nCampaigns):
             for i,bid in enumerate(self.bids):
                 for j,bud in enumerate(self.budgets):
                     if(self.costsPerBid[c,i]<bud):
@@ -266,16 +272,16 @@ class AgentMarcello:
 
 
     def updateOptimalBidPerBudget(self):
-        for c in range(0,self.ncampaigns):
-            for b in range(0,self.nBudgetIntervals):
+        for c in range(0, self.nCampaigns):
+            for b in range(0, self.nBudget):
                 idx = np.argwhere(self.bidBudgetMatrix[c,:,b]==self.bidBudgetMatrix[c,:,b].max()).reshape(-1)
                 idx = np.random.choice(idx)
                 self.optimalBidPerBudget[c,b] = self.bids[idx]
 
 
     def valuesForCampaigns(self,sampling=False):
-        for c in range(0,self.ncampaigns):
-            for b in range(0,self.nBudgetIntervals):
+        for c in range(0, self.nCampaigns):
+            for b in range(0, self.nBudget):
                 self.campaignsValues[c,b] = self.bidBudgetMatrix[c,:,b].max() * self.valuesPerClick[c]
 
         return self.campaignsValues
@@ -311,19 +317,19 @@ class AgentMarcello:
 
     def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
         if self.t<=4:
-            equalBud = self.maxTotDailyBudget/self.ncampaigns
+            equalBud = self.maxTotDailyBudget/self.nCampaigns
             bud = self.budgets[np.max(np.argwhere(self.budgets <= equalBud))] #prendo il primo budget più piccolo della ripartiizone equa
-            buds = np.ones(self.ncampaigns)*bud
-            buds[-1] = (self.maxTotDailyBudget - (self.ncampaigns - 1)*bud)
-            return [buds , np.random.choice(self.bids,self.ncampaigns)]
+            buds = np.ones(self.nCampaigns) * bud
+            buds[-1] = (self.maxTotDailyBudget - (self.nCampaigns - 1) * bud)
+            return [buds , np.random.choice(self.bids, self.nCampaigns)]
         self.updateCostsPerBids()
         self.updateClicksPerBids()
         self.generateBidBudgetMatrix()
         self.updateOptimalBidPerBudget()
         values = self.valuesForCampaigns()
         [newBudgets,newCampaigns] = self.optimize(values)
-        finalBudgets = np.zeros(self.ncampaigns)
-        finalBids = np.zeros(self.ncampaigns)
+        finalBudgets = np.zeros(self.nCampaigns)
+        finalBids = np.zeros(self.nCampaigns)
         for i,c in enumerate(newCampaigns):
             finalBudgets[c] = newBudgets[i]
             idx = np.argwhere(np.isclose(self.budgets,newBudgets[i])).reshape(-1)

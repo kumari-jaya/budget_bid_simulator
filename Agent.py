@@ -30,7 +30,7 @@ class Agent:
         self.valuesPerClick = np.zeros(nCampaigns)
         self.maxTotDailyBudget = maxBudget
         self.maxBid = maxBid
-        self.nBudgetIntervals = nIntervals
+        self.nBudget = nIntervals
         self.nBids = nBids
 
         self.budgets = np.linspace(0, maxBudget, nIntervals)
@@ -248,7 +248,7 @@ class Agent:
 
     def valuesCorrection(self,values):
         for c in range(0, self.nCampaigns):
-            for b in range(1,self.nBudgetIntervals):
+            for b in range(1, self.nBudget):
                 if(values[c,b]<values[c,b-1]):
                     values[c,b] = values[c,b-1]
             return values

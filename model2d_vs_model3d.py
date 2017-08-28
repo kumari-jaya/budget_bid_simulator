@@ -7,7 +7,7 @@ from Campaign import *
 from Environment import *
 from Auction import *
 from AgentPrior import *
-from AgentMarcello import *
+from AgentFactored import *
 from Core import *
 from matplotlib import pyplot as plt
 from PlotterFinal import *

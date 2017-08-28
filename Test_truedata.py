@@ -6,7 +6,7 @@ import math
 from Campaign_TrueData import *
 from Environment import *
 from AuctionTrueData import *
-from AgentMarcello import *
+from AgentFactored import *
 from AgentPrior import *
 from Core import *
 from matplotlib import pyplot as plt

@@ -15,13 +15,14 @@ class Core:
 
     def step(self, fixedBid=False):
         """
-
-        :param fixedBid:
-        :return:
+        Runs a step of the algorithm defined in Agent
+        :param fixedBid: true if you want to fix the bid for the step to 1, else it l
+        leaves the agent the option to decide
+        :return: updates the agent and the time instant
         """
         [budget, bid] = self.agent.chooseAction(sampling=True, fixedBid=fixedBid, fixedBidValue=1.0)
         observations = self.environment.step(bid, budget)
-        if fixedBid == True:
+        if fixedBid:
             print("Fixed bid in the step function")
         lastClicks = observations[0]
         lastConversions = observations[1]
@@ -29,7 +30,6 @@ class Core:
         lastRevenues = observations[3]
         lastHours = observations[4]
         self.agent.updateState(bid, budget, lastClicks, lastConversions, lastCosts, lastRevenues, lastHours)
-
         self.t += 1
 
     def runEpisode(self):

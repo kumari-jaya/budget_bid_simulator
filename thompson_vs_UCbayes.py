@@ -9,7 +9,7 @@ from Auction import *
 from Agent import *
 from AgentPrior import *
 from AgentUCB import *
-from AgentMarcello import *
+from AgentFactored import *
 from Core import *
 from matplotlib import pyplot as plt
 from Plotter import *

@@ -19,17 +19,14 @@ class Environment:
 
         for i in range(0, len(self.campaigns)):
             observations = self.campaigns[i].generateObservations(bid[i],budget[i])
-            clicks = np.append(clicks,observations[0])
-            conversions = np.append(conversions,observations[1])
-            costs = np.append(costs,observations[2])
-            revenues= np.append(revenues,observations[3])
-            hours = np.append(hours,observations[4])
+            clicks = np.append(clicks, observations[0])
+            conversions = np.append(conversions, observations[1])
+            costs = np.append(costs, observations[2])
+            revenues= np.append(revenues, observations[3])
+            hours = np.append(hours, observations[4])
 
         return [clicks, conversions, costs, revenues, hours]
 
-
-
-    def step(self,bid,budget):
-
-        self.t+=1
-        return self.generateObservationsforCampaigns(bid,budget)
+    def step(self, bid, budget):
+        self.t += 1
+        return self.generateObservationsforCampaigns(bid, budget)

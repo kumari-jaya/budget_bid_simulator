@@ -3,7 +3,7 @@ import math
 from Campaign import *
 from Environment import *
 from Auction import *
-from AgentMarcello import *
+from AgentFactored import *
 from AgentPrior import *
 from AgentAle import *
 from Core import *
