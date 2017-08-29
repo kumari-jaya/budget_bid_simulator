@@ -34,7 +34,7 @@ nSlots  = 5
 mu =    [ 0.59, 0.67, 0.47, 0.59, 0.57, 0.5 , 0.44, 0.5, 0.4, 0.61 ]
 sigma = [0.2 , 0.4, 0.25, 0.39, 0.15, 0.4 ,0.39, 0.4,0.2,0.15,0.15,0.25]
 
-nCampaigns =3
+nCampaigns =6
 campaigns = []
 for c in range(0,nCampaigns):
     a = Auction(nbidders=nBidders[c], nslots=nSlots, mu=mu[c], sigma= sigma[c],lambdas=lambdas, myClickProb =probClick[c])
@@ -45,15 +45,15 @@ for c in range(0,nCampaigns):
 env = Environment(campaigns)
 
 # Experiment setting
-nBids = 5
-nIntervals = 5
+nBids = 10
+nIntervals = 10
 deadline = 30
 maxBudget = 100
 
 # Baseline computation
 oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
                      nBudget=nIntervals, nBids=nBids, maxBudget=100.0, environment=copy.copy(env))
-oracle.generateBidBudgetMatrix(nSimul=2)
+oracle.generateBidBudgetMatrix(nSimul=50)
 values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()
@@ -92,9 +92,9 @@ def experiment(k):
 
 
 
-nExperiments = 2
+nExperiments = 100
 
-out = Parallel(n_jobs=2)(
+out = Parallel(n_jobs=25)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
 np.save(path+"allExperimets", out)
