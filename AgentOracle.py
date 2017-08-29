@@ -238,10 +238,9 @@ class Oracle(Agent):
         return self.clicksPerBid
 
 
-    def generateBidBudgetMatrix(self):
+    def generateBidBudgetMatrix(self,nSimul=20):
         for i,bid in enumerate(self.bids):
             for j,bud in enumerate(self.budgets):
-                nSimul=20
                 nClicks = np.zeros((nSimul,self.nCampaigns,))
                 for n in range(0,nSimul):
                     nClicks[n,:] = self.environment.generateObservationsforCampaigns(np.ones(self.nCampaigns)*bid,np.ones(self.nCampaigns)*bud)[0]
