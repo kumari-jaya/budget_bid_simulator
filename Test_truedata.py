@@ -45,10 +45,10 @@ lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])
 
 probClick = np.array([0.5, 0.3, 0.4, 0.6])
 
-a1 = AuctionTrueData(nbidders=5, nslots=5, lambdas=lambdas1, myClickProb=probClick[0])
-a2 = AuctionTrueData(nbidders=6, nslots=5, lambdas=lambdas1, myClickProb=probClick[1])
-a3 = AuctionTrueData(nbidders=4, nslots=3, lambdas=lambdas2, myClickProb=probClick[2])
-a4 = AuctionTrueData(nbidders=7, nslots=7, lambdas=lambdas3, myClickProb=probClick[3])
+a1 = AuctionTrueData(nBidders=5, nslots=5, lambdas=lambdas1, myClickProb=probClick[0])
+a2 = AuctionTrueData(nBidders=6, nslots=5, lambdas=lambdas1, myClickProb=probClick[1])
+a3 = AuctionTrueData(nBidders=4, nslots=3, lambdas=lambdas2, myClickProb=probClick[2])
+a4 = AuctionTrueData(nBidders=7, nslots=7, lambdas=lambdas3, myClickProb=probClick[3])
 
 campaigns = []
 campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=probClick[0], convParams=convparams))

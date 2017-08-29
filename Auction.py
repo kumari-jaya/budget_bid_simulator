@@ -3,45 +3,31 @@ import numpy as np
 
 class Auction:
 
-    def __init__(self, nbidders, nslots, mu, sigma, lambdas, myClickProb):
-        self.nbidders = nbidders
-        self.nslots = nslots
+    def __init__(self, nBidders, nslots, mu, sigma, lambdas, myClickProb):
+        self.nBidders = nBidders
+        self.nSlots = nslots
         self.mu = mu
         self.sigma = sigma
         self.lambdas = lambdas
         self.pClick = myClickProb
-        if(nbidders < nslots):
-            print "nBidders should be >= than nslots"
+        if(nBidders < nslots):
+            print "nBidders should be >= than nSlots"
 
-# pclick da 10-3 10-1
-# fare sampling da una beta per la prob di click anche dei competitor
+    def simulateAuction(self, myBid):
+        return self.simulateMultipleAuctions(1, myBid)
 
-    def simulateAuction(self, mybid):
-        bids = np.random.randn(self.nbidders) * self.sigma + self.mu
-        pClicks = np.random.beta(1, 1, self.nbidders)
+    def simulateMultipleAuctions(self, nAuctions, myBid):
+        # Generate other bids and qualities
+        bids = np.random.randn(self.nBidders, nAuctions) * self.sigma + self.mu
+        pClicks = np.random.beta(1, 1, (self.nBidders, nAuctions))
+        expValue = bids * pClicks
 
-        expValue = np.maximum(bids * pClicks, 0)
-        expValue[::-1].sort() #decreasing order
-        indexes = np.argwhere(mybid * self.pClick > expValue).reshape(-1)
-        if len(indexes) > 0:
-            cpc = bids[indexes[0]]
-            mypos = indexes[0] # slot numerati da 0 a n-1
-        else:
-            cpc = 0
-            mypos = len(bids)  # last position
+        indexMatr = (expValue > (myBid * self.pClick)).astype(int)
 
-        if mypos < self.nslots:
-            pObsSlot = self.lambdas[mypos]
-        else:
-            pObsSlot = 0
+        myPos = np.sum(indexMatr, axis=0)
+        cpc = np.max(bids * (1-indexMatr), axis=0)
+        pObsSlot = np.zeros(nAuctions)
+        idxVisible = np.argwhere(myPos < self.nSlots).reshape(-1)
+        pObsSlot[idxVisible] = self.lambdas[myPos[idxVisible]]
 
-        return [cpc, mypos, pObsSlot]
-
-    def simulateMultipleAuctions(self, nauctions, mybid):
-        cpc = np.zeros(nauctions)
-        mypos = np.zeros(nauctions)
-        pObsSlot = np.zeros(nauctions)
-        for i in range(0, int(nauctions)):
-            [cpc[i], mypos[i], pObsSlot[i]] = self.simulateAuction(mybid)
-
-        return [cpc, mypos, pObsSlot]
+        return [cpc, myPos, pObsSlot]

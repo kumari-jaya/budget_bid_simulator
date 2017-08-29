@@ -29,10 +29,10 @@ lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])
 probClick = np.array([0.5, 0.3, 0.4, 0.3])
 
 # Auction setting
-a1 = Auction(nbidders=5, nslots=5,  mu=0.49 , sigma=0.2, lambdas=lambdas1, myClickProb=probClick[0])
-a2 = Auction(nbidders=6, nslots=5,  mu=0.33 , sigma=0.2,lambdas=lambdas1, myClickProb=probClick[1])
-a3 = Auction(nbidders=4, nslots=3, mu=0.79 , sigma=0.32, lambdas=lambdas2, myClickProb=probClick[2])
-a4 = Auction(nbidders=7, nslots=7,  mu=0.29 , sigma=0.2,lambdas=lambdas3, myClickProb=probClick[3])
+a1 = Auction(nBidders=5, nslots=5, mu=7.49, sigma=0.2, lambdas=lambdas1, myClickProb=probClick[0])
+a2 = Auction(nBidders=6, nslots=5, mu=0.33, sigma=0.2, lambdas=lambdas1, myClickProb=probClick[1])
+a3 = Auction(nBidders=4, nslots=3, mu=0.79, sigma=0.32, lambdas=lambdas2, myClickProb=probClick[2])
+a4 = Auction(nBidders=7, nslots=7, mu=0.29, sigma=0.2, lambdas=lambdas3, myClickProb=probClick[3])
 
 # Campaign setting
 campaigns = []
@@ -78,6 +78,7 @@ if save:
 
 # Execute the experiments
 core = Core(agent, env, deadline)
+core.runEpisode()
 
 for t in range(0, deadline):
     print t+1

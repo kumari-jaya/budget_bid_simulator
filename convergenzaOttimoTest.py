@@ -34,10 +34,10 @@ revenuesTest = np.zeros((nExperiments,deadline))
 nBids=5
 nIntervals=9
 
-a1= Auction(nbidders=5 , nslots=5, mu=0.61 , sigma=0.2, lambdas=lambdas)
-a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
-a3= Auction(nbidders=8 , nslots=5, mu=0.47 , sigma=0.25, lambdas=lambdas)
-a4= Auction(nbidders=5 , nslots=5, mu=0.57 , sigma=0.39, lambdas=lambdas)
+a1= Auction(nBidders=5, nslots=5, mu=0.61, sigma=0.2, lambdas=lambdas)
+a2= Auction(nBidders=6, nslots=5, mu=0.67, sigma=0.4, lambdas=lambdas)
+a3= Auction(nBidders=8, nslots=5, mu=0.47, sigma=0.25, lambdas=lambdas)
+a4= Auction(nBidders=5, nslots=5, mu=0.57, sigma=0.39, lambdas=lambdas)
 
 campaigns=[]
 campaigns.append(Campaign(a1, nUsers=1000.0, probClick=0.5, convParams= convparams))

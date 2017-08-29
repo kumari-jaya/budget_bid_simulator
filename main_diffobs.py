@@ -15,8 +15,8 @@ convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 
 
-a1= Auction(nbidders=5 , nslots=5, mu=0.51 , sigma=0.2, lambdas=lambdas)
-a2= Auction(nbidders=6 , nslots=5, mu=0.67 , sigma=0.4, lambdas=lambdas)
+a1= Auction(nBidders=5, nslots=5, mu=0.51, sigma=0.2, lambdas=lambdas)
+a2= Auction(nBidders=6, nslots=5, mu=0.67, sigma=0.4, lambdas=lambdas)
 
 
 ncampaigns=2

@@ -5,13 +5,13 @@ from Auction import *
 
 class AuctionTrueData(Auction):
 
-    def __init__(self, nbidders, nslots, lambdas, myClickProb, path='./data/BidData.csv'):
-        self.nbidders = nbidders
+    def __init__(self, nBidders, nslots, lambdas, myClickProb, path='./data/BidData.csv'):
+        self.nbidders = nBidders
         self.nslots = nslots
         self.lambdas = lambdas
         self.pClick = myClickProb
         self.trueBids = genfromtxt(path, delimiter=',')
-        if(nbidders < nslots):
+        if(nBidders < nslots):
             print "nBidders should be >= than nslots"
 
     def simulateAuction(self, mybid):

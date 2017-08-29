@@ -37,7 +37,7 @@ sigma = [0.2 , 0.4, 0.25, 0.39, 0.15, 0.4 ,0.39, 0.4,0.2,0.15,0.15,0.25]
 nCampaigns =6
 campaigns = []
 for c in range(0,nCampaigns):
-    a = Auction(nbidders=nBidders[c], nslots=nSlots, mu=mu[c], sigma= sigma[c],lambdas=lambdas, myClickProb =probClick[c])
+    a = Auction(nBidders=nBidders[c], nslots=nSlots, mu=mu[c], sigma= sigma[c], lambdas=lambdas, myClickProb =probClick[c])
     campaigns.append(Campaign(a,nMeanResearch=nMeanResearch[c],nStdResearch=sigmaResearch, probClick=probClick[c],convParams=convparams))
 
 
