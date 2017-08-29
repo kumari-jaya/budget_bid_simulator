@@ -13,17 +13,13 @@ class Core:
         self.plotter = plotter
         self.t = 0
 
-    def step(self, fixedBid=False):
+    def step(self):
         """
         Runs a step of the algorithm defined in Agent
-        :param fixedBid: true if you want to fix the bid for the step to 1, else it l
-        leaves the agent the option to decide
         :return: updates the agent and the time instant
         """
-        [budget, bid] = self.agent.chooseAction(sampling=True, fixedBid=fixedBid, fixedBidValue=1.0)
+        [budget, bid] = self.agent.chooseAction()
         observations = self.environment.step(bid, budget)
-        if fixedBid:
-            print("Fixed bid in the step function")
         lastClicks = observations[0]
         lastConversions = observations[1]
         lastCosts = observations[2]

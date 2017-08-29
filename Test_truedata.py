@@ -3,7 +3,7 @@
 
 import numpy as np
 import math
-from Campaign_TrueData import *
+from Campaign import *
 from Environment import *
 from AuctionTrueData import *
 from AgentFactored import *
@@ -18,7 +18,7 @@ import copy
 def experiment(k):
     np.random.seed()
     print "Esperimento: ", k
-    agent2D = AgentMarcello(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
+    agent2D = AgentFactored(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
     agent3D  = AgentPrior(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
     agent2D.initGPs()
     agent3D.initGPs()
@@ -38,7 +38,7 @@ def experiment(k):
 
 
 
-convparams=np.array([0.4,100,200])
+convparams = np.array([0.4, 100, 200])
 lambdas1 = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 lambdas2 = np.array([0.9, 0.8, 0.7])
 lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])

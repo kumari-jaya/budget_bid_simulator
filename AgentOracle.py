@@ -14,7 +14,9 @@ from Agent import *
 from Environment import *
 from Utils import *
 
-class AgentOracle(Agent):
+
+# [NOTA] rivedere in quanto non agente
+class Oracle(Agent):
 
     def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=2.0,environment = None):
         self.budgetTot = budgetTot

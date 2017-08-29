@@ -17,73 +17,72 @@ from AgentPrior import *
 from AgentOracle import *
 
 
+show = False
+save = False
+path = '../results/'
 
-
-
-
-convparams=np.array([0.4,100,200])
+# Auction parameter initialization
+convparams = np.array([0.4, 100, 200])
 lambdas1 = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 lambdas2 = np.array([0.9, 0.8, 0.7])
 lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])
-
 probClick = np.array([0.5, 0.3, 0.4, 0.3])
 
+# Auction setting
 a1 = Auction(nbidders=5, nslots=5,  mu=0.49 , sigma=0.2, lambdas=lambdas1, myClickProb=probClick[0])
 a2 = Auction(nbidders=6, nslots=5,  mu=0.33 , sigma=0.2,lambdas=lambdas1, myClickProb=probClick[1])
 a3 = Auction(nbidders=4, nslots=3, mu=0.79 , sigma=0.32, lambdas=lambdas2, myClickProb=probClick[2])
 a4 = Auction(nbidders=7, nslots=7,  mu=0.29 , sigma=0.2,lambdas=lambdas3, myClickProb=probClick[3])
 
+# Campaign setting
 campaigns = []
 campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=probClick[0], convParams=convparams))
 campaigns.append(Campaign(a2, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[1], convParams=convparams))
 campaigns.append(Campaign(a3, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[2], convParams=convparams))
 campaigns.append(Campaign(a4, nMeanResearch=1250.0, nStdResearch=50.0, probClick=probClick[3], convParams=convparams))
-
-
 nCampaigns = len(campaigns)
 
+# Environment setting
 env = Environment(campaigns)
+
+# Experiment setting
 nBids = 5
 nIntervals = 5
 deadline = 30
 maxBudget = 100
 
-
-
-agent = AgentFactored(budgetTot=1000, deadline= deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids,maxBudget=100.0)
-agent.initGPs()
-env = Environment(campaigns)
-plotter = Plotter(agent,env=env)
-
-
-oracle = AgentOracle(budgetTot=1000, deadline= deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids,maxBudget=100.0,environment=env)
+# Baseline computation
+oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
+                     nBudget=nIntervals, nBids=nBids, maxBudget=100.0, environment=env)
 oracle.generateBidBudgetMatrix()
-values = np.ones(nCampaigns)*convparams[0]
+values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 oracle.chooseAction()
 
 oracle.initGPs()
 oracle.updateMultiGP()
 
+# Agent initialization
+agent = AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)
+agent.initGPs()
 
 
-"""
-[trueClicks,trueBudgets] = plotter.trueSample(1.0,maxBudget=100.0,nsimul=400)
-trueClicks = np.array([trueClicks])
-trueBudgets = np.array([trueBudgets])
-np.save('presentazione/trueClikcs',trueClicks)
-np.save('presentazione/trueBudgets',trueBudgets)
-#trueFun = np.load("presentazione/trueFun.py")
-"""
+if show:
+    plotter = Plotter(agent, env)
+    [trueClicks, trueBudgets] = plotter.trueSample(1.0, maxBudget=100.0, nsimul=400)
+if save:
+    trueClicks = np.array([trueClicks])
+    trueBudgets = np.array([trueBudgets])
+    np.save(path + 'trueClikcs', trueClicks)
+    np.save(path + 'trueBudgets', trueBudgets)
 
-
+# Execute the experiments
 core = Core(agent, env, deadline)
 
-for t in range(0,deadline):
-    print t
-    agent.gpsClicks =oracle.gpsClicks
+for t in range(0, deadline):
+    print t+1
+    agent.gpsClicks = oracle.gpsClicks
     agent.gpsCosts = oracle.gpsCosts
-    core.step()
 
 
     #plotter.plotGP_prior(0, fixedBid=True, bid=1.0, y_min=0,y_max=200)
@@ -104,7 +103,7 @@ for t in range(0,deadline):
 
 #plotter.plotGP(0,fixedBid=True,bid=0.11111)
 plt.figure(3)
-plt.plot(np.sum(agent.prevConversions,axis=1))
+plt.plot(np.sum(agent.prevConversions, axis=1))
 
 """
 plt.ylim(-10,600)

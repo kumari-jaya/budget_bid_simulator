@@ -5,11 +5,12 @@ from Auction import *
 
 class AuctionTrueData(Auction):
 
-    def __init__(self, nbidders, nslots, lambdas, myClickProb):
+    def __init__(self, nbidders, nslots, lambdas, myClickProb, path='./data/BidData.csv'):
         self.nbidders = nbidders
         self.nslots = nslots
         self.lambdas = lambdas
         self.pClick = myClickProb
+        self.trueBids = genfromtxt(path, delimiter=',')
         if(nbidders < nslots):
             print "nBidders should be >= than nslots"
 
@@ -47,21 +48,20 @@ class AuctionTrueData(Auction):
         :return: qualities: click probabilities of the other partecipants in the auction
         """
         ## conversione in python della funzione ssa_generator.m
-        truebids = genfromtxt('./data/BidData.csv', delimiter=',')
         values = np.zeros(self.nbidders)
         qualities = np.zeros(self.nbidders)
 
         for i in range(0, self.nbidders):
             index = np.random.randint(0, 100)
-            minBid = truebids[index, 0]
-            maxBid = truebids[index, 1]
-            meanBid = truebids[index, 2]
-            varBid = truebids[index, 3]
+            minBid = self.trueBids[index, 0]
+            maxBid = self.trueBids[index, 1]
+            meanBid = self.trueBids[index, 2]
+            varBid = self.trueBids[index, 3]
             values[i] = stats.truncnorm.rvs((minBid - meanBid) / np.sqrt(varBid), (maxBid - meanBid) / np.sqrt(varBid),
                                             loc=meanBid, scale=np.sqrt(varBid), size=1)
 
-            betaA = truebids[index,4]
-            betaB = truebids[index,5]
+            betaA = self.trueBids[index, 4]
+            betaB = self.trueBids[index, 5]
             qualities[i] = np.random.beta(betaA, betaB)
 
         #normalization between 5 cents and 5 euros
