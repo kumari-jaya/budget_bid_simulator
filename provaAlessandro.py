@@ -34,7 +34,7 @@ nSlots  = 5
 mu =    [ 0.59, 0.67, 0.47, 0.59, 0.57, 0.5 , 0.44, 0.5, 0.4, 0.61 ]
 sigma = [0.2 , 0.4, 0.25, 0.39, 0.15, 0.4 ,0.39, 0.4,0.2,0.15,0.15,0.25]
 
-nCampaigns =6
+nCampaigns =10
 campaigns = []
 for c in range(0,nCampaigns):
     a = Auction(nBidders=nBidders[c], nslots=nSlots, mu=mu[c], sigma= sigma[c], lambdas=lambdas, myClickProb =probClick[c])
@@ -47,7 +47,7 @@ env = Environment(campaigns)
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 30
+deadline = 100
 maxBudget = 100
 
 # Baseline computation
@@ -66,7 +66,7 @@ def experiment(k):
     # Agent initialization
     agent = AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)
     agent.initGPs()
-
+    print "Experiment : ",k
 
     if show:
         plotter = Plotter(agent, env)
@@ -74,7 +74,7 @@ def experiment(k):
     if save:
         trueClicks = np.array([trueClicks])
         trueBudgets = np.array([trueBudgets])
-        np.save(path + 'trueClikcs', trueClicks)
+        np.save(path + 'trueClicks', trueClicks)
         np.save(path + 'trueBudgets', trueBudgets)
 
     # Set the GPs hyperparameters
@@ -87,12 +87,11 @@ def experiment(k):
     core.runEpisode()
     np.save(path+"policy_" +str(k), agent.prevBudgets)
     np.save(path+"experiment_" + str(k),np.sum(agent.prevConversions,axis=1))
-
     return np.sum(agent.prevConversions,axis=1)
 
 
 
-nExperiments = 100
+nExperiments = 25
 
 out = Parallel(n_jobs=25)(
         delayed(experiment)(k) for k in xrange(nExperiments))
