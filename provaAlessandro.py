@@ -66,7 +66,7 @@ def experiment(k):
     # Agent initialization
     agent = AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)
     agent.initGPs()
-
+    print "Experiment : ",k
 
     if show:
         plotter = Plotter(agent, env)
