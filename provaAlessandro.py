@@ -25,22 +25,20 @@ path = '../results/'
 convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
 
-probClick = np.array([0.5, 0.3, 0.4, 0.3])
+probClick = np.array([0.5, 0.6, 0.6, 0.5,0.4,0.1,0.4,0.5,0.2,0.4])
+nMeanResearch = np.array([1000.0,1500,1500,1000,1250,4000,1250,2000,4000,1250])
+sigmaResearch = 0.2
+nBidders = [5,6,6,5,5,5,6,5,6,6] # non uguali a quelli di Guglielmo
+nSlots  = 5
+mu =    [ 0.59, 0.67, 0.47, 0.59, 0.57, 0.5 , 0.44, 0.5, 0.4, 0.61 ]
+sigma = [0.2 , 0.4, 0.25, 0.39, 0.15, 0.4 ,0.39, 0.4,0.2,0.15,0.15,0.25]
 
-# Auction setting
-nBidders = np.array([5,6,6,5,5])
-aAuction(nbidders=5, nslots=5,  mu=0.49 , sigma=0.2, lambdas=lambdas, myClickProb=probClick[0])
-a2 = Auction(nbidders=6, nslots=5,  mu=0.33 , sigma=0.2,lambdas=lambdas, myClickProb=probClick[1])
-a3 = Auction(nbidders=4, nslots=3, mu=0.79 , sigma=0.32, lambdas=lambdas, myClickProb=probClick[2])
-a4 = Auction(nbidders=7, nslots=7,  mu=0.29 , sigma=0.2,lambdas=lambdas, myClickProb=probClick[3])
-
-# Campaign setting
+nCampaigns =10
 campaigns = []
-campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=probClick[0], convParams=convparams))
-campaigns.append(Campaign(a2, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[1], convParams=convparams))
-campaigns.append(Campaign(a3, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[2], convParams=convparams))
-campaigns.append(Campaign(a4, nMeanResearch=1250.0, nStdResearch=50.0, probClick=probClick[3], convParams=convparams))
-nCampaigns = len(campaigns)
+for c in range(0,nCampaigns):
+    a = Auction(nbidders=nBidders[c], nslots=nSlots, mu=mu[c], sigma= sigma[c],lambdas=lambdas, myClickProb =probClick[c])
+    campaigns.append(Campaign(a,nMeanResearch=nMeanResearch[c],nStdResearch=sigmaResearch, probClick=probClick[c],convParams=convparams))
+
 
 # Environment setting
 env = Environment(campaigns)
