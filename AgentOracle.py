@@ -11,11 +11,12 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from matplotlib import pyplot as plt
 import time as time
 from Agent import *
+from Environment import *
 from Utils import *
 
-class AgentFactored(Agent):
+class AgentOracle(Agent):
 
-    def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=2.0):
+    def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=2.0,environment = None):
         self.budgetTot = budgetTot
         self.deadline = deadline
         self.nCampaigns = nCampaigns
@@ -54,13 +55,13 @@ class AgentFactored(Agent):
         self.budgetPerBid =  np.zeros(shape=(self.nCampaigns, nBids))
         self.ymax = np.ones((nCampaigns))
 
-    def updateValuesPerClick(self):
-        for c in range(0, self.nCampaigns):
-            value = np.sum(self.prevConversions[:,c]) / np.sum(self.prevClicks[:,c])
-            if(np.isnan(value) or np.isinf(value)):
-                self.valuesPerClick[c] = 0
-            else:
-                self.valuesPerClick[c] = value
+        self.environment = environment
+
+
+
+
+    def updateValuesPerClick(self,values):
+        self.valuesPerClick=values
 
 
 
@@ -83,45 +84,41 @@ class AgentFactored(Agent):
 
 
     def updateClickGP(self,c):
-        self.prevBids=np.atleast_2d(self.prevBids)
-        self.prevClicks=np.atleast_2d(self.prevClicks)
-        self.prevBudgets = np.atleast_2d(self.prevBudgets)
-        bud =self.prevBudgets.T[c,:]
-        x=self.prevBids.T[c,:]
-        #x=np.atleast_2d(x).T
-
-        xnorm=self.normalize(x)
-        idxsNoZero = np.argwhere(bud!=0).reshape(-1)
+        clicks = self.environment.campaigns[c].clicks
+        hours = self.environment.campaigns[c].hours
+        bids = self.environment.campaigns[c].bid
+        budgets = self.environment.campaigns[c].budget
+        x = np.array([bids.T])
+        xnorm=self.normalize(x).reshape(-1)
+        idxsNoZero = np.argwhere(budgets!=0).reshape(-1)
         xnorm = xnorm[idxsNoZero]
         xnorm = np.atleast_2d(xnorm)
-        potentialClicks = dividePotentialClicks(self.prevClicks* 24.0, self.prevHours)
-        y = potentialClicks.T[c, :].ravel()
-
+        potentialClicks = dividePotentialClicks(clicks* 24.0, hours)
+        y = potentialClicks.T.ravel()
         # remove 0 in training
         y = y[idxsNoZero]
         if(len(y)>0):
             self.gpsClicks[c].fit(xnorm.T, y)
 
 
+
     def updateCostGP(self,c):
-        self.prevBids=np.atleast_2d(self.prevBids)
-        self.prevCosts=np.atleast_2d(self.prevCosts)
-        self.prevBudgets = np.atleast_2d(self.prevBudgets)
-        bud = self.prevBudgets.T[c, :]
+        costs = self.environment.campaigns[c].costs
+        hours = self.environment.campaigns[c].hours
+        bids = self.environment.campaigns[c].bid
+        budgets = self.environment.campaigns[c].budget
 
-        x=self.prevBids.T[c,:]
-        #x=np.atleast_2d(x).T
-        xnorm=self.normalize(x)
+        x = np.array([bids.T])
+        xnorm = self.normalize(x).reshape(-1)
+        idxsNoZero = np.argwhere(budgets != 0).reshape(-1)
 
-        idxsNoZero = np.argwhere(bud!=0).reshape(-1)
         xnorm = xnorm[idxsNoZero]
         xnorm = np.atleast_2d(xnorm)
-        potentialCosts = dividePotentialClicks(self.prevCosts * 24.0, self.prevHours)
-        y = potentialCosts.T[c, :].ravel()
+        potentialCosts = dividePotentialClicks(costs * 24.0, hours)
+        y = potentialCosts.T.ravel()
         y = y[idxsNoZero]
         if(len(y)>0):
             self.gpsCosts[c].fit(xnorm.T, y)
-
 
 
     def updateGP(self,c):
@@ -205,7 +202,8 @@ class AgentFactored(Agent):
                         maxVal = np.sum(newValues)
         newBudgets=h[-1][-1][2]
         newCampaigns=h[-1][-1][1]
-        return [newBudgets,newCampaigns]
+        estimLeads = h[-1][-1][0]
+        return [newBudgets,newCampaigns,estimLeads]
 
 
     def updateCostsPerBids(self):
@@ -239,13 +237,13 @@ class AgentFactored(Agent):
 
 
     def generateBidBudgetMatrix(self):
-        for c in range(0, self.nCampaigns):
-            for i,bid in enumerate(self.bids):
-                for j,bud in enumerate(self.budgets):
-                    if(self.costsPerBid[c,i]<bud):
-                        self.bidBudgetMatrix[c,i,j] = self.clicksPerBid[c,i]
-                    else:
-                        self.bidBudgetMatrix[c,i,j] = divideFloat(self.clicksPerBid[c,i] * bud,self.costsPerBid[c,i])
+        for i,bid in enumerate(self.bids):
+            for j,bud in enumerate(self.budgets):
+                nSimul=20
+                nClicks = np.zeros((nSimul,self.nCampaigns,))
+                for n in range(0,nSimul):
+                    nClicks[n,:] = self.environment.generateObservationsforCampaigns(np.ones(self.nCampaigns)*bid,np.ones(self.nCampaigns)*bud)[0]
+                self.bidBudgetMatrix[:,i, j] =np.mean(nClicks,axis=0)
 
 
     def updateOptimalBidPerBudget(self):
@@ -263,29 +261,48 @@ class AgentFactored(Agent):
 
         return self.campaignsValues
 
+        #self.campaignsValues[c,b] = self.campaignsValues *
 
 
 
-    def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
-        if self.t<=4:
-            equalBud = self.maxTotDailyBudget/self.nCampaigns
-            bud = self.budgets[np.max(np.argwhere(self.budgets <= equalBud))] #prendo il primo budget più piccolo della ripartiizone equa
-            buds = np.ones(self.nCampaigns) * bud
-            buds[-1] = (self.maxTotDailyBudget - (self.nCampaigns - 1) * bud)
-            return [buds , np.random.choice(self.bids, self.nCampaigns)]
-        self.updateCostsPerBids()
-        self.updateClicksPerBids()
+    """
+    def valuesForCampaigns(self,sampling=False ,bidSampling = True):
+
+        for c in range(0,self.ncampaigns):
+            x = np.array([self.bids.T])
+            x = np.atleast_2d(x).T
+            x = self.normalize(x)
+            [meanClicksPerBid,sigmaClicksPerBid] = self.gpsClicks[c].predict(x,return_std=True)
+
+            #self.clicksPerBid[c,:] = meanClicksPerBid
+            self.clicksPerBid[c,:] = np.random.normal(meanClicksPerBid,sigmaClicksPerBid)
+            # RICORDA FARE SAMPLING TODO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            [meanCostsPerBid, sigmaCostsPerBid] = self.gpsCosts[c].predict(x, return_std=True)
+
+            self.costsPerBid[c,:] =  np.random.normal(meanCostsPerBid, sigmaCostsPerBid)
+
+            for i,b in enumerate(self.budgets):
+                self.campaignsValues[c,i] = self.valuesPerClick[c]*self.clicksForBudget(c,b)
+                self.defineOptimalBidPerBudget(c,i)
+        return self.campaignsValues
+    """
+
+
+
+
+    def chooseAction(self):
         self.generateBidBudgetMatrix()
         self.updateOptimalBidPerBudget()
         values = self.valuesForCampaigns()
-        [newBudgets,newCampaigns] = self.optimize(values)
+        [newBudgets,newCampaigns,estimLeads] = self.optimize(values)
         finalBudgets = np.zeros(self.nCampaigns)
         finalBids = np.zeros(self.nCampaigns)
         for i,c in enumerate(newCampaigns):
             finalBudgets[c] = newBudgets[i]
             idx = np.argwhere(np.isclose(self.budgets,newBudgets[i])).reshape(-1)
             finalBids[c] = self.optimalBidPerBudget[c,idx]
-        return [finalBudgets,finalBids]
+        print "EstimLeads",np.sum(estimLeads)
+        return [finalBudgets,finalBids,estimLeads]
 
 
 
