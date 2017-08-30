@@ -47,7 +47,7 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 100
+deadline = 30
 maxBudget = 100
 
 # Baseline computation
@@ -95,7 +95,7 @@ def experiment(k):
 
 
 
-nExperiments = 60
+nExperiments = 4
 
 out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))

@@ -28,25 +28,35 @@ class Campaign:
         self.bid = np.array([])
 
     def generateClicksAndCost(self, myBid, budget):
-        nResearch = math.floor(np.random.randn(1) * self.nStdResearch + self.nMeanResearch)
-        [cpc, mypos, pobs] = self.auction.simulateMultipleAuctions(int(nResearch), myBid)
 
-        clickEvents = pobs * self.probClick > np.random.uniform(0, 1, int(nResearch))
-        costTot = cpc * clickEvents.astype(int)
+        if(myBid ==0 or budget ==0):
+            self.clicks = np.append(self.clicks, 0.0)
+            self.costs = np.append(self.costs, 0.0)
+            self.hours = np.append(self.hours, 0)   # o 24???????????
+            self.budget = np.append(self.budget, budget)
+            self.bid = np.append(self.bid, myBid)
 
-        # Computing the time of total consumption of the budget
-        index = self.findIndex(costTot, budget)
-        sumClicks = np.maximum(np.sum(clickEvents.astype(int)), 1.0)
-        gainedClicks = np.sum(clickEvents[0:index].astype(int))
-        hours = (gainedClicks / sumClicks) * 24
+        else:
+            nResearch = math.floor(np.random.randn(1) * self.nStdResearch + self.nMeanResearch)
+            [cpc, mypos, pobs] = self.auction.simulateMultipleAuctions(int(nResearch), myBid)
 
-        #print "CLICKS: " , gainedClicks
+            clickEvents = pobs * self.probClick > np.random.uniform(0, 1, int(nResearch))
+            costTot = cpc * clickEvents.astype(int)
 
-        self.clicks = np.append(self.clicks, gainedClicks)
-        self.costs = np.append(self.costs, np.sum(costTot[0:index]))
-        self.hours = np.append(self.hours, hours)
-        self.budget = np.append(self.budget, budget)
-        self.bid = np.append(self.bid, myBid)
+            # Computing the time of total consumption of the budget
+            index = self.findIndex(costTot, budget)
+            sumClicks = np.maximum(np.sum(clickEvents.astype(int)), 1.0)
+            gainedClicks = np.sum(clickEvents[0:index].astype(int))
+            hours = (gainedClicks / sumClicks) * 24
+
+            #print "CLICKS: " , gainedClicks
+
+            self.clicks = np.append(self.clicks, gainedClicks)
+            self.costs = np.append(self.costs, np.sum(costTot[0:index]))
+            self.hours = np.append(self.hours, hours)
+            self.budget = np.append(self.budget, budget)
+            self.bid = np.append(self.bid, myBid)
+
 
     def findIndex(self, cpcArray, budget):
         for i in range(0, len(cpcArray)):
