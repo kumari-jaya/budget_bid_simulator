@@ -79,8 +79,8 @@ class Oracle(Agent):
             kernel2 = C(1.0, (1e-3, 1e3))*RBF(l2,(1e-3, 1e3))
             #l=1.0
             #kernel = C(1.0, (1e-3, 1e3)) * RBF(l, (1e-3, 1e3))
-            alpha1=200
-            alpha2 = 200
+            alpha1=2
+            alpha2 = 2
             self.gpsClicks.append(GaussianProcessRegressor(kernel=kernel2, alpha=alpha1, n_restarts_optimizer=10,normalize_y=True))
             self.gpsCosts.append(GaussianProcessRegressor(kernel=kernel1, alpha=alpha2, n_restarts_optimizer=10,normalize_y=True))
 

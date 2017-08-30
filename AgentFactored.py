@@ -73,13 +73,13 @@ class AgentFactored:
             # Number of clicks
             lClick = np.array([1.0])
             kernelClick = C(1.0, (1e-3, 1e3)) * RBF(lClick, (1e-3, 1e3))
-            alphaClick = 200
+            alphaClick = 2
             self.gpsClicks.append(GaussianProcessRegressor(kernel=kernelClick, alpha=alphaClick, n_restarts_optimizer=10, normalize_y=True))
 
             # Costs
             lCost = np.array([1.0])
             kernelCost = C(1.0, (1e-3, 1e3)) * RBF(lCost,(1e-3, 1e3))
-            alphaCost = 200
+            alphaCost = 2
             self.gpsCosts.append(GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCost, n_restarts_optimizer=10, normalize_y=True))
 
     def updateClickGP(self, c):
@@ -128,7 +128,7 @@ class AgentFactored:
             self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCost, optimizer=None,
                                                         normalize_y=True)
 
-    def setGPKernel(self, c, kernelClick, kernelCost, alpha=100.0):
+    def setGPKernel(self, c, kernelClick, kernelCost, alpha=2.0):
         """
         Set customized kernel to the c-th GP
         :param c: index of the GP to set

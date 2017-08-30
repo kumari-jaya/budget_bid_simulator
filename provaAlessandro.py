@@ -47,7 +47,7 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 250
+deadline = 100
 maxBudget = 100
 
 # Baseline computation
@@ -91,7 +91,7 @@ def experiment(k):
     core.runEpisode()
     np.save(path+"policy_" +str(k), agent.prevBudgets)
     np.save(path+"experiment_" + str(k),np.sum(agent.prevConversions,axis=1))
-    return np.sum(agent.prevConversions,axis=1)
+    return np.sum(agent.prevConversions,axis=1),agent
 
 
 
