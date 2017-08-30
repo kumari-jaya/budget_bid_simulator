@@ -19,7 +19,7 @@ class Auction:
 
     def simulateMultipleAuctions(self, nAuctions, myBid):
         # Generate other bids and qualities
-        bids = np.random.randn(self.nBidders, nAuctions) * self.sigma + self.mu
+        bids = np.maximum( np.random.randn(self.nBidders, nAuctions) * self.sigma + self.mu, 0.0)
         pClicks = np.random.beta(1, 1, (self.nBidders, nAuctions))
         expValue = bids * pClicks
 
