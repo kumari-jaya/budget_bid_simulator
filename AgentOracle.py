@@ -85,11 +85,21 @@ class Oracle(Agent):
             self.gpsCosts.append(GaussianProcessRegressor(kernel=kernel1, alpha=alpha2, n_restarts_optimizer=10,normalize_y=True))
 
 
-    def updateClickGP(self,c):
+    def updateClickGP(self,c, nSamples):
         clicks = self.environment.campaigns[c].clicks
         hours = self.environment.campaigns[c].hours
         bids = self.environment.campaigns[c].bid
         budgets = self.environment.campaigns[c].budget
+
+        # Sample random observations
+        nObservations = len(bids)
+        idxs = np.arange(0,nObservations)
+        idxs = np.random.choice(idxs,nSamples,replace=False)
+        clicks = clicks[idxs]
+        hours = hours[idxs]
+        bids = bids[idxs]
+        budgets = budgets[idxs]
+
         x = np.array([bids.T])
         xnorm=self.normalize(x).reshape(-1)
         idxsNoZero = np.argwhere(budgets!=0).reshape(-1)
@@ -101,14 +111,30 @@ class Oracle(Agent):
         y = y[idxsNoZero]
         if(len(y)>0):
             self.gpsClicks[c].fit(xnorm.T, y)
+        print "finito"
 
 
 
-    def updateCostGP(self,c):
+    def updateCostGP(self,c, nSamples):
+
+
         costs = self.environment.campaigns[c].costs
         hours = self.environment.campaigns[c].hours
         bids = self.environment.campaigns[c].bid
         budgets = self.environment.campaigns[c].budget
+
+
+        # Sample random observations
+        nObservations = len(bids)
+        idxs = np.arange(0,nObservations)
+        idxs = np.random.choice(idxs,nSamples,replace=False)
+        costs = costs[idxs]
+        hours = hours[idxs]
+        bids = bids[idxs]
+        budgets = budgets[idxs]
+
+
+
 
         x = np.array([bids.T])
         xnorm = self.normalize(x).reshape(-1)
@@ -121,17 +147,18 @@ class Oracle(Agent):
         y = y[idxsNoZero]
         if(len(y)>0):
             self.gpsCosts[c].fit(xnorm.T, y)
+        print "ss"
 
 
-    def updateGP(self,c):
-        self.updateCostGP(c)
-        self.updateClickGP(c)
+    def updateGP(self,c,nSamples):
+        self.updateCostGP(c, nSamples)
+        self.updateClickGP(c, nSamples)
 
 
 
-    def updateMultiGP(self):
+    def updateMultiGP(self,nSamples):
         for c in range(0, self.nCampaigns):
-            self.updateGP(c)
+            self.updateGP(c,nSamples)
 
     def updateState(self,bids,budgets,clicks,conversions,costs,revenues,hours):
         bids=np.atleast_2d(bids)
@@ -238,7 +265,7 @@ class Oracle(Agent):
         return self.clicksPerBid
 
 
-    def generateBidBudgetMatrix(self,nSimul=20):
+    def generateBidBudgetMatrix(self,nSimul):
         for i,bid in enumerate(self.bids):
             for j,bud in enumerate(self.budgets):
                 nClicks = np.zeros((nSimul,self.nCampaigns,))
@@ -292,7 +319,7 @@ class Oracle(Agent):
 
 
     def chooseAction(self):
-        self.generateBidBudgetMatrix()
+        #self.generateBidBudgetMatrix()
         self.updateOptimalBidPerBudget()
         values = self.valuesForCampaigns()
         [newBudgets,newCampaigns,estimLeads] = self.optimize(values)

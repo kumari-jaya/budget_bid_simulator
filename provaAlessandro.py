@@ -34,7 +34,7 @@ nSlots  = 5
 mu =    [ 0.59, 0.67, 0.47, 0.59, 0.57, 0.5 , 0.44, 0.5, 0.4, 0.61 ]
 sigma = [0.2 , 0.4, 0.25, 0.39, 0.15, 0.4 ,0.39, 0.4,0.2,0.15,0.15,0.25]
 
-nCampaigns =10
+nCampaigns =5
 campaigns = []
 for c in range(0,nCampaigns):
     a = Auction(nBidders=nBidders[c], nslots=nSlots, mu=mu[c], sigma= sigma[c], lambdas=lambdas, myClickProb =probClick[c])
@@ -42,12 +42,12 @@ for c in range(0,nCampaigns):
 
 
 # Environment setting
-env = Environment(campaigns)
+env = Environment(copy.copy(campaigns))
 
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 100
+deadline = 4
 maxBudget = 100
 
 # Baseline computation
@@ -57,9 +57,11 @@ oracle.generateBidBudgetMatrix(nSimul=50)
 values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()
-
+print optConv
 oracle.initGPs()
-oracle.updateMultiGP()
+print "initGPs"
+oracle.updateMultiGP(500)
+print "updated GPS"
 np.save(path+"opt",optConv)
 
 def experiment(k):
@@ -67,6 +69,7 @@ def experiment(k):
     agent = AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)
     agent.initGPs()
     print "Experiment : ",k
+    print "A"
 
     if show:
         plotter = Plotter(agent, env)
@@ -82,7 +85,8 @@ def experiment(k):
         agent.setGPKernel(c , oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
 
     # Init the Core and execute the experiment
-    core = Core(agent, env, deadline)
+    env = Environment(copy.copy(campaigns))
+    core = Core(agent, copy.copy(env), deadline)
 
     core.runEpisode()
     np.save(path+"policy_" +str(k), agent.prevBudgets)
@@ -91,11 +95,11 @@ def experiment(k):
 
 
 
-nExperiments = 25
+nExperiments = 60
 
-out = Parallel(n_jobs=25)(
+out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
-np.save(path+"allExperimets", out)
+np.save(path+"allExperiments", out)
 #plt.plot(np.sum(agent.prevConversions, axis=1))
 

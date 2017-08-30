@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 
 class Auction:
@@ -29,5 +30,4 @@ class Auction:
         pObsSlot = np.zeros(nAuctions)
         idxVisible = np.argwhere(myPos < self.nSlots).reshape(-1)
         pObsSlot[idxVisible] = self.lambdas[myPos[idxVisible]]
-
         return [cpc, myPos, pObsSlot]
