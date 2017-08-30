@@ -11,6 +11,5 @@ conv = np.mean(results)
 std = np.std(results)
 plt.plot(conv)
 plt.plot(np.ones(len(conv))*np.sum(opt))
-#plt.plot(conv +std)
-
+plt.plot(conv +std)
 """
