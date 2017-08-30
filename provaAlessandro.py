@@ -47,7 +47,7 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 4
+deadline = 250
 maxBudget = 100
 
 # Baseline computation
