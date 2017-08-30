@@ -47,7 +47,7 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 30
+deadline = 100
 maxBudget = 100
 
 # Baseline computation
@@ -66,6 +66,8 @@ np.save(path+"opt",optConv)
 
 def experiment(k):
     # Agent initialization
+    np.random.seed()
+
     agent = AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)
     agent.initGPs()
     print "Experiment : ",k
@@ -95,7 +97,7 @@ def experiment(k):
 
 
 
-nExperiments = 4
+nExperiments = 60
 
 out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))

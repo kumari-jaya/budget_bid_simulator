@@ -67,6 +67,8 @@ print "updated GPS"
 np.save(path+"opt",optConv)
 
 def experiment(k):
+    np.random.seed()
+
     # Agent initialization
     agent = AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)
     agent.initGPs()
