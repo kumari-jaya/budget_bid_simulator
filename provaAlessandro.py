@@ -47,13 +47,13 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 100
+deadline = 250
 maxBudget = 100
 
 # Baseline computation
 oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
                      nBudget=nIntervals, nBids=nBids, maxBudget=100.0, environment=copy.copy(env))
-oracle.generateBidBudgetMatrix(nSimul=50)
+oracle.generateBidBudgetMatrix(nSimul=100)
 values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()
@@ -63,6 +63,8 @@ print "initGPs"
 oracle.updateMultiGP(500)
 print "updated GPS"
 np.save(path+"opt",optConv)
+np.save(path+"oracle",oracle)
+
 
 def experiment(k):
     # Agent initialization
@@ -91,7 +93,7 @@ def experiment(k):
     core = Core(agent, copy.copy(env), deadline)
 
     core.runEpisode()
-    np.save(path+"policy_" +str(k), agent.prevBudgets)
+    np.save(path+"policy_" +str(k), [agent.prevBids,agent.prevBudgets])
     np.save(path+"experiment_" + str(k),np.sum(agent.prevConversions,axis=1))
     return np.sum(agent.prevConversions,axis=1),agent
 
