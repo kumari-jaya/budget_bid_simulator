@@ -53,7 +53,7 @@ maxBudget = 100
 # Baseline computation
 oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
                      nBudget=nIntervals, nBids=nBids, maxBudget=100.0, environment=copy.copy(env))
-oracle.generateBidBudgetMatrix(nSimul=1)
+oracle.generateBidBudgetMatrix(nSimul=500)
 values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()
