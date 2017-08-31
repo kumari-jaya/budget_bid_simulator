@@ -61,7 +61,7 @@ print "policy val",oracle.bidBudgetMatrix[2,2,-1]
 print optConv
 oracle.initGPs()
 print "initGPs"
-oracle.updateMultiGP(500)
+#oracle.updateMultiGP(500)
 print "updated GPS"
 np.save(path+"opt",optConv)
 np.save(path+"oracle",oracle)
@@ -86,8 +86,8 @@ def experiment(k):
         np.save(path + 'trueBudgets', trueBudgets)
 
     # Set the GPs hyperparameters
-    for c in range(0,nCampaigns):
-        agent.setGPKernel(c , oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
+    #for c in range(0,nCampaigns):
+        #agent.setGPKernel(c , oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
     #agent.updateGPCostZero()
 
     # Init the Core and execute the experiment
