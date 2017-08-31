@@ -64,6 +64,18 @@ class AgentPrior:
             alpha=200
             self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha, n_restarts_optimizer=10,normalize_y=True))
 
+
+
+    def setGPKernel(self, c, kernel, alpha=200):
+        """
+        Set customized kernel to the c-th GP
+        :param c: index of the GP to set
+        :param kernel:
+        :param alpha:
+        :return:
+        """
+        self.gps3D[c] = GaussianProcessRegressor(kernel=kernel, alpha=alpha, optimizer=None, normalize_y=True)
+
     def dividePotentialClicks(self,numerator,denominator):
         div = numerator/denominator
         div[np.isnan(div)]=0

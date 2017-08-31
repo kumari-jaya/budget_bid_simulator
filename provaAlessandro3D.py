@@ -57,13 +57,12 @@ oracle.generateBidBudgetMatrix(nSimul=50)
 values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()
-"""
 print optConv
 oracle.initGPs()
 print "initGPs"
-oracle.updateMultiGP(500)
+oracle.updateMultiGP3D(500)
 print "updated GPS"
-"""
+
 np.save(path+"opt",optConv)
 
 def experiment(k):
@@ -85,7 +84,7 @@ def experiment(k):
 
     # Set the GPs hyperparameters
     for c in range(0,nCampaigns):
-        agent.setGPKernel(c , oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
+        agent.setGPKernel(c , oracle.gp3D.kernel_)
 
     # Init the Core and execute the experiment
     env = Environment(copy.copy(campaigns))

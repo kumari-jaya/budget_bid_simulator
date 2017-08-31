@@ -29,6 +29,7 @@ class Oracle(Agent):
         # Historical data: GP prediction
         self.gpsClicks = []
         self.gpsCosts = []
+        self.gps3D = []
 
         # Historical data: realizations
         self.prevBudgets = np.array([])
@@ -84,6 +85,15 @@ class Oracle(Agent):
             self.gpsClicks.append(GaussianProcessRegressor(kernel=kernel2, alpha=alpha1, n_restarts_optimizer=10,normalize_y=True))
             self.gpsCosts.append(GaussianProcessRegressor(kernel=kernel1, alpha=alpha2, n_restarts_optimizer=10,normalize_y=True))
 
+    def initGPs3D(self):
+        for c in range(0,self.nCampaigns):
+            C(1.0, (1e-3, 1e3))
+            l= np.array([200,200])
+            kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
+            alpha= 200
+            self.gps3D.append(GaussianProcessRegressor(kernel=kernel,alpha=alpha,n_restarts_optimizer=10,normalize_y=True))
+
+
 
     def updateClickGP(self,c, nSamples):
         clicks = self.environment.campaigns[c].clicks
@@ -117,12 +127,10 @@ class Oracle(Agent):
 
     def updateCostGP(self,c, nSamples):
 
-
         costs = self.environment.campaigns[c].costs
         hours = self.environment.campaigns[c].hours
         bids = self.environment.campaigns[c].bid
         budgets = self.environment.campaigns[c].budget
-
 
         # Sample random observations
         nObservations = len(bids)
@@ -132,9 +140,6 @@ class Oracle(Agent):
         hours = hours[idxs]
         bids = bids[idxs]
         budgets = budgets[idxs]
-
-
-
 
         x = np.array([bids.T])
         xnorm = self.normalize(x).reshape(-1)
@@ -149,6 +154,34 @@ class Oracle(Agent):
             self.gpsCosts[c].fit(xnorm.T, y)
         print "ss"
 
+
+    def updateGP3D(self,c,nSamples):
+        # Sample random observations
+        nObservations = len(self.prevBids)
+        idxs = np.arange(0,nObservations)
+        idxs = np.random.choice(idxs,nSamples,replace=False)
+
+        clicks = self.prevClicks[idxs]
+        hours = self.prevHours[idxs]
+        bids = self.prevBids[idxs]
+        budgets = self.prevBudgets[idxs]
+
+
+        bids=np.atleast_2d(bids)
+        budgets=np.atleast_2d(budgets)
+        clicks=np.atleast_2d(clicks)
+        x=np.array([bids.T[c,:],budgets.T[c,:]])
+        x=np.atleast_2d(x).T
+        x=self.normalize(x)
+        #potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
+        #y=potentialClicks.T[c,:].ravel()
+        y=clicks.T[c,:].ravel()
+        y=self.normalizeOutput(y,c)
+        self.fitPrior(c,x,y)
+
+    def updateMultiGP3D(self,nSamples):
+        for c in range(0,self.nCampaigns):
+            self.updateGP3D(c,nSamples)
 
     def updateGP(self,c,nSamples):
         self.updateCostGP(c, nSamples)

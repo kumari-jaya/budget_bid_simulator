@@ -47,13 +47,13 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 150
+deadline = 100
 maxBudget = 100
 
 # Baseline computation
 oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
                      nBudget=nIntervals, nBids=nBids, maxBudget=100.0, environment=copy.copy(env))
-oracle.generateBidBudgetMatrix(nSimul=500)
+oracle.generateBidBudgetMatrix(nSimul=50)
 values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()

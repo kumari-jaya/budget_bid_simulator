@@ -141,6 +141,7 @@ class AgentFactored:
         self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alpha, optimizer=None, normalize_y=True)
 
     def updateCostGP(self, c):
+        """
         prevBids = copy.copy(self.prevBids)
         prevCosts = copy.copy(self.prevCosts)
         prevBudgets = copy.copy(self.prevBudgets)
@@ -154,26 +155,34 @@ class AgentFactored:
         prevBids = np.atleast_2d(prevBids)
         prevCosts = np.atleast_2d(prevCosts)
         prevBudgets = np.atleast_2d(prevBudgets)
+        """
 
         self.prevBids = np.atleast_2d(self.prevBids)
         self.prevCosts = np.atleast_2d(self.prevCosts)
         self.prevBudgets = np.atleast_2d(self.prevBudgets)
 
 
-        bud = prevBudgets.T[c, :]
-        bid = prevBids.T[c,:]
+        bud = self.prevBudgets.T[c, :]
+        bid = self.prevBids.T[c,:]
+
 
 
         bidNorm = self.normalize(bid)
 
         idxsNoZero = np.argwhere(bud != 0).reshape(-1)
         bidNorm = bidNorm[idxsNoZero]
+
+        bidNorm = np.append(bidNorm,0.0)
+
         bidNorm = np.atleast_2d(bidNorm)
 
-        potentialCosts = dividePotentialClicks(prevCosts * 24.0, prevHours)
+        potentialCosts = dividePotentialClicks(self.prevCosts * 24.0, self.prevHours)
         potentialCosts = potentialCosts.T[c, :].ravel()
-
         potentialCosts = potentialCosts[idxsNoZero]
+
+
+        potentialCosts = np.append(potentialCosts,0.0)
+
         if len(potentialCosts) > 0:
             self.gpsCosts[c].fit(bidNorm.T, potentialCosts)
 
