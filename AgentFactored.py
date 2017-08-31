@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 import time as time
 from Agent import *
 from Utils import *
-
+import copy
 
 class AgentFactored:
 
@@ -141,12 +141,28 @@ class AgentFactored:
         self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alpha, optimizer=None, normalize_y=True)
 
     def updateCostGP(self, c):
+        prevBids = copy.copy(self.prevBids)
+        prevCosts = copy.copy(self.prevCosts)
+        prevBudgets = copy.copy(self.prevBudgets)
+        prevHours = copy.copy(self.prevHours)
+
+        prevBids = np.append(prevBids,0.0)
+        prevCosts = np.append(prevCosts, 0.0)
+        prevBudgets = np.append(prevBudgets,10)
+        prevHours = np.append(prevHours,10)
+
+        prevBids = np.atleast_2d(prevBids)
+        prevCosts = np.atleast_2d(prevCosts)
+        prevBudgets = np.atleast_2d(prevBudgets)
+
         self.prevBids = np.atleast_2d(self.prevBids)
         self.prevCosts = np.atleast_2d(self.prevCosts)
         self.prevBudgets = np.atleast_2d(self.prevBudgets)
 
-        bud = self.prevBudgets.T[c, :]
-        bid = self.prevBids.T[c,:]
+
+        bud = prevBudgets.T[c, :]
+        bid = prevBids.T[c,:]
+
 
         bidNorm = self.normalize(bid)
 
@@ -154,12 +170,22 @@ class AgentFactored:
         bidNorm = bidNorm[idxsNoZero]
         bidNorm = np.atleast_2d(bidNorm)
 
-        potentialCosts = dividePotentialClicks(self.prevCosts * 24.0, self.prevHours)
+        potentialCosts = dividePotentialClicks(prevCosts * 24.0, prevHours)
         potentialCosts = potentialCosts.T[c, :].ravel()
 
         potentialCosts = potentialCosts[idxsNoZero]
         if len(potentialCosts) > 0:
             self.gpsCosts[c].fit(bidNorm.T, potentialCosts)
+
+    """
+    def updateGPCostZero(self):
+        for c in range(0,self.nCampaigns):
+            bid = np.array([0.0])
+            cost = np.array([0.0]).ravel()
+            self.gpsCosts[c].fit(bid.T,cost)
+    """
+
+
 
     def updateGP(self, c):
         self.updateCostGP(c)

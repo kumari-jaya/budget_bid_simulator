@@ -47,16 +47,17 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 250
+deadline = 150
 maxBudget = 100
 
 # Baseline computation
 oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
                      nBudget=nIntervals, nBids=nBids, maxBudget=100.0, environment=copy.copy(env))
-oracle.generateBidBudgetMatrix(nSimul=100)
+oracle.generateBidBudgetMatrix(nSimul=1)
 values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()
+print "policy val",oracle.bidBudgetMatrix[2,2,-1]
 print optConv
 oracle.initGPs()
 print "initGPs"
@@ -87,6 +88,7 @@ def experiment(k):
     # Set the GPs hyperparameters
     for c in range(0,nCampaigns):
         agent.setGPKernel(c , oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
+    #agent.updateGPCostZero()
 
     # Init the Core and execute the experiment
     env = Environment(copy.copy(campaigns))
