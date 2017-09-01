@@ -88,8 +88,8 @@ class Oracle(Agent):
     def initGPs3D(self):
         for c in range(0,self.nCampaigns):
             C(1.0, (1e-3, 1e3))
-            l= np.array([200,200])
-            kernel = C(1, (1e-3, 1e1))*RBF(l, ((100, 300),(100,300)))
+            l = np.array([1.0, 1.0])
+            kernel = C(1.0, (1e-3, 1e3))*RBF(l, ((1e-3, 1e3),(1e-3, 1e3)))
             alpha= 200
             self.gps3D.append(GaussianProcessRegressor(kernel=kernel,alpha=alpha,n_restarts_optimizer=10,normalize_y=True))
 
@@ -157,25 +157,25 @@ class Oracle(Agent):
 
     def updateGP3D(self,c,nSamples):
         # Sample random observations
-        nObservations = len(self.prevBids)
+        nObservations = len(self.environment.campaigns[c].bid)
         idxs = np.arange(0,nObservations)
         idxs = np.random.choice(idxs,nSamples,replace=False)
 
-        clicks = self.prevClicks[idxs]
-        hours = self.prevHours[idxs]
-        bids = self.prevBids[idxs]
-        budgets = self.prevBudgets[idxs]
+        clicks = self.environment.campaigns[c].clicks[idxs]
+        hours = self.environment.campaigns[c].hours[idxs]
+        bids = self.environment.campaigns[c].bid[idxs]
+        budgets = self.environment.campaigns[c].budget[idxs]
 
 
-        bids=np.atleast_2d(bids)
-        budgets=np.atleast_2d(budgets)
-        clicks=np.atleast_2d(clicks)
-        x=np.array([bids.T[c,:],budgets.T[c,:]])
+        #bids=np.atleast_2d(bids)
+        #budgets=np.atleast_2d(budgets)
+        #clicks=np.atleast_2d(clicks)
+        x=np.array([bids,budgets])
         x=np.atleast_2d(x).T
         x=self.normalize(x)
         #potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
         #y=potentialClicks.T[c,:].ravel()
-        y=clicks.T[c,:].ravel()
+        y=clicks.T.ravel()
         y=self.normalizeOutput(y,c)
         self.fitPrior(c,x,y)
 
@@ -371,29 +371,28 @@ class Oracle(Agent):
        return X/(self.maxBid)
 
 
+
     def prior(self,x,y):
-        return 0
-        if(self.t<=10):
-            return 0
+        return 0.0
         max_y= np.max(y)
         return max_y * x[:,1]
 
     def fitPrior(self,gpIndex,x,y):
 
         y_new = y - self.prior(x,y)
-        self.gps[gpIndex].fit(x,y_new)
+        self.gps3D[gpIndex].fit(x,y_new)
 
     def predictPrior(self,gpIndex,x,returnStd = False):
         if(returnStd ==False):
-            y = self.gps[gpIndex].predict(x,return_std=returnStd)
-            y_new = y + self.prior(x,self.prevClicks[:,gpIndex])
+            y = self.gps3D[gpIndex].predict(x,return_std=returnStd)
+            y_new = y + self.prior(x,self.environment.campaigns[gpIndex].clicks)
             return y_new
         else:
 
-            [mean_y,sigma_y] = self.gps[gpIndex].predict(x,return_std=returnStd)
+            [mean_y,sigma_y] = self.gps3D[gpIndex].predict(x,return_std=returnStd)
             if (len(self.prevClicks)==0):
                 return mean_y,sigma_y
-            y_new = mean_y + self.prior(x,self.prevClicks[:,gpIndex])
+            y_new = mean_y + self.prior(x,self.environment.campaigns[gpIndex].clicks)
             """
             print "\n"
             #print "prediction without prior:",mean_y

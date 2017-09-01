@@ -14,10 +14,10 @@ import time as time
 
 class AgentPrior:
 
-    def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
+    def __init__(self,budgetTot,deadline,nCampaigns,nBudget,nBids,maxBudget=100.0,maxBid=1.0,usePrior=True):
         self.budgetTot = budgetTot
         self.deadline = deadline
-        self.ncampaigns = ncampaigns
+        self.ncampaigns = nCampaigns
         self.costs = np.array([])
         self.revenues = np.array([])
         self.t = 0
@@ -27,19 +27,20 @@ class AgentPrior:
         self.prevClicks = np.array([])
         self.prevConversions = np.array([])
         self.prevHours = np.array([])
-        self.valuesPerClick = np.zeros(ncampaigns)
+        self.valuesPerClick = np.zeros(nCampaigns)
         self.maxTotDailyBudget = maxBudget
         self.maxBid = maxBid
-        self.nBudgetIntervals = nIntervals
+        self.nBudgetIntervals = nBudget
         self.nBids = nBids
 
-        self.budgets = np.linspace(0, maxBudget,nIntervals)
+        self.budgets = np.linspace(0, maxBudget,nBudget)
         self.bids = np.linspace(0,maxBid,nBids)
-        self.optimalBidPerBudget = np.zeros((ncampaigns,nIntervals))
+        self.optimalBidPerBudget = np.zeros((nCampaigns,nBudget))
 
         self.campaignsValues = []
-        self.ymax=np.ones((ncampaigns))
+        self.ymax=np.ones((nCampaigns))
 
+        self.usePrior = usePrior
 
     def updateValuesPerClick(self):
         for c in range(0,self.ncampaigns):
@@ -74,7 +75,7 @@ class AgentPrior:
         :param alpha:
         :return:
         """
-        self.gps3D[c] = GaussianProcessRegressor(kernel=kernel, alpha=alpha, optimizer=None, normalize_y=True)
+        self.gps[c] = GaussianProcessRegressor(kernel=kernel, alpha=alpha, optimizer=None, normalize_y=True)
 
     def dividePotentialClicks(self,numerator,denominator):
         div = numerator/denominator
@@ -222,8 +223,14 @@ class AgentPrior:
         return estimatedClicks*self.valuesPerClick.reshape((self.ncampaigns,1))
 
 
-    def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0):
+    def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0,initialExploration=4):
 
+        if self.t <= initialExploration:
+            budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
+            while(np.sum(budgets)>self.maxTotDailyBudget):
+                budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
+
+            return [budgets, np.random.choice(self.bids, self.ncampaigns)]
         """
         finalBudgets = np.zeros(self.ncampaigns)
         finalBids = np.zeros(self.ncampaigns)
@@ -292,6 +299,8 @@ class AgentPrior:
 
 
     def prior(self,x,y):
+        if (self.usePrior == False):
+            return 0
         if(self.t<=10):
             return 0
         max_y= np.max(y)

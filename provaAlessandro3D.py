@@ -47,7 +47,7 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 50
+deadline = 150
 maxBudget = 100
 
 # Baseline computation
@@ -58,7 +58,7 @@ values = np.ones(nCampaigns) * convparams[0]
 oracle.updateValuesPerClick(values)
 [optBud,optBid,optConv]=oracle.chooseAction()
 print optConv
-oracle.initGPs()
+oracle.initGPs3D()
 print "initGPs"
 oracle.updateMultiGP3D(500)
 print "updated GPS"
@@ -69,7 +69,7 @@ def experiment(k):
     np.random.seed()
 
     # Agent initialization
-    agent = AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)
+    agent = AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0,usePrior=False)
     agent.initGPs()
     print "Experiment3D : ",k
 
@@ -84,7 +84,7 @@ def experiment(k):
 
     # Set the GPs hyperparameters
     for c in range(0,nCampaigns):
-        agent.setGPKernel(c , oracle.gp3D.kernel_)
+        agent.setGPKernel(c , oracle.gps3D[c].kernel_)
 
     # Init the Core and execute the experiment
     env = Environment(copy.copy(campaigns))
@@ -97,7 +97,7 @@ def experiment(k):
 
 
 
-nExperiments = 60
+nExperiments = 2
 
 out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
