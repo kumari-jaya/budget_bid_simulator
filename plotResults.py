@@ -3,7 +3,7 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../resultsOK/'
+path = '../resultsOK0/'
 results = np.load(path + "allExperiments.npy" )
 
 

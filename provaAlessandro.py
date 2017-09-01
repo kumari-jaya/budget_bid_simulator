@@ -88,7 +88,6 @@ def experiment(k):
     # Set the GPs hyperparameters
     for c in range(0,nCampaigns):
         agent.setGPKernel(c , oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
-    agent.updateGPCostZero()
 
     # Init the Core and execute the experiment
     env = Environment(copy.copy(campaigns))
