@@ -4,14 +4,14 @@ import time
 
 class Auction:
 
-    def __init__(self, nBidders, nslots, mu, sigma, lambdas, myClickProb):
+    def __init__(self, nBidders, nSlots, mu, sigma, lambdas, myClickProb):
         self.nBidders = nBidders
-        self.nSlots = nslots
+        self.nSlots = nSlots
         self.mu = mu
         self.sigma = sigma
         self.lambdas = lambdas
         self.pClick = myClickProb
-        if(nBidders < nslots):
+        if(nBidders < nSlots):
             print "nBidders should be >= than nSlots"
 
     def simulateAuction(self, myBid):
