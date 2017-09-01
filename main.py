@@ -1,21 +1,12 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import math
-from Campaign import *
-from Environment import *
-from Auction import *
-#from Agent import *
-from Core import *
-from Plotter import *
-from matplotlib import pyplot as plt
-from AgentRandomPolicy import *
-from AgentFactored import *
-from PlotterFinal import *
-from AgentPrior import *
-from AgentOracle import *
+# from Agent import *
+from lost_and_found.environment.Core import *
+from lost_and_found.environment.Oracle import *
 
+from agent.AgentFactored import *
+from graphicalTool.Plotter import *
 
 show = False
 save = False

@@ -1,18 +1,16 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import math
-from Campaign import *
-from Environment import *
-from AuctionTrueData import *
-from AgentFactored import *
-from AgentPrior import *
-from Core import *
-from matplotlib import pyplot as plt
-from PlotterFinal import *
-from joblib import Parallel, delayed
 import copy
+
+from joblib import Parallel, delayed
+from lost_and_found.environment.AuctionTrueData import *
+from lost_and_found.environment.Core import *
+from lost_and_found.environment.Environment import *
+
+from agent.AgentFactored import *
+from agent.AgentPrior import *
+from graphicalTool.PlotterFinal import *
 
 
 def experiment(k):
@@ -92,7 +90,7 @@ for i in range(0, ncampaigns):
     optValue += tempValue
 optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
-np.save("./data/valore_ottimo", optValue)
+np.save("./sourceData/valore_ottimo", optValue)
 
 nexperiments = 2
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!

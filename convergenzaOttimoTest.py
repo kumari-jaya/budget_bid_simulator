@@ -1,18 +1,13 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import math
-from Campaign import *
-from Environment import *
-from Auction import *
-from AgentAware import *
-from AgentPrior import *
-from AgentAle import *
-from Core import *
-from Plotter import *
-from matplotlib import pyplot as plt
 import copy
+
+from AgentAle import *
+
+from agent.AgentPrior import *
+from lost_and_found.environment.Core import *
+from lost_and_found.environment.Environment import *
 
 convparams1=np.array([0.2,100,101])
 convparams2=np.array([0.25,150,151])

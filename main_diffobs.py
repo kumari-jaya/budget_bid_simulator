@@ -1,15 +1,8 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import math
-from Campaign import *
-from Environment import *
-from Auction import *
-from Agent import *
-from Core import *
-from matplotlib import pyplot as plt
-from Plotter import *
+from lost_and_found.environment.Core import *
+from lost_and_found.environment.Environment import *
 
 convparams=np.array([0.4,100,200])
 lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])

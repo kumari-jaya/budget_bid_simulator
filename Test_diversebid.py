@@ -1,14 +1,10 @@
-import numpy as np
-import math
-from Campaign import *
-from Environment import *
-from Auction import *
-from AgentFactored import *
-from Core import *
-from Plotter import *
-from matplotlib import pyplot as plt
 import copy
+
 from joblib import Parallel, delayed
+
+from agent.AgentFactored import *
+from lost_and_found.environment.Core import *
+from lost_and_found.environment.Environment import *
 
 # Parameters of the auction (conversions and slot discounts)
 convParams = np.array([0.4, 100, 200])

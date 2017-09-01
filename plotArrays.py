@@ -1,6 +1,7 @@
-from Plotter import *
-from matplotlib import pyplot as plt
 import numpy as np
+from matplotlib import pyplot as plt
+
+from graphicalTool.Plotter import *
 
 clicks = np.load('presentazione/trueClikcs.npy')
 budgets = np.load('presentazione/trueBudgets.npy')
