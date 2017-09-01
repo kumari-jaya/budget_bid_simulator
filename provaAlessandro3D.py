@@ -47,7 +47,7 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 10
 nIntervals = 10
-deadline = 150
+deadline = 500
 maxBudget = 100
 
 # Baseline computation
@@ -91,17 +91,17 @@ def experiment(k):
     core = Core(agent, copy.copy(env), deadline)
 
     core.runEpisode()
-    np.save(path+"policy3D_" +str(k), agent.prevBudgets)
+    np.save(path+"policy3D_" +str(k), [agent.prevBids,agent.prevBudgets])
     np.save(path+"experiment3D_" + str(k),np.sum(agent.prevConversions,axis=1))
     return np.sum(agent.prevConversions,axis=1)
 
 
 
-nExperiments = 2
+nExperiments = 60
 
 out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
-np.save(path+"allExperiments3D", out)
+np.save(path+"allExperiments", out)
 #plt.plot(np.sum(agent.prevConversions, axis=1))
 
