@@ -5,7 +5,7 @@ from Auction import *
 
 class AuctionTrueData(Auction):
 
-    def __init__(self, nBidders, nSlots, lambdas, myClickProb, path='./data/BidData.csv'):
+    def __init__(self, nBidders, nSlots, lambdas, myClickProb, path='./data/BidData.csv',fixedIndex=-1):
         self.nBidders = nBidders
         self.nSlots = nSlots
         self.lambdas = lambdas
@@ -13,7 +13,10 @@ class AuctionTrueData(Auction):
         self.pClick = myClickProb
 
         allData = genfromtxt(path, delimiter=',')
-        index = np.random.randint(0, 100)
+        if fixedIndex==-1:
+            index = np.random.randint(0, 100)
+        else:
+            index = fixedIndex
         self.auction = allData[index, :]
         if(nBidders < nSlots):
             print "nBidders should be >= than nslots"

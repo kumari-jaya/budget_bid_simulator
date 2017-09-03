@@ -16,7 +16,7 @@ import copy
 
 class AgentFactored:
 
-    def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=2.0):
+    def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=2.0, method='Sampling'):
         self.budgetTot = budgetTot
         self.deadline = deadline
         self.nCampaigns = nCampaigns
@@ -54,6 +54,10 @@ class AgentFactored:
         self.costsPerBid = np.zeros(shape=(self.nCampaigns, nBids))
         self.budgetPerBid =  np.zeros(shape=(self.nCampaigns, nBids))
         self.ymax = np.ones((nCampaigns))
+
+        self.method = method
+
+
 
     def updateValuesPerClick(self):
         """
@@ -108,6 +112,8 @@ class AgentFactored:
         potentialClicks = potentialClicks[idxsNoZero]
         if len(potentialClicks) > 0:
             self.gpsClicks[c].fit(bidNorm.T, potentialClicks)
+
+
 
     def setGPparameters(self, sigmaClick, sigmaCost, lClick, lCost, alphaClick, alphaCost):
         """
@@ -292,13 +298,14 @@ class AgentFactored:
             x = np.atleast_2d(x).T
             x = self.normalize(x)
             [mean, sigma] = self.gpsCosts[c].predict(x,return_std=True)
-            self.costsPerBid[c, :] = np.random.normal(mean,sigma)
+            self.costsPerBid[c, :] = self.sampleCost(mean,sigma)
 
             # Reasonable assumption that if bid is zero also costs are null
             idxs = np.argwhere(self.bids == 0).reshape(-1)
             for i in idxs:
                 self.costsPerBid[c, i] = 0.0
         return self.costsPerBid
+
 
     def updateClicksPerBids(self):
         for c in range(0, self.nCampaigns):
@@ -308,12 +315,29 @@ class AgentFactored:
             x = self.normalize(x)
 
             [mean, sigma] = self.gpsClicks[c].predict(x,return_std=True)
-            self.clicksPerBid[c,:] = np.random.normal(mean,sigma)
+            self.clicksPerBid[c,:] = self.sampleClick(mean,sigma)
 
             idxs = np.argwhere(self.bids == 0).reshape(-1)
             for i in idxs:
                 self.clicksPerBid[c, i] = 0.0
         return self.clicksPerBid
+
+
+    def sampleClick(self, mean, sigma):
+        if self.method == "Sampling":
+            return np.random.normal(mean,sigma)
+        if self.method == "Mean":
+            return mean
+        if self.method =="UCB":
+            return mean + 2.0*sigma
+
+    def sampleCost(self,mean,sigma):
+        if self.method == "Sampling":
+            return np.random.normal(mean,sigma)
+        if self.method == "Mean":
+            return mean
+        if self.method =="UCB":
+            return np.maximum(mean - 2.0*sigma,0.0)
 
     def generateBidBudgetMatrix(self):
         """
