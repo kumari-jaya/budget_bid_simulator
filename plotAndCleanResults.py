@@ -3,9 +3,9 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../results/'
+path = '../results_bellman/'
 agentPath = ["Sampling/","Mean/","UCB/","3D/"]
-nExperiments = 4
+nExperiments = 60
 optimum = np.load(path+"opt.npy")
 print optimum
 optPol = np.load(path+"optPolicy.npy")
