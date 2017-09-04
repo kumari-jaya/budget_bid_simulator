@@ -329,7 +329,7 @@ class AgentFactored:
         if self.method == "Mean":
             return mean
         if self.method =="UCB":
-            return mean + 2.0*sigma
+            return mean + 3.0*sigma
 
     def sampleCost(self,mean,sigma):
         if self.method == "Sampling":
@@ -337,7 +337,7 @@ class AgentFactored:
         if self.method == "Mean":
             return mean
         if self.method =="UCB":
-            return np.maximum(mean - 2.0*sigma,0.0)
+            return np.maximum(mean - 3.0*sigma,0.0)
 
     def generateBidBudgetMatrix(self):
         """

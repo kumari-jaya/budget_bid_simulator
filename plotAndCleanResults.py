@@ -22,6 +22,7 @@ T=100
 def budIndex(bud):
     return np.argwhere(np.isclose(budgets,bud)).reshape(-1)
 
+
 def bidIndex(bid):
     return np.argwhere(np.isclose(bids,bid)).reshape(-1)
 
@@ -81,9 +82,12 @@ for a in range(0,len(agentPath)):
     expClicks=np.array(expClicks)
     plt.plot(np.ones(T)*np.sum(optimum),'--')
     plt.title(agentPath[a] + "oracle values")
-    plt.plot(np.mean(conv[:],axis=0))
+    #plt.plot(np.mean(conv[:],axis=0))
 
     plt.plot(np.mean(expClicks,axis=0))
+    std = np.std(expClicks,axis =0)
+    plt.plot(np.mean(expClicks,axis=0) +std,'b')
+    plt.plot(np.mean(expClicks,axis=0) -std,'b')
 
     res.append(np.mean(expClicks,axis=0))
     observedRes.append(np.mean(conv,axis=0))
