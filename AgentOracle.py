@@ -121,7 +121,6 @@ class Oracle(Agent):
         y = y[idxsNoZero]
         if(len(y)>0):
             self.gpsClicks[c].fit(xnorm.T, y)
-        print "finito"
 
 
 
@@ -152,7 +151,6 @@ class Oracle(Agent):
         y = y[idxsNoZero]
         if(len(y)>0):
             self.gpsCosts[c].fit(xnorm.T, y)
-        print "ss"
 
 
     def updateGP3D(self,c,nSamples):

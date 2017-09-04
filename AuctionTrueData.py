@@ -27,7 +27,8 @@ class AuctionTrueData(Auction):
         maxBid = self.auction[1]
         meanBid = self.auction[2]
         varBid = self.auction[3]
-        unNormBids = stats.truncnorm.rvs((minBid - meanBid) / np.sqrt(varBid), (maxBid - meanBid) / np.sqrt(varBid), loc=meanBid, scale=np.sqrt(varBid), size=(self.nBidders, nAuctions))
+        nAuctions = np.maximum(nAuctions,1)
+        unNormBids = stats.truncnorm.rvs((minBid - meanBid) / np.sqrt(varBid), (maxBid - meanBid) / np.sqrt(varBid), loc=meanBid, scale=np.sqrt(varBid), size=(self.nBidders, int(nAuctions)))
         bids = 0.05 + (unNormBids - unNormBids.min()) / (unNormBids.max() - unNormBids.min()) * (5 - 0.05)
         pClicks = np.random.beta(self.auction[4], self.auction[5], (self.nBidders, nAuctions))
         expValue = bids * pClicks

@@ -39,7 +39,7 @@ class Campaign:
         else:
             nResearch = math.floor(np.random.randn(1) * self.nStdResearch + self.nMeanResearch)
             [cpc, mypos, pobs] = self.auction.simulateMultipleAuctions(int(nResearch), myBid)
-
+            nResearch = np.maximum(nResearch,1)
             clickEvents = pobs * self.probClick > np.random.uniform(0, 1, int(nResearch))
             costTot = cpc * clickEvents.astype(int)
 

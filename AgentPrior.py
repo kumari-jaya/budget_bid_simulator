@@ -182,7 +182,7 @@ class AgentPrior:
         #print "Time Optimization :",time.time() - start
         return [newBudgets,newCampaigns]
 
-    def valuesForCampaigns(self,sampling=True ,bidSampling = True):
+    def valuesForCampaigns(self,sampling=False ,bidSampling = True):
         estimatedClicks = np.zeros(shape=(self.ncampaigns, len(self.budgets)))
         if( sampling==False):
             for c in range(0,self.ncampaigns):
@@ -223,7 +223,7 @@ class AgentPrior:
         return estimatedClicks*self.valuesPerClick.reshape((self.ncampaigns,1))
 
 
-    def chooseAction(self,sampling=True, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0,initialExploration=4):
+    def chooseAction(self,sampling=False, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0,initialExploration=4):
 
         if self.t <= initialExploration:
             budgets = np.random.choice(self.budgets[1:], self.ncampaigns)

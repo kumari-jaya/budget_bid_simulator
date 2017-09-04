@@ -3,8 +3,8 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../results/'
-agentPath = ["Sampling/","Mean/","UCB/","3D/"]
+path = '../results_bellman/'
+agentPath = ["Sampling/","Mean/","UCB/"]#,"3D/"]
 nExperiments = 2
 optimum = np.load(path+"opt.npy")
 print optimum
@@ -25,7 +25,7 @@ for a in range(0,len(agentPath)):
     plt.figure(a)
     conv = np.array(conv)
     plt.plot(np.mean(conv[:],axis=0))
-    plt.ylim(0,25)
+    plt.ylim(6,25)
     plt.plot(np.ones(500)*np.sum(optimum),'--')
     plt.title(agentPath[a])
 
