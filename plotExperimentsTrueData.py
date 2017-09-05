@@ -5,7 +5,7 @@ from AgentOracle import *
 
 path = '../results_bellman/'
 agentPath = ["Sampling/","Mean/","UCB/"]#,"3D/"]
-nExperiments = 2
+nExperiments = 4
 optimum = np.load(path+"opt.npy")
 print optimum
 optPol = np.load(path+"optPolicy.npy")

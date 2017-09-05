@@ -3,21 +3,22 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../results_bellman/'
-agentPath = ["Sampling/","Mean/","UCB/","3D/"]
-nExperiments = 60
+path = '../results/'
+agentPath = ["Sampling/","Mean/","UCB/"]#,"3D/"]
+nExperiments = 10
 optimum = np.load(path+"opt.npy")
 print optimum
 optPol = np.load(path+"optPolicy.npy")
 
-nCampaigns=3
+nCampaigns=5
 optBidBudMatrix = np.load(path+"OracleBidBudMatrix.npy")
-bids = np.linspace(0.0, 5.0, 5)
+bids = np.linspace(0.0, 1.0, 5)
 budgets = np.linspace(0.0, 100.0, 10)
-convparams = np.array([[0.4, 100, 200],[0.2, 100, 200],[0.3, 100, 200],[0.2, 100, 200],[0.35, 100, 200]])
+#convparams = np.array([[0.4, 100, 200],[0.2, 100, 200],[0.3, 100, 200],[0.2, 100, 200],[0.35, 100, 200]])
 #convparams = np.array([[0.4, 100, 200],[0.4, 100, 200],[0.4, 100, 200],[0.4, 100, 200],[0.4, 100, 200]])
+convparams = np.array([[0.5, 100, 200],[0.6, 100, 200],[0.4, 100, 200],[0.5, 100, 200],[0.35, 100, 200]])
 
-T=100
+T=200
 
 def budIndex(bud):
     return np.argwhere(np.isclose(budgets,bud)).reshape(-1)
@@ -111,3 +112,14 @@ leg = ['Sampling','Mean','UCB','Optimum']
 plt.legend(leg)
 plt.plot(np.mean(conv[:], axis=0))
 
+
+
+##### REGRET
+plt.figure(501)
+#T=150
+opt=np.ones((len(agentPath),T)) * np.sum(optimum)
+regret = np.cumsum((opt- res[0:3,0:T]),axis=1)
+plt.plot(regret.T)
+leg = (['sampling','mean','ucb'])
+plt.legend(leg)
+plt.title("Regret")

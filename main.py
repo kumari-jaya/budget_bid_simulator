@@ -61,6 +61,7 @@ oracle.chooseAction()
 
 oracle.initGPs()
 oracle.updateMultiGP()
+oracle.updateMultiGP()
 
 # Agent initialization
 agent = AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBudget=100.0)

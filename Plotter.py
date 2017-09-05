@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from matplotlib import pyplot as plt
+from Utils import *
 
 
 class Plotter:
@@ -327,8 +328,8 @@ class Plotter:
         [means,sigmas]=self.agent.gpsClicks[gpIndex].predict(x,return_std=True)
 
         observedInput = self.agent.prevBids[:, gpIndex]
-        observedOutput = self.agent.dividePotentialClicks(self.agent.prevClicks[:, gpIndex]*24.0,self.agent.prevHours[:,gpIndex])
-        plt.figure(gpIndex)
+        observedOutput = dividePotentialClicks(self.agent.prevClicks[:, gpIndex]*24.0,self.agent.prevHours[:,gpIndex])
+        plt.figure()
         plt.plot(observedInput, observedOutput, 'r.', markersize=10, label=u'Observations')
 
         plt.plot(bidPoints, means, 'b-', label=u'Prediction')
@@ -356,8 +357,8 @@ class Plotter:
         [means, sigmas] = self.agent.gpsCosts[gpIndex].predict(x, return_std=True)
 
         observedInput = self.agent.prevBids[:, gpIndex]
-        observedOutput = self.agent.dividePotentialClicks(self.agent.prevCosts[:, gpIndex] * 24.0, self.agent.prevHours[:, gpIndex])
-        plt.figure(gpIndex+10)
+        observedOutput = dividePotentialClicks(self.agent.prevCosts[:, gpIndex] * 24.0, self.agent.prevHours[:, gpIndex])
+        plt.figure()
 
         plt.plot(observedInput, observedOutput, 'r.', markersize=10, label=u'Observations')
 

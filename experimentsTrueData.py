@@ -18,28 +18,30 @@ from AgentOracle import *
 from joblib import Parallel, delayed
 import copy
 from numpy import genfromtxt
-
+from AgentFactoredExperiment import *
 
 show = False
 save = True
 path = '../results/'
 # Auction parameter initialization
-nCampaigns =3
+nCampaigns =5
 
-convparams = np.array([[0.4, 100, 200],[0.3, 100, 200],[0.3, 100, 200],[0.2, 100, 200],[0.35, 100, 200]])
+#convparams = np.array([[0.4, 100, 200],[0.3, 100, 200],[0.3, 100, 200],[0.2, 100, 200],[0.35, 100, 200]])
+convparams = np.array([[0.5, 100, 200],[0.6, 100, 200],[0.4, 100, 200],[0.5, 100, 200],[0.35, 100, 200]])
+
 ## Discount probabilities
 lambdas = np.array([1.0, 0.71, 0.56, 0.53, 0.49, 0.47, 0.44, 0.44, 0.43, 0.43])
 ## Click probabilities of the considered ad
-probClick = np.array([0.5, 0.6, 0.6, 0.5, 0.4, 0.1, 0.4, 0.5, 0.2, 0.4])*0.2
+#probClick = np.array([0.6, 0.6, 0.6, 0.5, 0.4, 0.1, 0.4, 0.5, 0.2, 0.4])*0.2
 ## Number of research per day
 nMeanResearch = np.ones(nCampaigns)*1000.0
 sigmaResearch = np.ones(nCampaigns)*1.0
 
-sigmaResearch = np.array([100,400,200,10,10,10,10])
+#sigmaResearch = np.array([400,400,400,10,10,10,10])
 ## Number of other bidders in the auction
-nBidders = [5, 6, 6, 5, 5, 5, 6, 5, 6, 6]
+#nBidders = [5, 6, 6, 5, 5, 5, 6, 5, 6, 6]
 
-nBidders = np.ones(nCampaigns)*5
+nBidders = np.ones(nCampaigns)*10
 nSlots = 5
 
 
@@ -49,12 +51,11 @@ auctionsFile = './data/BidData.csv'
 
 allData = genfromtxt(auctionsFile, delimiter=',')
 index = np.random.randint(0, 100,nCampaigns)
-#probClick = np.random.beta(allData[index, 4], allData[index, 5])
-probClick=np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
-
+probClick = np.random.beta(allData[index, 4], allData[index, 5])
+#probClick=np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
+probClick=np.array([ 0.02878113  , 0.02648224,  0.01104576,  0.0134576 ,0.0639])
 
 campaigns = []
-index = np.array([1,4,8,17,22])
 index = np.array([2,6,8,60,22])
 
 for c in range(0, nCampaigns):
@@ -73,13 +74,24 @@ nBids = 5
 nIntervals = 10
 deadline = 200
 maxBudget = 100.0
-maxBid = 5.0
+maxBid = 1.0
 
 # Baseline computation
 oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
                      nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, environment=copy.copy(env))
 
-oracle.generateBidBudgetMatrix(nSimul=20)
+oracle.generateBidBudgetMatrix(nSimul=40)
+"""
+for c in range(0,len(campaigns)):
+    plt.figure(c+90)
+    plt.plot(oracle.bidBudgetMatrix[c,:,-1],'ro')
+
+
+for c in range(0,len(campaigns)):
+    plt.figure(c+50)
+    plt.plot(oracle.bidBudgetMatrix[c,-1,:],'bo')
+
+"""
 
 values = np.ones(nCampaigns) * convparams[:nCampaigns,0]
 oracle.updateValuesPerClick(values)
@@ -103,15 +115,21 @@ if save==True:
     np.save(path+"OracleBidBudMatrix",oracle.bidBudgetMatrix)
 print "budget pOlicy",optBud
 
-agentPath = ["Sampling/","Mean/","UCB/","3D/"]
+agentPath = ["Sampling/","Mean/","UCB/"]#],"3D/"]
+
+
+
+
+
 def experiment(k):
         # Agent initialization
     np.random.seed()
     agents=[]
-    agents.append(AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
-    agents.append(AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Mean"))
-    agents.append(AgentFactored(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids,  maxBid=maxBid,maxBudget=maxBudget, method="UCB"))
-    agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget,usePrior=False))
+    agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
+    agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Mean"))
+    agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids,  maxBid=maxBid,maxBudget=maxBudget, method="UCB"))
+    #agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget,usePrior=False))
+
 
     ret = []
 
@@ -131,19 +149,31 @@ def experiment(k):
         core = Core(agent, copy.copy(env), deadline)
 
         core.runEpisode()
+
         np.save(path+agentPath[a]+"policy_" +str(k), [agent.prevBids,agent.prevBudgets])
         np.save(path+agentPath[a]+"experiment_" + str(k),np.sum(agent.prevConversions,axis=1))
 
         ret.append(np.sum(agent.prevConversions,axis=1))
-    return ret
+    return [ret,agents,env]
 
 
 
-nExperiments = 60
+nExperiments = 10
 
 out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
 np.save(path+"allExperiments", out)
 #plt.plot(np.sum(agent.prevConversions, axis=1))
+agents= out[0][1]
+env = out[0][2]
+"""
+plotter = Plotter(agents[0], env)
+plotter.plotClicksAgentBid(1)
+plotter.plotCostsAgentBid(1)
 
+
+plotter = Plotter(agents[1], env)
+plotter.plotClicksAgentBid(1)
+plotter.plotCostsAgentBid(1)
+"""
