@@ -29,7 +29,7 @@ ensure_dir(path)
 # Experiment setting
 nBids = 5
 nIntervals = 10
-deadline = 200
+deadline = 100
 maxBudget = 100.0
 maxBid = 1.0
 
@@ -75,7 +75,7 @@ oracle = Oracle(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns,
                 nBudget=nIntervals, nBids=nBids, maxBid=maxBid,
                 maxBudget=maxBudget, environment=copy.copy(envOracle))
 
-oracle.generateBidBudgetMatrix(nSimul=40)
+oracle.generateBidBudgetMatrix(nSimul=60)
 values = np.ones(nCampaigns) * convparams[:nCampaigns, 0]
 oracle.updateValuesPerClick(values)
 [optBud, optBid, optConv] = oracle.chooseAction()
@@ -140,9 +140,9 @@ def experiment(k):
     return [results, agents, envi]
 
 
-nExperiments = 10
+nExperiments = 50
 
-out = Parallel(n_jobs=-1)(
+out = Parallel(n_jobs=50)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
 np.save(path + "allExperiments", out)

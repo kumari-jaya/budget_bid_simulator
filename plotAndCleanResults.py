@@ -6,7 +6,7 @@ from AgentOracle import *
 path = '../results_06_09/'
 agentPath = np.load(path + "Agents.npy")
 
-nExperiments = 3
+nExperiments = 2
 nCampaigns = 5
 
 optimum = np.load(path + "opt.npy")
@@ -107,7 +107,7 @@ plt.plot(np.mean(conv[:], axis=0))
 # REGRET plot
 plt.figure(501)
 opt = np.ones((len(agentPath), T)) * np.sum(optimum)
-regret = np.cumsum((opt - res[0:3, 0:T]), axis=1)
+regret = np.cumsum((opt - res[0:len(agentPath), 0:T]), axis=1)
 plt.plot(regret.T)
 plt.legend(legend)
 plt.title("Cumulated Expected Pseudo-Regret")
