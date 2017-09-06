@@ -3,21 +3,22 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../results_bellman/'
-agentPath = ["Sampling/","Mean/","UCB/"]#,"3D/"]
+path = '../results/'
+agentPath = ["Sampling/", "Mean/", "UCB/", "3D/"]
 nExperiments = 4
-optimum = np.load(path+"opt.npy")
+
+optimum = np.load(path + "opt.npy")
 print optimum
-optPol = np.load(path+"optPolicy.npy")
-plt.figure(33)
+optPol = np.load(path + "optPolicy.npy")
+plt.figure(1)
 plt.plot(optPol[0],'o')
 plt.title('OptimalPolicy')
 print optPol
 for a in range(0,len(agentPath)):
     conv =[]
-    pol =[]
-    for e in range(0,nExperiments):
-        temp = np.load(path+ agentPath[a]+ "experiment_"+ str(e)+".npy")
+    pol = []
+    for e in range(0, nExperiments):
+        temp = np.load(path + agentPath[a] + "experiment_"+ str(e)+".npy")
         tempPol = np.load(path+ agentPath[a]+ "policy_"+ str(e)+".npy")
         if len(temp)>0:
             conv.append(temp)
