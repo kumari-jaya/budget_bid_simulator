@@ -3,10 +3,10 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../results/'
+path = '../results_06_09/'
 agentPath = np.load(path + "Agents.npy")
 
-nExperiments = 10
+nExperiments = 3
 nCampaigns = 5
 
 optimum = np.load(path + "opt.npy")
@@ -17,9 +17,9 @@ optBidBudMatrix = np.load(path + "OracleBidBudMatrix.npy")
 bids = np.linspace(0.0, 1.0, 5)
 budgets = np.linspace(0.0, 100.0, 10)
 
-convparams = np.load(path + "ConversionValues")
+convparams = np.load(path + "ConversionValues.npy")
 
-T = np.load(path + "Deadline")
+T = np.load(path + "Deadline.npy")
 
 def budIndex(bud):
     return np.argwhere(np.isclose(budgets, bud)).reshape(-1)

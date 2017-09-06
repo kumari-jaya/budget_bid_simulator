@@ -15,9 +15,16 @@ from AgentPrior import *
 from AgentOracle import *
 from joblib import Parallel, delayed
 import copy
+import os
+
+def ensure_dir(file_path):
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 save = True
 path = '../results_06_09/'
+ensure_dir(path)
 
 # Experiment setting
 nBids = 5
@@ -47,7 +54,7 @@ sigmaResearch = np.ones(nCampaigns) * 1.0
 ## Click probabilities of the considered ad
 auctionsFile = './data/BidData.csv'
 allData = genfromtxt(auctionsFile, delimiter=',')
-index = np.random.randint(0, 100,nCampaigns)
+index = np.random.randint(0, 100, nCampaigns)
 probClick = np.random.beta(allData[index, 4], allData[index, 5])
 #probClick = np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
 probClick = np.array([ 0.02878113  , 0.02648224,  0.01104576,  0.0134576 ,0.0639])
@@ -125,6 +132,7 @@ def experiment(k):
 
         core.runEpisode()
 
+        ensure_dir(path + agentPath[idxAgent])
         np.save(path + agentPath[idxAgent] + "policy_" + str(k), [agent.prevBids, agent.prevBudgets])
         np.save(path + agentPath[idxAgent] + "experiment_" + str(k), np.sum(agent.prevConversions, axis=1))
 
@@ -132,9 +140,9 @@ def experiment(k):
     return [results, agents, envi]
 
 
-nExperiments = 3
+nExperiments = 10
 
-out = Parallel(n_jobs=2)(
+out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
 
 np.save(path + "allExperiments", out)
