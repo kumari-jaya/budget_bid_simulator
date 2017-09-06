@@ -3,10 +3,12 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../results_06_09/'
+path = '../results_06_09_bellman/'
+path = '../results_06_09_multipleSettings/3/'
+
 agentPath = np.load(path + "Agents.npy")
 
-nExperiments = 2
+nExperiments = 4
 nCampaigns = 5
 
 optimum = np.load(path + "opt.npy")
@@ -80,8 +82,8 @@ for a in range(0, len(agentPath)):
 
     plt.plot(np.mean(expClicks,  axis=0))
     std = np.std(expClicks, axis=0)
-    plt.plot(np.mean(expClicks, axis=0) + 2 * std * np.sqrt(nExperiments), 'b')
-    plt.plot(np.mean(expClicks, axis=0) - 2 * std * np.sqrt(nExperiments), 'b')
+    plt.plot(np.mean(expClicks, axis=0) + 2 * std / np.sqrt(nExperiments), 'b')
+    plt.plot(np.mean(expClicks, axis=0) - 2 * std / np.sqrt(nExperiments), 'b')
 
     res.append(np.mean(expClicks, axis=0))
     observedRes.append(np.mean(conv, axis=0))
@@ -109,5 +111,6 @@ plt.figure(501)
 opt = np.ones((len(agentPath), T)) * np.sum(optimum)
 regret = np.cumsum((opt - res[0:len(agentPath), 0:T]), axis=1)
 plt.plot(regret.T)
-plt.legend(legend)
+plt.legend(legend[0:len(legend)-1])
+plt.ylim(0,180)
 plt.title("Cumulated Expected Pseudo-Regret")
