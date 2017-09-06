@@ -170,7 +170,7 @@ class Oracle(Agent):
         #clicks=np.atleast_2d(clicks)
         x=np.array([bids,budgets])
         x=np.atleast_2d(x).T
-        x=self.normalize(x)
+        x=self.normalize3D(x)
         #potentialClicks = self.dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
         #y=potentialClicks.T[c,:].ravel()
         y=clicks.T.ravel()
@@ -368,6 +368,10 @@ class Oracle(Agent):
     def normalize(self,X):
        return X/(self.maxBid)
 
+    def normalize3D(self,X):
+        X[:,0] = X[:,0]/(self.maxBid)
+        X[:,1] = X[:,1]/(self.maxTotDailyBudget)
+        return X
 
 
     def prior(self,x,y):

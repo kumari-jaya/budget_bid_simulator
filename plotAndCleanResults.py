@@ -3,12 +3,13 @@ import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
 
-path = '../results_06_09_bellman/'
-path = '../results_06_09_multipleSettings/3/'
+#path = '../results_06_09_bellman/'
+#path = '../results_06_09_multipleSettings/3/'
+path = '../results_06_09/'
 
 agentPath = np.load(path + "Agents.npy")
 
-nExperiments = 4
+nExperiments = 10
 nCampaigns = 5
 
 optimum = np.load(path + "opt.npy")
@@ -89,7 +90,7 @@ for a in range(0, len(agentPath)):
     observedRes.append(np.mean(conv, axis=0))
 
 
-legend = ['Sampling', 'Mean', 'UCB', '3D', 'Optimum']
+legend = ['AdComB-TS', 'AdComB-Mean', 'AdComB-BUCB', 'AdComB-3D', 'Oracle']
 
 # All mean results in a single plot
 res = np.array(res)
@@ -112,5 +113,9 @@ opt = np.ones((len(agentPath), T)) * np.sum(optimum)
 regret = np.cumsum((opt - res[0:len(agentPath), 0:T]), axis=1)
 plt.plot(regret.T)
 plt.legend(legend[0:len(legend)-1])
-plt.ylim(0,180)
-plt.title("Cumulated Expected Pseudo-Regret")
+plt.xlabel("t",fontsize=20)
+plt.ylabel(r'$R_t(\mathfrak{U})$',fontsize=20)
+plt.ylim(0,250)
+plt.tick_params(labelsize=20)
+
+#plt.title("Cumulated Expected Pseudo-Regret")
