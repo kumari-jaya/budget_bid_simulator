@@ -4,25 +4,25 @@ from matplotlib import pyplot as plt
 from AgentOracle import *
 
 path = '../results/'
-agentPath = ["Sampling/","Mean/","UCB/"]#,"3D/"]
-nExperiments = 10
-optimum = np.load(path+"opt.npy")
-print optimum
-optPol = np.load(path+"optPolicy.npy")
+agentPath = np.load(path + "Agents.npy")
 
-nCampaigns=5
-optBidBudMatrix = np.load(path+"OracleBidBudMatrix.npy")
+nExperiments = 10
+nCampaigns = 5
+
+optimum = np.load(path + "opt.npy")
+print "Oracle Optimum ", optimum
+optPol = np.load(path + "optPolicy.npy")
+
+optBidBudMatrix = np.load(path + "OracleBidBudMatrix.npy")
 bids = np.linspace(0.0, 1.0, 5)
 budgets = np.linspace(0.0, 100.0, 10)
-#convparams = np.array([[0.4, 100, 200],[0.2, 100, 200],[0.3, 100, 200],[0.2, 100, 200],[0.35, 100, 200]])
-#convparams = np.array([[0.4, 100, 200],[0.4, 100, 200],[0.4, 100, 200],[0.4, 100, 200],[0.4, 100, 200]])
-convparams = np.array([[0.5, 100, 200],[0.6, 100, 200],[0.4, 100, 200],[0.5, 100, 200],[0.35, 100, 200]])
 
-T=200
+convparams = np.load(path + "ConversionValues")
+
+T = np.load(path + "Deadline")
 
 def budIndex(bud):
-    return np.argwhere(np.isclose(budgets,bud)).reshape(-1)
-
+    return np.argwhere(np.isclose(budgets, bud)).reshape(-1)
 
 def bidIndex(bid):
     return np.argwhere(np.isclose(bids,bid)).reshape(-1)
@@ -32,94 +32,82 @@ def calcClicks(bidArray,budArray,convParams):
     for i in range(0,len(bidArray)):
         budInd = budIndex(budArray[i])
         bidInd = bidIndex(bidArray[i])
-        c=optBidBudMatrix[i,bidInd,budInd]
+        c = optBidBudMatrix[i, bidInd, budInd]
         clicks.append(c)
-    clicks =np.array(clicks)
+    clicks = np.array(clicks)
     return np.sum(clicks.reshape(-1)*convParams[:nCampaigns,0])
 
-def calcClicksForExperiment(policy,deadline,convParams):
+def calcClicksForExperiment(policy, deadline, convParams):
     clicks = np.array([])
     for t in range(0,deadline):
-        bidArray=policy[0,t,:]
-        budArray=policy[1,t,:]
-        clicks = np.append(clicks,calcClicks(bidArray,budArray,convParams))
+        bidArray = policy[0,t,:]
+        budArray = policy[1,t,:]
+        clicks = np.append(clicks, calcClicks(bidArray, budArray, convParams))
     return clicks
 
 
-
-
-
-
-
-
 plt.figure(33)
-plt.plot(optPol[0],'o')
+plt.plot(optPol[0], 'o')
 plt.title('OptimalPolicy')
 print optPol
 
-res =[]
-observedRes =[]
-for a in range(0,len(agentPath)):
-    conv =[]
-    pol =[]
+# Plotting single agents results
+res = []
+observedRes = []
+for a in range(0, len(agentPath)):
+    conv = []
+    pol = []
     expClicks = []
     for e in range(0,nExperiments):
-        temp = np.load(path+ agentPath[a]+ "experiment_"+ str(e)+".npy")
-        tempPol = np.load(path+ agentPath[a]+ "policy_"+ str(e)+".npy")
-        if len(temp)>0:
+        temp = np.load(path + agentPath[a] + "experiment_" + str(e) + ".npy")
+        tempPol = np.load(path+ agentPath[a] + "policy_" + str(e) + ".npy")
+        if len(temp) > 0:
             conv.append(temp)
             pol.append(tempPol)
             expClicks.append(calcClicksForExperiment(tempPol,T,convparams))
-    plt.figure(a)
+    plt.figure(1+a)
     conv = np.array(conv)
-    plt.plot(np.mean(conv[:],axis=0))
-    plt.ylim(0,25)
-    plt.plot(np.ones(T)*np.sum(optimum),'--')
+    plt.plot(np.mean(conv[:], axis=0))
+    plt.ylim(0, 25)
+    plt.plot(np.ones(T) * np.sum(optimum), '--')
     plt.title(agentPath[a])
     pol = np.array(pol)
 
-    #clicks =calcClicksForExperiment(pol[-1],400)
-    plt.figure(10+a)
-    expClicks=np.array(expClicks)
-    plt.plot(np.ones(T)*np.sum(optimum),'--')
-    plt.title(agentPath[a] + "oracle values")
-    #plt.plot(np.mean(conv[:],axis=0))
+    plt.figure(1 + a)
+    expClicks = np.array(expClicks)
+    plt.plot(np.ones(T) * np.sum(optimum), '--')
+    plt.title(agentPath[a] + "Oracle values")
 
-    plt.plot(np.mean(expClicks,axis=0))
-    std = np.std(expClicks,axis =0)
-    plt.plot(np.mean(expClicks,axis=0) +std,'b')
-    plt.plot(np.mean(expClicks,axis=0) -std,'b')
+    plt.plot(np.mean(expClicks,  axis=0))
+    std = np.std(expClicks, axis=0)
+    plt.plot(np.mean(expClicks, axis=0) + 2 * std * np.sqrt(nExperiments), 'b')
+    plt.plot(np.mean(expClicks, axis=0) - 2 * std * np.sqrt(nExperiments), 'b')
 
-    res.append(np.mean(expClicks,axis=0))
-    observedRes.append(np.mean(conv,axis=0))
+    res.append(np.mean(expClicks, axis=0))
+    observedRes.append(np.mean(conv, axis=0))
 
 
+legend = ['Sampling', 'Mean', 'UCB', '3D', 'Optimum']
+
+# All mean results in a single plot
 res = np.array(res)
 plt.figure(190)
 plt.plot(res.T)
-
 plt.plot(np.ones(T) * np.sum(optimum), '--')
-leg = ['Sampling','Mean','UCB','Optimum']
-plt.legend(leg)
+plt.legend(legend)
 
-
+# ???
 plt.figure(290)
-observedRes=np.array(observedRes)
+observedRes = np.array(observedRes)
 plt.plot(observedRes.T)
-
 plt.plot(np.ones(T) * np.sum(optimum), '--')
-leg = ['Sampling','Mean','UCB','Optimum']
-plt.legend(leg)
+plt.legend(legend)
 plt.plot(np.mean(conv[:], axis=0))
 
-
-
-##### REGRET
+# REGRET plot
 plt.figure(501)
-#T=150
-opt=np.ones((len(agentPath),T)) * np.sum(optimum)
-regret = np.cumsum((opt- res[0:3,0:T]),axis=1)
+opt = np.ones((len(agentPath), T)) * np.sum(optimum)
+regret = np.cumsum((opt - res[0:3, 0:T]), axis=1)
 plt.plot(regret.T)
-leg = (['sampling','mean','ucb'])
-plt.legend(leg)
-plt.title("Regret")
+plt.legend(legend)
+plt.title("Cumulated Expected Pseudo-Regret")
