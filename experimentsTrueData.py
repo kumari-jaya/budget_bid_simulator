@@ -72,7 +72,7 @@ env = Environment(copy.copy(campaigns))
 # Experiment setting
 nBids = 5
 nIntervals = 10
-deadline = 200
+deadline = 100
 maxBudget = 100.0
 maxBid = 1.0
 
@@ -115,7 +115,7 @@ if save==True:
     np.save(path+"OracleBidBudMatrix",oracle.bidBudgetMatrix)
 print "budget pOlicy",optBud
 
-agentPath = ["Sampling/","Mean/","UCB/"]#],"3D/"]
+agentPath = ["Sampling/","Mean/","UCB/","3D/"]
 
 
 
@@ -128,7 +128,7 @@ def experiment(k):
     agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
     agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Mean"))
     agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids,  maxBid=maxBid,maxBudget=maxBudget, method="UCB"))
-    #agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget,usePrior=False))
+    agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget,usePrior=False))
 
 
     ret = []
@@ -158,7 +158,7 @@ def experiment(k):
 
 
 
-nExperiments = 10
+nExperiments = 100
 
 out = Parallel(n_jobs=-1)(
         delayed(experiment)(k) for k in xrange(nExperiments))
