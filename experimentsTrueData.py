@@ -60,8 +60,8 @@ sigmaResearch = np.ones(nCampaigns) * 1.0
 ## Click probabilities of the considered ad
 auctionsFile = './data/BidData.csv'
 allData = genfromtxt(auctionsFile, delimiter=',')
-index = np.random.randint(0, 100, nCampaigns)
-probClick = np.random.beta(allData[index, 4], allData[index, 5])
+#index = np.random.randint(0, 100, nCampaigns)
+#probClick = np.random.beta(allData[index, 4], allData[index, 5])
 #probClick = np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
 probClick = np.array([ 0.02878113  , 0.02648224,  0.01104576,  0.0134576 ,0.0639])
 

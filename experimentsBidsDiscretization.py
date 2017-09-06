@@ -75,16 +75,17 @@ for s in range(0,nDiscretizationSettings):
     pathSetting = path + str(s)+"/"
     ensure_dir(pathSetting)
 
-    index = np.random.randint(0, 100, nCampaigns)
-    probClick = np.random.beta(allData[index, 4], allData[index, 5])
+    #probClick = np.random.beta(allData[index, 4], allData[index, 5])
     #probClick = np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
-    #probClick = np.array([ 0.02878113  , 0.02648224,  0.01104576,  0.0134576 ,0.0639])
+    probClick = np.array([0.02878113, 0.02648224, 0.01104576, 0.0134576, 0.0639])
+
+    index = np.array([2, 6, 8, 60, 22])
 
     campaigns = []
 
     # Campaign setting
     for c in range(0, nCampaigns):
-        a = AuctionTrueData(nBidders=int(nBidders[c]), nSlots=nSlots,lambdas=lambdas, myClickProb=probClick[c])
+        a = AuctionTrueData(nBidders=int(nBidders[c]), nSlots=nSlots,lambdas=lambdas, myClickProb=probClick[c],fixedIndex=index[c])
         campaigns.append(Campaign(a, nMeanResearch=nMeanResearch[c], nStdResearch=sigmaResearch[c],probClick =probClick[c], convParams=convparams[c]))
 
     # Environment setting

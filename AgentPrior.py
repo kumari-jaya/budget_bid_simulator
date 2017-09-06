@@ -224,21 +224,21 @@ class AgentPrior:
 
 
     def chooseAction(self,sampling=True, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0,initialExploration=4):
-        """
-        if self.t == 0:
-            budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
-            while(np.sum(budgets)>self.maxTotDailyBudget):
-                budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
 
-            return [budgets, np.random.choice(self.bids, self.ncampaigns)]
-        """
-        if self.t <= initialExploration:
+        if self.t == 0:
             # Equally shared budget and random bid for each subcampaign
             equalBud = self.maxTotDailyBudget / self.ncampaigns
             bud = self.budgets[np.max(np.argwhere(self.budgets <= equalBud))] #prendo il primo budget più piccolo della ripartiizone equa
             buds = np.ones(self.ncampaigns) * bud
             buds[-1] = (self.maxTotDailyBudget - (self.ncampaigns - 1) * bud)
             return [buds, np.ones( self.ncampaigns)*self.bids[-1]]
+
+        if self.t <= initialExploration:
+            budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
+            while(np.sum(budgets)>self.maxTotDailyBudget):
+                budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
+
+            return [budgets, np.random.choice(self.bids, self.ncampaigns)]
 
 
 
