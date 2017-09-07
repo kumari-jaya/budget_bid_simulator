@@ -44,7 +44,7 @@ nDiscretizationSettings = len(bidDiscretization)
 deadline = 100
 nExperiments = 100
 nSettings = 10
-nSimul = 50
+nSimul = 1000
 nTrainingInputs = 500
 
 
