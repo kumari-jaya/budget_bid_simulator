@@ -102,7 +102,8 @@ for s in range(0,nSettings):
     oracle.initGPs3D()
     print "initGPs"
     oracle.updateMultiGP(nTrainingInputs)
-    oracle.updateMultiGP3D(nTrainingInputs)
+    #oracle.updateMultiGP3D(nTrainingInputs)
+    oracle.updateCostsPerBids()
     print "updated GPS"
     if save == True:
         np.save(pathSetting + "opt", optConv)
@@ -134,10 +135,13 @@ for s in range(0,nSettings):
 
             # Set the GPs hyperparameters
             for c in range(0, nCampaigns):
-                if idxAgent == 3:
-                    agent.setGPKernel(c, oracle.gps3D[c].kernel_)
+                if agentPath[idxAgent] == "3D/":
+                    agent.setGPKernel(c, oracle.gps3D[c].kernel_, oracle.alphasClicksGP)
                 else:
-                    agent.setGPKernel(c, oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
+                    print "alphaCosts: ", oracle.alphasCostsGP
+                    print "alphaClicks: ", oracle.alphasClicksGP
+                    agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_, oracle.alphasClicksGP,
+                                      oracle.alphasCostsGP)
             # Init the Core and execute the experiment
             envi = Environment(copy.copy(campaigns))
             core = Core(agent, copy.copy(envi), deadline)

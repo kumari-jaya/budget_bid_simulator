@@ -7,13 +7,15 @@ from matplotlib2tikz import save as tikz_save
 
 path = '../results_06_09_bellman/'
 path = '../results_06_09_multipleSettings_bellman/9/'
-#path = '../results_06_09_multipleDiscretizations_bellman/3/'
+#path = '../results_06_09_multipleDiscretizations_bellman/9/'
+#path = '../results_06_09_multipleSettings_UCB/9/'
+
 
 #path = '../results_06_09/'
 
 agentPath = np.load(path + "Agents.npy")
-
-nExperiments = 100
+#agentPath = ["UCB/"]
+nExperiments = 10
 nCampaigns = 5
 
 optimum = np.load(path + "opt.npy")
@@ -22,6 +24,9 @@ optPol = np.load(path + "optPolicy.npy")
 
 optBidBudMatrix = np.load(path + "OracleBidBudMatrix.npy")
 bids = np.linspace(0.0, 1.0, 5)
+#legend = ['AdComB-BUCB']
+
+
 budgets = np.linspace(0.0, 100.0, 10)
 
 convparams = np.load(path + "ConversionValues.npy")
@@ -75,7 +80,7 @@ for a in range(0, len(agentPath)):
     plt.figure(1+a)
     conv = np.array(conv)
     plt.plot(np.mean(conv[:], axis=0))
-    plt.ylim(0, 25)
+    #plt.ylim(0, 25)
     plt.plot(np.ones(T) * np.sum(optimum), '--')
     plt.title(agentPath[a])
     pol = np.array(pol)
@@ -95,6 +100,7 @@ for a in range(0, len(agentPath)):
 
 
 legend = ['AdComB-TS', 'AdComB-Mean', 'AdComB-BUCB', 'AdComB-3D', 'Oracle']
+
 
 # All mean results in a single plot
 res = np.array(res)
@@ -116,10 +122,10 @@ plt.figure(501)
 opt = np.ones((len(agentPath), T)) * np.sum(optimum)
 regret = np.cumsum((opt - res[0:len(agentPath), 0:T]), axis=1)
 plt.plot(regret.T)
-plt.legend(legend[0:len(legend)-1])
+plt.legend(legend[0:len(legend)])
 plt.xlabel("t",fontsize=20)
 plt.ylabel(r'$R_t(\mathfrak{U})$',fontsize=20)
-plt.ylim(0,250)
+#plt.ylim(0,250)
 plt.tick_params(labelsize=20)
 tikz_save('regret.tex');
 

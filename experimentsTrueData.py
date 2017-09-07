@@ -35,12 +35,12 @@ maxBid = 1.0
 
 deadline = 60
 nExperiments = 10
-nSimul = 50
-nTrainingInputs = 500
+nSimul = 5
+nTrainingInputs = 10
 
 
 # Auction setting
-nCampaigns = 5
+nCampaigns = 4
 nBidders = np.ones(nCampaigns) * 10
 nSlots = 5
 
@@ -94,7 +94,9 @@ oracle.initGPs()
 oracle.initGPs3D()
 print "initGPs"
 oracle.updateMultiGP(nTrainingInputs)
-oracle.updateMultiGP3D(nTrainingInputs)
+#oracle.updateMultiGP3D(nTrainingInputs)
+oracle.updateCostsPerBids()
+
 print "updated GPS"
 if save == True:
     np.save(path + "opt", optConv)
@@ -130,9 +132,11 @@ def experiment(k):
         # Set the GPs hyperparameters
         for c in range(0, nCampaigns):
             if agentPath[idxAgent] == "3D/":
-                agent.setGPKernel(c, oracle.gps3D[c].kernel_)
+                agent.setGPKernel(c, oracle.gps3D[c].kernel_,oracle.alphasClicksGP)
             else:
-                agent.setGPKernel(c, oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_)
+                print "alphaCosts: ",oracle.alphasCostsGP
+                print "alphaClicks: ",oracle.alphasClicksGP
+                agent.setGPKernel(c, oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_,oracle.alphasClicksGP,oracle.alphasCostsGP)
 
         # Init the Core and execute the experiment
         envi = Environment(copy.copy(campaigns))

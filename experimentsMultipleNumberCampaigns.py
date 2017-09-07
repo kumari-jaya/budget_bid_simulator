@@ -22,41 +22,40 @@ def ensure_dir(file_path):
         os.makedirs(directory)
 
 save = True
-path = '../results_06_09_multipleDiscretizations/'
+path = '../results_06_09_multipleNumberCampaignsSettings/'
 ensure_dir(path)
 
 # Experiment setting
+nBids = 5
 nIntervals = 10
 maxBudget = 100.0
 maxBid = 1.0
 
-bidDiscretization= np.array([3,5,10,20],dtype='int')
-nDiscretizationSettings = len(bidDiscretization)
 
 
-deadline = 100
-nExperiments = 100
-nSettings = 10
-nSimul = 50
-nTrainingInputs = 500
+deadline = 3
+nExperiments = 1
+nSimul = 100
+nTrainingInputs = 3
 
 
 
 # Auction setting
-nCampaigns = 5
-nBidders = np.ones(nCampaigns) * 10
+campaignsSettings = np.array([3,5,10],dtype='int')
+maxNCampaigns = np.max(campaignsSettings)
+nBidders = np.ones(int(maxNCampaigns)) * 10
 nSlots = 5
 
 
 
 # Conversion probabilities
-convparams = np.array([[0.5, 100, 200],[0.6, 100, 200],[0.4, 100, 200],[0.5, 100, 200],[0.35, 100, 200]])
+convparams = np.array([[0.5, 100, 200],[0.6, 100, 200],[0.45, 100, 200],[0.25, 100, 200],[0.3, 100, 200],[0.3, 100, 200],[0.3, 100, 200],[0.3, 100, 200],[0.3, 100, 200],[0.3, 100, 200],[0.3, 100, 200]])
 
 ## Discount probabilities
 lambdas = np.array([1.0, 0.71, 0.56, 0.53, 0.49, 0.47, 0.44, 0.44, 0.43, 0.43])
 ## Number of research per day
-nMeanResearch = np.ones(nCampaigns) * 1000.0
-sigmaResearch = np.ones(nCampaigns) * 1.0
+nMeanResearch = np.ones(maxNCampaigns) * 1000.0
+sigmaResearch = np.ones(maxNCampaigns) * 1.0
 
 #sigmaResearch = np.array([400,400,400,10,10,10,10])
 ## Number of other bidders in the auction
@@ -68,18 +67,18 @@ allData = genfromtxt(auctionsFile, delimiter=',')
 
 
 
-for s in range(0,nDiscretizationSettings):
+for s in range(0,len(campaignsSettings)):
 
-    nBids = bidDiscretization[s]
+    nCampaigns = campaignsSettings[s]
 
     pathSetting = path + str(s)+"/"
     ensure_dir(pathSetting)
 
     #probClick = np.random.beta(allData[index, 4], allData[index, 5])
     #probClick = np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
-    probClick = np.array([0.02878113, 0.02648224, 0.01104576, 0.0134576, 0.0639])
+    probClick = np.array([0.02878113, 0.02648224, 0.0639, 0.0134576, 0.0639,0.0639,0.0639,0.0639,0.0639,0.0639,0.0639])
 
-    index = np.array([2, 6, 8, 60, 22])
+    index = np.array([2, 6, 8, 60, 22,33,33,55,12,16,18,17,34])
 
     campaigns = []
 
@@ -135,7 +134,6 @@ for s in range(0,nDiscretizationSettings):
         for idxAgent, agent in enumerate(agents):
             agent.initGPs()
             print "Experiment : ", k
-
             # Set the GPs hyperparameters
             for c in range(0, nCampaigns):
                 if agentPath[idxAgent] == "3D/":
@@ -143,8 +141,7 @@ for s in range(0,nDiscretizationSettings):
                 else:
                     print "alphaCosts: ", oracle.alphasCostsGP
                     print "alphaClicks: ", oracle.alphasClicksGP
-                    agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_, oracle.alphasClicksGP,
-                                      oracle.alphasCostsGP)
+                    agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_, oracle.alphasClicksGP,oracle.alphasCostsGP)
             # Init the Core and execute the experiment
             envi = Environment(copy.copy(campaigns))
             core = Core(agent, copy.copy(envi), deadline)

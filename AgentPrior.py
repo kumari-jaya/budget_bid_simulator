@@ -67,7 +67,7 @@ class AgentPrior:
 
 
 
-    def setGPKernel(self, c, kernel, alpha=200):
+    def setGPKernel(self, c, kernel, alpha=1.0):
         """
         Set customized kernel to the c-th GP
         :param c: index of the GP to set

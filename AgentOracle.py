@@ -30,6 +30,9 @@ class Oracle(Agent):
         self.gpsClicks = []
         self.gpsCosts = []
         self.gps3D = []
+        self.alphasClicksGP =np.ones(self.nCampaigns)
+        self.alphasCostsGP =np.ones(self.nCampaigns)
+
 
         # Historical data: realizations
         self.prevBudgets = np.array([])
@@ -80,8 +83,8 @@ class Oracle(Agent):
             kernel2 = C(1.0, (1e-3, 1e3))*RBF(l2,(1e-3, 1e3))
             #l=1.0
             #kernel = C(1.0, (1e-3, 1e3)) * RBF(l, (1e-3, 1e3))
-            alpha1=1000.0
-            alpha2 = 1000.0
+            alpha1=1.0
+            alpha2 = 1.0
             self.gpsClicks.append(GaussianProcessRegressor(kernel=kernel2, alpha=alpha1, n_restarts_optimizer=10,normalize_y=True))
             self.gpsCosts.append(GaussianProcessRegressor(kernel=kernel1, alpha=alpha2, n_restarts_optimizer=10,normalize_y=True))
 
@@ -121,6 +124,8 @@ class Oracle(Agent):
         y = y[idxsNoZero]
         if(len(y)>0):
             self.gpsClicks[c].fit(xnorm.T, y)
+
+
 
 
 
@@ -190,6 +195,9 @@ class Oracle(Agent):
     def updateMultiGP(self,nSamples):
         for c in range(0, self.nCampaigns):
             self.updateGP(c,nSamples)
+
+
+
 
     def updateState(self,bids,budgets,clicks,conversions,costs,revenues,hours):
         bids=np.atleast_2d(bids)
@@ -277,6 +285,11 @@ class Oracle(Agent):
             idxs = np.argwhere(self.bids==0).reshape(-1)
             for i in idxs:
                 self.costsPerBid[c,i]=0.0
+            print "Campaign: ", c
+            print "Cost Variance Predictions:",sigma
+            print "Cost Mean Predictions", mean
+
+
         return self.costsPerBid
 
 
@@ -293,16 +306,31 @@ class Oracle(Agent):
             idxs = np.argwhere(self.bids==0).reshape(-1)
             for i in idxs:
                 self.clicksPerBid[c,i]=0.0
+
+            print "Campaign: ", c
+            print "Clicks Variance Predictions:",sigma
+            print "Clicks Mean Predictions", mean
+
         return self.clicksPerBid
 
 
     def generateBidBudgetMatrix(self,nSimul):
+        alphasClicks = np.zeros((self.nCampaigns,self.nBids,self.nBudget))
+        alphasCosts = np.zeros((self.nCampaigns,self.nBids,self.nBudget))
+
         for i,bid in enumerate(self.bids):
             for j,bud in enumerate(self.budgets):
                 nClicks = np.zeros((nSimul,self.nCampaigns,))
+                costs = np.zeros((nSimul,self.nCampaigns))
                 for n in range(0,nSimul):
-                    nClicks[n,:] = self.environment.generateObservationsforCampaigns(np.ones(self.nCampaigns)*bid,np.ones(self.nCampaigns)*bud)[0]
+                    [nClicks[n,:],_, costs[n,:]] = self.environment.generateObservationsforCampaigns(np.ones(self.nCampaigns)*bid,np.ones(self.nCampaigns)*bud)[0:3]
                 self.bidBudgetMatrix[:,i, j] =np.mean(nClicks,axis=0)
+                alphasClicks[:,i,j] = np.std(nClicks,axis=0)
+                alphasCosts[:,i,j] = np.std(costs,axis=0)
+
+        self.alphasClicksGP = np.mean(np.mean(alphasCosts,axis=1),axis=1)
+        self.alphasCostsGP = np.mean(np.mean(alphasClicks,axis=1),axis=1)
+
 
 
     def updateOptimalBidPerBudget(self):
