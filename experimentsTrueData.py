@@ -57,7 +57,7 @@ convparams = np.array([[0.5, 100, 200],[0.6, 100, 200],[0.4, 100, 200],[0.5, 100
 lambdas = np.array([1.0, 0.71, 0.56, 0.53, 0.49, 0.47, 0.44, 0.44, 0.43, 0.43])
 ## Number of research per day
 nMeanResearch = np.ones(nCampaigns) * 1000.0
-sigmaResearch = np.ones(nCampaigns) * 10000.0
+sigmaResearch = np.ones(nCampaigns) * 1.0
 
 #sigmaResearch = np.array([400,400,400,10,10,10,10])
 ## Number of other bidders in the auction
