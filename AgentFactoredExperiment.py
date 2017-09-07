@@ -136,7 +136,7 @@ class AgentFactoredExperiment:
             self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCost, optimizer=None,
                                                         normalize_y=True)
 
-    def setGPKernel(self, c, kernelClick, kernelCost, alphaClick=1.0,alphaCost=1.0):
+    def setGPKernel(self, c, kernelClick, kernelCost, alphaClicks=1.0,alphaCosts=1.0):
         """
         Set customized kernel to the c-th GP
         :param c: index of the GP to set
@@ -145,8 +145,8 @@ class AgentFactoredExperiment:
         :param alpha:
         :return:
         """
-        self.gpsClicks[c] = GaussianProcessRegressor(kernel=kernelClick, alpha=alphaClick, optimizer=None, normalize_y=True)
-        self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCost, optimizer=None, normalize_y=True)
+        self.gpsClicks[c] = GaussianProcessRegressor(kernel=kernelClick, alpha=alphaClicks, optimizer=None, normalize_y=True)
+        self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCosts, optimizer=None, normalize_y=True)
 
     def updateCostGP(self, c):
         """

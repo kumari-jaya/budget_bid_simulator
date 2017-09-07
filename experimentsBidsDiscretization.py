@@ -8,7 +8,7 @@ from Campaign import *
 from Environment import *
 from AuctionTrueData import *
 from Core import *
-
+import datetime
 from AgentFactoredExperiment import *
 from AgentPrior import *
 from AgentOracle import *
@@ -22,8 +22,15 @@ def ensure_dir(file_path):
         os.makedirs(directory)
 
 save = True
-path = '../results_06_09_multipleDiscretizations/'
+
+gg = str(datetime.datetime.now().day)
+hh = str(datetime.datetime.now().hour)
+min = str(datetime.datetime.now().minute)
+
+
+path = '../results_'+gg+hh+min+'_multipleDiscretizations/'
 ensure_dir(path)
+
 
 # Experiment setting
 nIntervals = 10
@@ -139,12 +146,15 @@ for s in range(0,nDiscretizationSettings):
             # Set the GPs hyperparameters
             for c in range(0, nCampaigns):
                 if agentPath[idxAgent] == "3D/":
-                    agent.setGPKernel(c, oracle.gps3D[c].kernel_, oracle.alphasClicksGP)
+                    print "AOOO"
+                    agent.setGPKernel(c, oracle.gps3D[c].kernel_, oracle.alphasClicksGP[c])
                 else:
-                    print "alphaCosts: ", oracle.alphasCostsGP
-                    print "alphaClicks: ", oracle.alphasClicksGP
-                    agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_, oracle.alphasClicksGP,
-                                      oracle.alphasCostsGP)
+                    print "\n"
+                    print "alphaCosts:       ", oracle.alphasCostsGP
+                    print "alphaClicks:       ", oracle.alphasClicksGP
+                    agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_,
+                                      alphaClicks=oracle.alphasClicksGP[c], alphaCosts=oracle.alphasCostsGP[c])
+
             # Init the Core and execute the experiment
             envi = Environment(copy.copy(campaigns))
             core = Core(agent, copy.copy(envi), deadline)

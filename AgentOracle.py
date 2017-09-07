@@ -285,9 +285,7 @@ class Oracle(Agent):
             idxs = np.argwhere(self.bids==0).reshape(-1)
             for i in idxs:
                 self.costsPerBid[c,i]=0.0
-            print "Campaign: ", c
-            print "Cost Variance Predictions:",sigma
-            print "Cost Mean Predictions", mean
+
 
 
         return self.costsPerBid
@@ -306,10 +304,6 @@ class Oracle(Agent):
             idxs = np.argwhere(self.bids==0).reshape(-1)
             for i in idxs:
                 self.clicksPerBid[c,i]=0.0
-
-            print "Campaign: ", c
-            print "Clicks Variance Predictions:",sigma
-            print "Clicks Mean Predictions", mean
 
         return self.clicksPerBid
 
