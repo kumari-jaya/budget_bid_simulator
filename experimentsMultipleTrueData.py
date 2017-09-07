@@ -34,7 +34,7 @@ maxBid = 1.0
 
 
 deadline = 100
-nExperiments = 100
+nExperiments = 10
 nSettings = 10
 nSimul = 50
 nTrainingInputs = 500

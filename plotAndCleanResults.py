@@ -2,14 +2,18 @@ import numpy as np
 import csv
 from matplotlib import pyplot as plt
 from AgentOracle import *
+from matplotlib2tikz import save as tikz_save
 
-#path = '../results_06_09_bellman/'
-#path = '../results_06_09_multipleSettings/3/'
-path = '../results_06_09/'
+
+path = '../results_06_09_bellman/'
+path = '../results_06_09_multipleSettings_bellman/9/'
+#path = '../results_06_09_multipleDiscretizations_bellman/3/'
+
+#path = '../results_06_09/'
 
 agentPath = np.load(path + "Agents.npy")
 
-nExperiments = 10
+nExperiments = 100
 nCampaigns = 5
 
 optimum = np.load(path + "opt.npy")
@@ -117,5 +121,7 @@ plt.xlabel("t",fontsize=20)
 plt.ylabel(r'$R_t(\mathfrak{U})$',fontsize=20)
 plt.ylim(0,250)
 plt.tick_params(labelsize=20)
+tikz_save('regret.tex');
+
 
 #plt.title("Cumulated Expected Pseudo-Regret")

@@ -328,22 +328,22 @@ class AgentFactoredExperiment:
 
     def sampleClick(self, mean, sigma):
         if self.method == "Sampling":
-            return np.random.normal(mean,sigma)
+            return np.maximum(np.random.normal(mean,sigma),0.0)
         if self.method == "Mean":
             return mean
         if self.method =="UCB":
-            quantile_order = 1.0 - (1.0 / (self.t + 1))
-            res = norm.ppf(quantile_order, loc=mean, scale=sigma)
+            quantile_order = 1.0 - (1.0 / (self.t + 1.0))
+            res = np.maximum(norm.ppf(quantile_order, loc=mean, scale=sigma),0.0)
             return res
 
     def sampleCost(self,mean,sigma):
         if self.method == "Sampling":
-            return np.random.normal(mean,sigma)
+            return np.maximum(np.random.normal(mean,sigma),0.05)
         if self.method == "Mean":
             return mean
         if self.method =="UCB":
-            quantile_order = 1.0 / (self.t + 1)
-            res = norm.ppf(quantile_order, loc=mean, scale=sigma)
+            quantile_order = 1.0 / (self.t + 1.0)
+            res = np.maximum(norm.ppf(quantile_order, loc=mean, scale=sigma),0.05)
             return res
 
     def generateBidBudgetMatrix(self):
