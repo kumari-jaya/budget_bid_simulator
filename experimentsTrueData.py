@@ -40,13 +40,13 @@ maxBid = 1.0
 
 
 deadline = 100
-nExperiments = 10
+nExperiments = 100
 nSimul = 50
 nTrainingInputs = 500
 
 
 # Auction setting
-nCampaigns = 4
+nCampaigns = 5
 nBidders = np.ones(nCampaigns) * 10
 nSlots = 5
 
@@ -101,7 +101,6 @@ oracle.initGPs3D()
 print "initGPs"
 oracle.updateMultiGP(nTrainingInputs)
 oracle.updateMultiGP3D(nTrainingInputs)
-oracle.updateCostsPerBids()
 
 print "updated GPS"
 if save == True:

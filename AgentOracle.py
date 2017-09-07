@@ -83,8 +83,10 @@ class Oracle(Agent):
             kernel2 = C(1.0, (1e-3, 1e3))*RBF(l2,(1e-3, 1e3))
             #l=1.0
             #kernel = C(1.0, (1e-3, 1e3)) * RBF(l, (1e-3, 1e3))
-            alpha1=1.0
-            alpha2 = 1.0
+            alpha1 = self.alphasClicksGP[c]
+            alpha2 = self.alphasCostsGP[c]
+            #alpha1 = 1000.0
+            #alpha2 = 1000.0
             self.gpsClicks.append(GaussianProcessRegressor(kernel=kernel2, alpha=alpha1, n_restarts_optimizer=10,normalize_y=True))
             self.gpsCosts.append(GaussianProcessRegressor(kernel=kernel1, alpha=alpha2, n_restarts_optimizer=10,normalize_y=True))
 
@@ -93,7 +95,7 @@ class Oracle(Agent):
             C(1.0, (1e-3, 1e3))
             l = np.array([1.0, 1.0])
             kernel = C(1.0, (1e-3, 1e3))*RBF(l, ((1e-3, 1e3),(1e-3, 1e3)))
-            alpha= 200
+            alpha = self.alphasClicksGP[c]
             self.gps3D.append(GaussianProcessRegressor(kernel=kernel,alpha=alpha,n_restarts_optimizer=10,normalize_y=True))
 
 
@@ -324,6 +326,8 @@ class Oracle(Agent):
 
         self.alphasClicksGP = np.mean(np.mean(alphasCosts,axis=1),axis=1)
         self.alphasCostsGP = np.mean(np.mean(alphasClicks,axis=1),axis=1)
+        #self.alphasClicksGP =np.ones(self.nCampaigns)*1000.0
+        #self.alphasCostsGP =np.ones(self.nCampaigns)*1000.0
 
 
 

@@ -136,7 +136,7 @@ class AgentFactoredExperiment:
             self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCost, optimizer=None,
                                                         normalize_y=True)
 
-    def setGPKernel(self, c, kernelClick, kernelCost, alphaClicks=1.0,alphaCosts=1.0):
+    def setGPKernel(self, c, kernelClick, kernelCost, alphaClicks=1,alphaCosts=1):
         """
         Set customized kernel to the c-th GP
         :param c: index of the GP to set
