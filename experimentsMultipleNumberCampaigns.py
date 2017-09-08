@@ -146,8 +146,8 @@ for s in range(0,len(campaignsSettings)):
                     agent.setGPKernel(c, oracle.gps3D[c].kernel_, oracle.alphasClicksGP[c])
                 else:
                     print "\n"
-                    print "alphaCosts:       ", oracle.alphasCostsGP
-                    print "alphaClicks:       ", oracle.alphasClicksGP
+                    print "alphaCosts:       ", oracle.alphasPotCostsGP
+                    print "alphaClicks:       ", oracle.alphasPotClicksGP
                     agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_,
                                       alphaClicks=oracle.alphasPotClicksGP[c], alphaCosts=oracle.alphasPotCostsGP[c])
 

@@ -126,7 +126,7 @@ for s in range(0,nDiscretizationSettings):
         np.save(pathSetting + "Deadline", deadline)
     print "budget policy", optBud
 
-    agentPath = ["Sampling/", "UCB/"]
+    agentPath = ["Sampling/", "Mean/", "UCB/", "3D/"]
     if save == True:
         np.save(pathSetting+ "Agents", agentPath)
 
