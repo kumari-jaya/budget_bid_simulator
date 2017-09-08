@@ -37,12 +37,12 @@ nIntervals = 10
 maxBudget = 100.0
 maxBid = 1.0
 
-bidDiscretization= np.array([3,5,10,20],dtype='int')
+bidDiscretization= np.array([30,5,10,20],dtype='int')
 nDiscretizationSettings = len(bidDiscretization)
 
 
 deadline = 100
-nExperiments = 100
+nExperiments = 20
 nSettings = 10
 nSimul = 100
 nTrainingInputs = 500
@@ -152,8 +152,8 @@ for s in range(0,nDiscretizationSettings):
                     agent.setGPKernel(c, oracle.gps3D[c].kernel_, oracle.alphasClicksGP[c])
                 else:
                     print "\n"
-                    print "alphaCosts:       ", oracle.alphasCostsGP
-                    print "alphaClicks:       ", oracle.alphasClicksGP
+                    print "alphaCosts:       ", oracle.alphasPotCostsGP
+                    print "alphaClicks:       ", oracle.alphasPotClicksGP
                     agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_,
                                       alphaClicks=oracle.alphasPotClicksGP[c], alphaCosts=oracle.alphasPotCostsGP[c])
 
@@ -169,7 +169,7 @@ for s in range(0,nDiscretizationSettings):
 
 
 
-    out = Parallel(n_jobs=-1)(
+    out = Parallel(n_jobs=2)(
             delayed(experiment)(k) for k in xrange(nExperiments))
 
     np.save(pathSetting + "allExperiments", out)

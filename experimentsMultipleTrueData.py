@@ -106,14 +106,14 @@ for s in range(0,nSettings):
     print "Budget policy: ", optBud
     print "Bid policy: ", optBid
     print "Optimal conversion given by the oracle: ", optConv
-
-    oracle.initGPs()
-    oracle.initGPs3D()
-    print "initGPs"
-    oracle.updateMultiGP(nTrainingInputs)
-    oracle.updateMultiGP3D(nTrainingInputs)
-    oracle.updateCostsPerBids()
-    print "updated GPS"
+    if (np.sum(optConv) >=3.0):
+        oracle.initGPs()
+        oracle.initGPs3D()
+        print "initGPs"
+        oracle.updateMultiGP(nTrainingInputs)
+        oracle.updateMultiGP3D(nTrainingInputs)
+        oracle.updateCostsPerBids()
+        print "updated GPS"
     if save == True:
         np.save(pathSetting + "opt", optConv)
         np.save(pathSetting + "optPolicy", [optBud,optBid])
@@ -164,11 +164,11 @@ for s in range(0,nSettings):
         return [results, agents, envi]
 
 
+    if (np.sum(optConv) >=3.0):
+        out = Parallel(n_jobs=-1)(
+                delayed(experiment)(k) for k in xrange(nExperiments))
 
-    out = Parallel(n_jobs=-1)(
-            delayed(experiment)(k) for k in xrange(nExperiments))
-
-    np.save(pathSetting + "allExperiments", out)
+        np.save(pathSetting + "allExperiments", out)
 
 
 
