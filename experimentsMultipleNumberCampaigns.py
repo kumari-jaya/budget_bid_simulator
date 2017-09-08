@@ -123,7 +123,7 @@ for s in range(0,len(campaignsSettings)):
         np.save(pathSetting + "Deadline", deadline)
     print "budget policy", optBud
 
-    agentPath = ["Sampling/", "UCB/"]
+    agentPath = ["Sampling/", "Mean/", "UCB/", "3D/"]
     if save == True:
         np.save(pathSetting+ "Agents", agentPath)
 
@@ -133,15 +133,16 @@ for s in range(0,len(campaignsSettings)):
         # Agent initialization
         np.random.seed()
         agents = []
-        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
-        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids,  maxBid=maxBid,maxBudget=maxBudget, method="UCB"))
+        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals,nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
+        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals,nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Mean"))
+        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="UCB"))
+        agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, usePrior=False))
         results = []
         for idxAgent, agent in enumerate(agents):
             agent.initGPs()
             # Set the GPs hyperparameters
             for c in range(0, nCampaigns):
                 if agentPath[idxAgent] == "3D/":
-                    print "AOOO"
                     agent.setGPKernel(c, oracle.gps3D[c].kernel_, oracle.alphasClicksGP[c])
                 else:
                     print "\n"
