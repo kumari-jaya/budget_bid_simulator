@@ -42,7 +42,7 @@ maxBid = 1.0
 deadline = 100
 nExperiments = 100
 nSimul = 100
-nTrainingInputs = 600
+nTrainingInputs = 500
 
 
 
@@ -109,7 +109,6 @@ for s in range(0,len(campaignsSettings)):
     print "Budget policy: ", optBud
     print "Bid policy: ", optBid
     print "Optimal conversion given by the oracle: ", optConv
-
     oracle.initGPs()
     oracle.initGPs3D()
     print "initGPs"
@@ -149,7 +148,7 @@ for s in range(0,len(campaignsSettings)):
                     print "alphaCosts:       ", oracle.alphasCostsGP
                     print "alphaClicks:       ", oracle.alphasClicksGP
                     agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_,
-                                      alphaClicks=oracle.alphasClicksGP[c], alphaCosts=oracle.alphasCostsGP[c])
+                                      alphaClicks=oracle.alphasPotClicksGP[c], alphaCosts=oracle.alphasPotCostsGP[c])
 
             # Init the Core and execute the experiment
             envi = Environment(copy.copy(campaigns))

@@ -40,8 +40,8 @@ maxBid = 1.0
 
 
 deadline = 100
-nExperiments = 100
-nSimul = 50
+nExperiments = 10
+nSimul = 100
 nTrainingInputs = 500
 
 
@@ -141,9 +141,9 @@ def experiment(k):
                 agent.setGPKernel(c, oracle.gps3D[c].kernel_,oracle.alphasClicksGP[c])
             else:
                 print "\n"
-                print "alphaCosts:       ",oracle.alphasCostsGP
-                print "alphaClicks:       ",oracle.alphasClicksGP
-                agent.setGPKernel(c, oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_,alphaClicks= oracle.alphasClicksGP[c], alphaCosts=oracle.alphasCostsGP[c])
+                print "alphaCosts:       ",oracle.alphasPotCostsGP
+                print "alphaClicks:       ",oracle.alphasPotClicksGP
+                agent.setGPKernel(c, oracle.gpsClicks[c].kernel_ , oracle.gpsCosts[c].kernel_,alphaClicks= oracle.alphasPotClicksGP[c], alphaCosts=oracle.alphasPotCostsGP[c])
 
         # Init the Core and execute the experiment
         envi = Environment(copy.copy(campaigns))
