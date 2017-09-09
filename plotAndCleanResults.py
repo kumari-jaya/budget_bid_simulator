@@ -11,12 +11,12 @@ path = '../results_06_09_multipleSettings_bellman/9/'
 #path = '../results_06_09_multipleSettings_UCB/9/'
 #path = '../results_81431_multipleDiscretizations/3/'
 #path = '../results_06_09/'
-path = '../resultsPAPER/results_81357_multipleNumberCampaignsSettings_bellman/2/'
+path = '../resultsPAPER/results_71937_bellman/'
 
 agentPath = np.load(path + "Agents.npy")
 #agentPath = ["UCB/"]
 nExperiments = 63
-nCampaigns = 10
+nCampaigns = 5
 
 optimum = np.load(path + "opt.npy")
 print "Oracle Optimum ", optimum
