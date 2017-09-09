@@ -232,14 +232,15 @@ class AgentPrior:
             buds = np.ones(self.ncampaigns) * bud
             buds[-1] = (self.maxTotDailyBudget - (self.ncampaigns - 1) * bud)
             return [buds, np.ones( self.ncampaigns)*self.bids[-1]]
-
+        """
         if self.t <= initialExploration:
             budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
             while(np.sum(budgets)>self.maxTotDailyBudget):
                 budgets = np.random.choice(self.budgets[1:], self.ncampaigns)
+                print "sono qui"
 
             return [budgets, np.random.choice(self.bids, self.ncampaigns)]
-
+        """
 
 
         """
