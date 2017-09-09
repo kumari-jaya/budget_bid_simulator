@@ -223,7 +223,7 @@ class AgentPrior:
         return estimatedClicks*self.valuesPerClick.reshape((self.ncampaigns,1))
 
 
-    def chooseAction(self,sampling=True, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0,initialExploration=4):
+    def chooseAction(self,sampling=True, fixedBid=False, fixedBudget=False, fixedBidValue=1.0, fixedBudgetValue=1000.0,initialExploration=3):
 
         if self.t == 0:
             # Equally shared budget and random bid for each subcampaign
@@ -241,7 +241,13 @@ class AgentPrior:
 
             return [budgets, np.random.choice(self.bids, self.ncampaigns)]
         """
-
+        if self.t <= initialExploration:
+            # Equally shared budget and random bid for each subcampaign
+            equalBud = self.maxTotDailyBudget / self.ncampaigns
+            bud = self.budgets[np.max(np.argwhere(self.budgets <= equalBud))] #prendo il primo budget più piccolo della ripartiizone equa
+            buds = np.ones(self.ncampaigns) * bud
+            buds[-1] = (self.maxTotDailyBudget - (self.ncampaigns - 1) * bud)
+            return [buds, np.random.choice(self.bids, self.nCampaigns)]
 
         """
         finalBudgets = np.zeros(self.ncampaigns)
