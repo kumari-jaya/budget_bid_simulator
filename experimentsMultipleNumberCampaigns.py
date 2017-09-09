@@ -40,14 +40,14 @@ maxBid = 1.0
 
 
 deadline = 100
-nExperiments = 100
+nExperiments = 64
 nSimul = 80
 nTrainingInputs = 500
 
 
 
 # Auction setting
-campaignsSettings = np.array([10],dtype='int')
+campaignsSettings = np.array([4,6],dtype='int')
 maxNCampaigns = np.max(campaignsSettings)
 nBidders = np.ones(int(maxNCampaigns)) * 10
 nSlots = 5
@@ -124,7 +124,7 @@ for s in range(0,len(campaignsSettings)):
     print "budget policy", optBud
 
     agentPath = ["Sampling/", "Mean/", "UCB/", "3D/"]
-    agentPath = ["3D/"]
+    agentPath = ["Sampling/"]
 
     if save == True:
         np.save(pathSetting+ "Agents", agentPath)
@@ -135,10 +135,10 @@ for s in range(0,len(campaignsSettings)):
         # Agent initialization
         np.random.seed()
         agents = []
-        #agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals,nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
+        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals,nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
         #agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals,nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Mean"))
         #agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="UCB"))
-        agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, usePrior=False))
+        #agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, usePrior=False))
         results = []
         for idxAgent, agent in enumerate(agents):
             agent.initGPs()
