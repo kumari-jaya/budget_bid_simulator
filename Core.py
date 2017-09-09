@@ -19,8 +19,6 @@ class Core:
         :return: updates the agent and the time instant
         """
         [budget, bid] = self.agent.chooseAction()
-        print "Bud:",budget
-        print "Bid:" ,bid
         observations = self.environment.step(bid, budget)
         lastClicks = observations[0]
         lastConversions = observations[1]
