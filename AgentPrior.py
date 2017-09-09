@@ -241,7 +241,7 @@ class AgentPrior:
 
             return [budgets, np.random.choice(self.bids, self.ncampaigns)]
         """
-      
+
         """
         finalBudgets = np.zeros(self.ncampaigns)
         finalBids = np.zeros(self.ncampaigns)
