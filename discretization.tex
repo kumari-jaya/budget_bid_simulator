@@ -9,13 +9,13 @@
 \begin{axis}[
 xlabel={$|X_j|$},
 ylabel={$R_T(\mathfrak{U})$},
-xmin=2.15, xmax=20.85,
-ymin=111.7083425, ymax=262.3821075,
+xmin=2.9, xmax=5.1,
+ymin=55.7727074999999, ymax=282.2691425,
 tick align=outside,
 tick pos=left,
 x grid style={lightgray!92.026143790849673!black},
 y grid style={lightgray!92.026143790849673!black},
-legend style={draw=white!80.0!black},
+legend style={at={(0.03,0.97)}, anchor=north west, draw=white!80.0!black},
 legend cell align={left},
 legend entries={{AdComB-TS},{AdComB-Mean},{AdComB-BUCB},{AdComB-3D}}
 ]
@@ -25,31 +25,23 @@ legend entries={{AdComB-TS},{AdComB-Mean},{AdComB-BUCB},{AdComB-3D}}
 \addlegendimage{no markers, color3}
 \addplot [semithick, color0]
 table {%
-3 128.8039
-5 126.0492
-10 144.7969
-20 145.35215
+3 73.4916999999999
+5 98.0516000000002
 };
 \addplot [semithick, color1]
 table {%
-3 183.940450000001
-5 152.479350000001
-10 181.009
-20 189.7551
+3 68.8323000000001
+5 146.4411
 };
 \addplot [semithick, color2]
 table {%
-3 136.39305
-5 118.55715
-10 148.43855
-20 159.5695
+3 66.0679999999999
+5 86.6144500000002
 };
 \addplot [semithick, color3]
 table {%
-3 207.33105
-5 237.6402
-10 255.5333
-20 254.9848
+3 159.8412
+5 271.97385
 };
 \end{axis}
 
