@@ -4,20 +4,18 @@ from matplotlib import pyplot as plt
 from AgentOracle import *
 from matplotlib2tikz import save as tikz_save
 
-path0 = '../resultsPAPER/results_101317_multipleDiscretizations/'
+path0 = '../resultsPAPER/results_9200NCampaignsSettings_SameOracle/'
+#path0 ='../results_1016NCampaignsSettings/'
+nSettings = 5
 
-discretizations = np.array([5,10,20])
-nExperiments =  64
 nAgents=4
-regr = np.zeros((len(discretizations), nAgents))
-optRegr = np.zeros(len(discretizations))
-oracleStar = 19.4
-for d in range(0,len(discretizations)):
+regr = np.zeros((nSettings, nAgents))
+optRegr = np.zeros(nSettings)
+for d in range(0,nSettings):
 
-    path = path0+str(discretizations[d])+'/'
+    path = path0+str(d)+'_campaigns/'
     agentPath = np.load(path + "Agents.npy")
-    if(discretizations[d]!=5):
-        nExperiments = 100
+    nExperiments = 63
     nCampaigns = 4
 
     optimum = np.load(path + "opt.npy")
@@ -26,7 +24,7 @@ for d in range(0,len(discretizations)):
     optPol = np.load(path + "optPolicy.npy")
 
     optBidBudMatrix = np.load(path + "OracleBidBudMatrix.npy")
-    bids = np.linspace(0.0, 1.0, discretizations[d])
+    bids = np.linspace(0.0, 1.0, 5)
     #legend = ['AdComB-BUCB']
 
 
@@ -90,22 +88,20 @@ for d in range(0,len(discretizations)):
 
     # REGRET plot
     opt = np.ones((len(agentPath), T)) * np.sum(optimum)
-    regret = np.cumsum((oracleStar - res[0:len(agentPath), 0:T]), axis=1)
+    opt = np.ones((len(agentPath), T)) * 19.45
+
+    regret = np.cumsum((opt - res[0:len(agentPath), 0:T]), axis=1)
 
     regr[d,:] = regret[:,-1]
-    optRegr[d] = oracleStar - np.sum(optimum)
-
 
 
 
 
 #plt.title("Cumulated Expected Pseudo-Regret")
 
-plt.xlabel(r'$|X_j|$',fontsize=20)
+plt.xlabel(r'$|C|$',fontsize=20)
 plt.ylabel(r'$R_T(\mathfrak{U})$',fontsize=20)
-plt.plot(discretizations,regr)
-#plt.plot(discretizations,optRegr)
+plt.plot(regr)
 plt.legend(legend)
-plt.xticks(discretizations)
 
-tikz_save('discretization.tex');
+tikz_save('multSettings.tex');

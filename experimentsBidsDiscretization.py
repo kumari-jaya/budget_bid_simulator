@@ -49,7 +49,7 @@ nTrainingInputs = 500
 
 
 # Auction setting
-nCampaigns = 4
+nCampaigns = 40
 nBidders = np.ones(nCampaigns) * 10
 nSlots = 5
 
