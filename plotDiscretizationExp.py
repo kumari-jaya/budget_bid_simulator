@@ -10,7 +10,7 @@ discretizations = np.array([3,5,10,20])
 nAgents=4
 regr = np.zeros((len(discretizations), nAgents))
 optRegr = np.zeros(len(discretizations))
-oracleStar = 19.582
+oracleStar = 19.4
 for d in range(0,len(discretizations)):
 
     path = path0+str(d)+'/'

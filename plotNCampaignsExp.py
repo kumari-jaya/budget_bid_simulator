@@ -4,8 +4,9 @@ from matplotlib import pyplot as plt
 from AgentOracle import *
 from matplotlib2tikz import save as tikz_save
 
-path0 = '../resultsPAPER/results_81357_multipleNumberCampaignsSettings_bellman/'
-nCampaignsSettings = np.array([3,5])
+path0 = '../resultsPAPER/results_9200NCampaignsSettings_SameOracle/'
+#path0 ='../results_1016NCampaignsSettings/'
+nCampaignsSettings = np.array([3,4,5,6])
 
 nAgents=4
 regr = np.zeros((len(nCampaignsSettings), nAgents))
@@ -14,7 +15,7 @@ for d in range(0,len(nCampaignsSettings)):
 
     path = path0+str(nCampaignsSettings[d])+'_campaigns/'
     agentPath = np.load(path + "Agents.npy")
-    nExperiments = 10
+    nExperiments = 63
     nCampaigns = nCampaignsSettings[d]
 
     optimum = np.load(path + "opt.npy")
@@ -87,6 +88,8 @@ for d in range(0,len(nCampaignsSettings)):
 
     # REGRET plot
     opt = np.ones((len(agentPath), T)) * np.sum(optimum)
+    opt = np.ones((len(agentPath), T)) * 19.45
+
     regret = np.cumsum((opt - res[0:len(agentPath), 0:T]), axis=1)
 
     regr[d,:] = regret[:,-1]
@@ -99,7 +102,6 @@ for d in range(0,len(nCampaignsSettings)):
 plt.xlabel(r'$|C|$',fontsize=20)
 plt.ylabel(r'$R_T(\mathfrak{U})$',fontsize=20)
 plt.plot(nCampaignsSettings,regr)
-#plt.plot(discretizations,optRegr)
 plt.legend(legend)
 plt.xticks(nCampaignsSettings)
 

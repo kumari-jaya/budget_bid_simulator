@@ -11,12 +11,11 @@ path = '../results_06_09_multipleSettings_bellman/9/'
 #path = '../results_06_09_multipleSettings_UCB/9/'
 #path = '../results_81431_multipleDiscretizations/3/'
 #path = '../results_06_09/'
-path = '../resultsPAPER/results_71937_bellman/'
-
+path = '../resultsPAPER/results_9200NCampaignsSettings_SameOracle/4_campaigns/'
 agentPath = np.load(path + "Agents.npy")
-#agentPath = ["UCB/"]
-nExperiments = 63
-nCampaigns = 5
+#agentPath = ["Sampling/","Mean/","UCB/"]
+nExperiments = 64
+nCampaigns = 4
 
 optimum = np.load(path + "opt.npy")
 print "Oracle Optimum ", optimum
@@ -113,7 +112,7 @@ plt.xlabel("t",fontsize=20)
 plt.ylabel(r'$P_t(\mathfrak{U})$',fontsize=20)
 plt.tick_params(labelsize=18)
 
-tikz_save('reward_t200.tex');
+tikz_save('reward_t100.tex');
 
 # ???
 """
@@ -129,13 +128,16 @@ plt.plot(np.mean(conv[:], axis=0))
 plt.figure(501)
 opt = np.ones((len(agentPath), T)) * np.sum(optimum)
 regret = np.cumsum((opt - res[0:len(agentPath), 0:T]), axis=1)
+print opt
+regret = np.cumsum((19.4 - res[0:len(agentPath), 0:T]), axis=1)
+
 plt.plot(regret.T)
 plt.legend(legend[0:len(legend)])
 plt.xlabel("t",fontsize=20)
 plt.ylabel(r'$R_t(\mathfrak{U})$',fontsize=20)
-plt.ylim(0,200)
+plt.ylim(0,300)
 plt.tick_params(labelsize=18)
-tikz_save('regret_t200.tex');
+tikz_save('regret_t100.tex');
 
 
 #plt.title("Cumulated Expected Pseudo-Regret")

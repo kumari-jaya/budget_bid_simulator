@@ -47,7 +47,7 @@ nTrainingInputs = 500
 
 
 # Auction setting
-campaignsSettings = np.array([5,3,4,6],dtype='int')
+campaignsSettings = np.array([5,6],dtype='int')
 maxNCampaigns = np.max(campaignsSettings)
 nBidders = np.ones(int(maxNCampaigns)) * 10
 nSlots = 5
@@ -83,6 +83,7 @@ for s in range(0,len(campaignsSettings)):
     #probClick = np.random.beta(allData[index, 4], allData[index, 5])
     #probClick = np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
     probClick = np.array([0.02878113, 0.02648224, 0.0639, 0.01104576, 0.0134576,01104576])
+
 
     index = np.array([2, 6, 22, 8, 60,8])
 
@@ -124,6 +125,7 @@ for s in range(0,len(campaignsSettings)):
     print "budget policy", optBud
 
     agentPath = ["Sampling/", "Mean/", "UCB/", "3D/"]
+
 
     if save == True:
         np.save(pathSetting+ "Agents", agentPath)

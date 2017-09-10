@@ -28,30 +28,28 @@ hh = str(datetime.datetime.now().hour)
 min = str(datetime.datetime.now().minute)
 
 
-path = '../results_'+gg+hh+min+'_multipleDiscretizations/'
+path = '../results_'+gg+hh+min+'NCampaignsSettingsOracle/'
 ensure_dir(path)
 
-
 # Experiment setting
+nBids = 5
 nIntervals = 10
 maxBudget = 100.0
 maxBid = 1.0
 
-bidDiscretization= np.array([5,10,20],dtype='int')
-nDiscretizationSettings = len(bidDiscretization)
 
 
 deadline = 100
-nExperiments = 20
-nSettings = 10
-nSimul = 100
+nExperiments = 64
+nSimul = 300
 nTrainingInputs = 500
 
 
 
 # Auction setting
-nCampaigns = 5
-nBidders = np.ones(nCampaigns) * 10
+campaignsSettings = np.array([6],dtype='int')
+maxNCampaigns = np.max(campaignsSettings)
+nBidders = np.ones(int(maxNCampaigns)) * 10
 nSlots = 5
 
 
@@ -62,8 +60,8 @@ convparams = np.array([[0.5, 100, 200],[0.6, 100, 200],[0.35, 100, 200],[0.4, 10
 ## Discount probabilities
 lambdas = np.array([1.0, 0.71, 0.56, 0.53, 0.49, 0.47, 0.44, 0.44, 0.43, 0.43])
 ## Number of research per day
-nMeanResearch = np.ones(nCampaigns) * 1000.0
-sigmaResearch = np.ones(nCampaigns) * 1.0
+nMeanResearch = np.ones(maxNCampaigns) * 1000.0
+sigmaResearch = np.ones(maxNCampaigns) * 1.0
 
 #sigmaResearch = np.array([400,400,400,10,10,10,10])
 ## Number of other bidders in the auction
@@ -75,16 +73,17 @@ allData = genfromtxt(auctionsFile, delimiter=',')
 
 
 
-for s in range(0,nDiscretizationSettings):
+for s in range(0,len(campaignsSettings)):
 
-    nBids = bidDiscretization[s]
+    nCampaigns = campaignsSettings[s]
 
-    pathSetting = path + str(s)+"/"
+    pathSetting = path + str(campaignsSettings[s])+"_campaigns/"
     ensure_dir(pathSetting)
 
     #probClick = np.random.beta(allData[index, 4], allData[index, 5])
     #probClick = np.array([ 0.02878113  ,0.24013416,  0.02648224,  0.01104576,  0.06390204])
     probClick = np.array([0.02878113, 0.02648224, 0.0639, 0.01104576, 0.0134576,01104576])
+
 
     index = np.array([2, 6, 22, 8, 60,8])
 
@@ -112,11 +111,6 @@ for s in range(0,nDiscretizationSettings):
     print "Bid policy: ", optBid
     print "Optimal conversion given by the oracle: ", optConv
 
-    oracle.initGPs()
-    oracle.initGPs3D()
-    print "initGPs"
-    oracle.updateMultiGP(nTrainingInputs)
-    oracle.updateMultiGP3D(nTrainingInputs)
     print "updated GPS"
     if save == True:
         np.save(pathSetting + "opt", optConv)
@@ -127,52 +121,12 @@ for s in range(0,nDiscretizationSettings):
     print "budget policy", optBud
 
     agentPath = ["Sampling/", "Mean/", "UCB/", "3D/"]
+
     if save == True:
         np.save(pathSetting+ "Agents", agentPath)
 
 
 
-    def experiment(k):
-        # Agent initialization
-        np.random.seed()
-        agents = []
-        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals,nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Sampling"))
-        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="Mean"))
-        agents.append(AgentFactoredExperiment(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals,nBids=nBids, maxBid=maxBid, maxBudget=maxBudget, method="UCB"))
-        agents.append(AgentPrior(budgetTot=1000, deadline=deadline, nCampaigns=nCampaigns, nBudget=nIntervals, nBids=nBids,maxBid=maxBid, maxBudget=maxBudget, usePrior=False))
-        results = []
-        for idxAgent, agent in enumerate(agents):
-            agent.initGPs()
-            print "Experiment : ", k
-
-            # Set the GPs hyperparameters
-            for c in range(0, nCampaigns):
-                if agentPath[idxAgent] == "3D/":
-                    print "AOOO"
-                    agent.setGPKernel(c, oracle.gps3D[c].kernel_, oracle.alphasClicksGP[c])
-                else:
-                    print "\n"
-                    print "alphaCosts:       ", oracle.alphasPotCostsGP
-                    print "alphaClicks:       ", oracle.alphasPotClicksGP
-                    agent.setGPKernel(c, oracle.gpsClicks[c].kernel_, oracle.gpsCosts[c].kernel_,
-                                      alphaClicks=oracle.alphasPotClicksGP[c], alphaCosts=oracle.alphasPotCostsGP[c])
-
-            # Init the Core and execute the experiment
-            envi = Environment(copy.copy(campaigns))
-            core = Core(agent, copy.copy(envi), deadline)
-            core.runEpisode()
-            ensure_dir(pathSetting + agentPath[idxAgent])
-            np.save(pathSetting + agentPath[idxAgent] + "policy_" + str(k), [agent.prevBids, agent.prevBudgets])
-            np.save(pathSetting + agentPath[idxAgent] + "experiment_" + str(k), np.sum(agent.prevConversions, axis=1))
-            results.append(np.sum(agent.prevConversions, axis=1))
-        return [results, agents, envi]
-
-
-
-    out = Parallel(n_jobs=2)(
-            delayed(experiment)(k) for k in xrange(nExperiments))
-
-    np.save(pathSetting + "allExperiments", out)
 
 
 
