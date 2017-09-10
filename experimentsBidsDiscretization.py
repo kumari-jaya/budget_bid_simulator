@@ -37,20 +37,19 @@ nIntervals = 10
 maxBudget = 100.0
 maxBid = 1.0
 
-bidDiscretization= np.array([5,10,20],dtype='int')
+bidDiscretization= np.array([10,20],dtype='int')
 nDiscretizationSettings = len(bidDiscretization)
 
 
 deadline = 100
-nExperiments = 20
-nSettings = 10
-nSimul = 100
+nExperiments = 100
+nSimul = 120
 nTrainingInputs = 500
 
 
 
 # Auction setting
-nCampaigns = 5
+nCampaigns = 4
 nBidders = np.ones(nCampaigns) * 10
 nSlots = 5
 
@@ -169,7 +168,7 @@ for s in range(0,nDiscretizationSettings):
 
 
 
-    out = Parallel(n_jobs=2)(
+    out = Parallel(n_jobs=-1)(
             delayed(experiment)(k) for k in xrange(nExperiments))
 
     np.save(pathSetting + "allExperiments", out)
