@@ -11,7 +11,8 @@ path = '../results_06_09_multipleSettings_bellman/9/'
 #path = '../results_06_09_multipleSettings_UCB/9/'
 #path = '../results_81431_multipleDiscretizations/3/'
 #path = '../results_06_09/'
-path = '../resultsPAPER/results_9200NCampaignsSettings_SameOracle/4_campaigns/'
+path = '../results_101757_experimentsTrue2/'
+
 agentPath = np.load(path + "Agents.npy")
 #agentPath = ["Sampling/","Mean/","UCB/"]
 nExperiments = 64
@@ -30,8 +31,8 @@ budgets = np.linspace(0.0, 100.0, 10)
 
 convparams = np.load(path + "ConversionValues.npy")
 
-T = np.load(path + "Deadline.npy")
-T=100
+#T = np.load(path + "Deadline.npy")
+T=200
 
 def budIndex(bud):
     return np.argwhere(np.isclose(budgets, bud)).reshape(-1)
@@ -135,7 +136,7 @@ plt.plot(regret.T)
 plt.legend(legend[0:len(legend)])
 plt.xlabel("t",fontsize=20)
 plt.ylabel(r'$R_t(\mathfrak{U})$',fontsize=20)
-plt.ylim(0,300)
+plt.ylim(0,200)
 plt.tick_params(labelsize=18)
 tikz_save('regret_t100.tex');
 
