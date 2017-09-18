@@ -28,45 +28,38 @@ def experiment(k):
     coreCont.runEpisode()
     convDisc=np.sum(agentDisc.prevConversions,axis=1)
     convCont= np.sum(agentCont.prevConversions,axis=1)
-    """
-    position2d =  "/home/mmm/cartella_guglielmo/dati/2dvs3d/valori_2d_" + str(k)
-    np.save(postiion2d,conv2D)
-    position3d =  "/home/mmm/cartella_guglielmo/dati/2dvs3d/valori_3d_" + str(k)
-    np.save(postiion3d,conv3D)
-    """
+    position2d =  "/home/mmm/cartella_guglielmo/dati/zooming/valori_disc_" + str(k)
+    np.save(position2d,convDisc)
+    position3d =  "/home/mmm/cartella_guglielmo/dati/zooming/valori_cont_" + str(k)
+    np.save(position3d,convCont)
     return convDisc,convCont
 
 
 
-convparams=np.array([0.4,100,200])
-lambdas = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
-probClick = np.array([0.5, 0.3])
+convparams = np.array([0.4, 100, 200])
+lambdas1 = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
+lambdas2 = np.array([0.9, 0.8, 0.7])
+lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])
+probClick = np.array([0.5, 0.4, 0.44, 0.37, 0.41])
 
 # Auction setting
-a1 = Auction(nBidders=5, nSlots=5, mu=0.77, sigma=0.2, lambdas=lambdas, myClickProb=probClick[0])
-a2 = Auction(nBidders=6, nSlots=5, mu=0.33, sigma=0.2, lambdas=lambdas, myClickProb=probClick[1])
-"""
-a3= Auction(nBidders=6, nslots=5, mu=0.47, sigma=0.25, lambdas=lambdas)
-a4= Auction(nBidders=5, nslots=5, mu=0.57, sigma=0.39, lambdas=lambdas)
-a5= Auction(nBidders=5, nslots=5, mu=0.5, sigma=0.15, lambdas=lambdas)
-"""
+a1 = Auction(nBidders=5, nslots=5, mu=0.49, sigma=0.18, lambdas=lambdas1, myClickProb=probClick[0])
+a2 = Auction(nBidders=6, nslots=5, mu=0.33, sigma=0.22, lambdas=lambdas1, myClickProb=probClick[1])
+a3 = Auction(nBidders=4, nslots=3, mu=0.79, sigma=0.32, lambdas=lambdas2, myClickProb=probClick[2])
+a4 = Auction(nBidders=7, nslots=7, mu=0.29, sigma=0.4, lambdas=lambdas3, myClickProb=probClick[3])
+a5 = Auction(nBidders=5, nslots=3, mu=0.41, sigma=0.25, lambdas=lambdas2, myClickProb=probClick[4])
 
-campaigns=[]
+
+campaigns = []
 campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=probClick[0], convParams=convparams))
 campaigns.append(Campaign(a2, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[1], convParams=convparams))
-"""
-campaigns.append(Campaign(a3, nUsers=1500.0, probClick=0.6, convParams= convparams))
-campaigns.append(Campaign(a2, nUsers=1000.0, probClick=0.5, convParams= convparams))
-campaigns.append(Campaign(a4, nUsers=1250.0, probClick=0.4, convParams= convparams))
-campaigns.append(Campaign(a2, nUsers=4000.0, probClick=0.1, convParams= convparams))
-campaigns.append(Campaign(a1, nUsers=1250.0, probClick=0.4, convParams= convparams))
-campaigns.append(Campaign(a5, nUsers=2000.0, probClick=0.5, convParams= convparams))
-campaigns.append(Campaign(a5, nUsers=4000.0, probClick=0.2, convParams= convparams))
-campaigns.append(Campaign(a3, nUsers=1250.0, probClick=0.4, convParams= convparams))
-"""
+campaigns.append(Campaign(a3, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[2], convParams=convparams))
+campaigns.append(Campaign(a4, nMeanResearch=1250.0, nStdResearch=50.0, probClick=probClick[3], convParams=convparams))
+campaigns.append(Campaign(a5, nMeanResearch=1450.0, nStdResearch=50.0, probClick=probClick[4], convParams=convparams))
+
+
 ncampaigns = len(campaigns)
 
-env = Environment(campaigns)
 nBids=10
 nIntervals=10
 deadline = 100
@@ -101,23 +94,19 @@ optValue = optValue * convparams[0]  #converto i click in conversioni
 ## questo è il valore dell'oracolo per il plot ora devo simulare i valori del thompson!
 np.save("/home/mmm/cartella_guglielmo/dati/2dvs3d/valore_ottimo",optValue)
 """
-nexperiments = 5
+
+nexperiments = 50
 # mi salvo le tre realizzazioni degli esperimenti e poi alla fine le medio!
 resultsDisc = np.zeros(shape=(nexperiments,deadline))
 resultsCont = np.zeros(shape=(nexperiments,deadline))
 
-out = Parallel(n_jobs=-1)(
+out = Parallel(n_jobs=20)(
         delayed(experiment)(k) for k in xrange(nexperiments))
 
 for i in range(nexperiments):
     resultsDisc[i,:] = out[i][0]
     resultsCont[i,:] = out[i][1]
 
-#print "opt value:", optValue
-#np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_2D_10c",results2D)
-#np.save("/home/mmm/cartella_guglielmo/dati/matrice_valori_3D_10c",results3D)
-#finalValues2D = matrixValues2D.mean(axis=0
-#finalValues3D = matrixValues3D.mean(axis=0)
 meansDisc = np.mean(resultsDisc,axis=0)
 meansCont = np.mean(resultsCont,axis=0)
 sigmasDisc = np.sqrt(np.var(resultsDisc,axis=0))
@@ -138,5 +127,5 @@ plt.xlabel('Time step')
 plt.ylabel('Conversions')
 plt.ylim(-100, np.max(meansDisc)*2)
 plt.legend(loc='upper left')
-#plt.savefig(nomefile,bbox_inches='tight')
-plt.show()
+plt.savefig("/home/mmm/cartella_guglielmo/figure/zooming/test_zooming.pdf",bbox_inches='tight')
+#plt.show()
