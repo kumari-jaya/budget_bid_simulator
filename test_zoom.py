@@ -8,6 +8,7 @@ from Environment import *
 from Auction import *
 from AgentZoom import *
 from AgentUCB import *
+from AgentFactored import *
 from Core import *
 from matplotlib import pyplot as plt
 from PlotterFinal import *
@@ -17,7 +18,7 @@ import copy
 def experiment(k):
     np.random.seed()
     print "Esperimento: ", k
-    agentDisc = AgentUCB(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget)
+    agentDisc = AgentFactored(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget,1.0)
     agentCont  = AgentZoom(1000, deadline, ncampaigns,nIntervals,maxBudget)
     agentDisc.initGPs()
     envDisc = Environment(copy.copy(campaigns))
