@@ -48,8 +48,8 @@ class AgentZoom:
         self.meanCosts = list()
         self.confRadius = list()
         self.optimalBidPerBudget = np.zeros((nCampaigns, nBudget))
-        self.maxClicks = np.zeros(shape=(self.nCampaigns))
-        self.maxCosts = np.zeros(shape=(self.nCampaigns))
+        self.maxClicks = 0
+        self.maxCosts = 0
 
         self.campaignsValues = np.zeros(shape=(self.nCampaigns, nBudget))
 
@@ -80,10 +80,10 @@ class AgentZoom:
                 self.meanClicks[c][index] = meanupdateclicks
                 self.meanCosts[c][index] = meanupdatecosts
                 self.confRadius[c][index] = np.sqrt(2*np.log(self.deadline))/(self.ntimeplayed[c][index]+1)
-                if clicks[c] > self.maxClicks[c]:
-                    self.maxClicks[c] = clicks[c]
-                if costs[c] > self.maxCosts[c]:
-                    self.maxCosts[c] = costs[c]
+                if clicks[c] > self.maxClicks:
+                    self.maxClicks = clicks[c]
+                if costs[c] > self.maxCosts:
+                    self.maxCosts = costs[c]
 
 
 
@@ -168,11 +168,11 @@ class AgentZoom:
         newCampaigns = h[-1][-1][1]
         return [newBudgets, newCampaigns]
 
-    def normalizeClicks(self, c):
-       return self.meanClicks[c]/self.maxClicks[c]
+    def normalizeClicks(self,c):
+       return self.meanClicks[c]/self.maxClicks
 
-    def normalizeCosts(self, c):
-       return self.meanCosts[c]/self.maxCosts[c]
+    def normalizeCosts(self,c):
+       return self.meanCosts[c]/self.maxCosts
 
     def updateCostsPerBids(self):
         costsPerBid = list()
@@ -221,8 +221,6 @@ class AgentZoom:
             for b in range(0, self.nBudget):
                 self.campaignsValues[c, b] = bidBudgetMatrix[c][:, b].max() * self.valuesPerClick[c]
 
-        return self.campaignsValues
-
     def chooseAction(self):
         if self.t == 0:
             # Equally shared budget and random bid for each subcampaign
@@ -244,9 +242,8 @@ class AgentZoom:
             clicksPerBid = self.updateClicksPerBids()
             bidBudgetMatrix = self.generateBidBudgetMatrix(clicksPerBid,costsPerBid)
             self.updateOptimalBidPerBudget(bidBudgetMatrix)
-
-            values = self.valuesForCampaigns(bidBudgetMatrix)
-            [selectedBudgets, selectedCampaigns] = self.optimize(values)
+            self.valuesForCampaigns(bidBudgetMatrix)
+            [selectedBudgets, selectedCampaigns] = self.optimize(self.campaignsValues)
             finalBudgets = np.zeros(self.nCampaigns)
             finalBids = np.zeros(self.nCampaigns)
             for i, c in enumerate(selectedCampaigns):
