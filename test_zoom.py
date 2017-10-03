@@ -44,11 +44,11 @@ lambdas3 = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3])
 probClick = np.array([0.5, 0.4, 0.44, 0.37, 0.41])
 
 # Auction setting
-a1 = Auction(nBidders=5, nslots=5, mu=0.49, sigma=0.18, lambdas=lambdas1, myClickProb=probClick[0])
-a2 = Auction(nBidders=6, nslots=5, mu=0.33, sigma=0.22, lambdas=lambdas1, myClickProb=probClick[1])
-a3 = Auction(nBidders=4, nslots=3, mu=0.79, sigma=0.32, lambdas=lambdas2, myClickProb=probClick[2])
-a4 = Auction(nBidders=7, nslots=7, mu=0.29, sigma=0.4, lambdas=lambdas3, myClickProb=probClick[3])
-a5 = Auction(nBidders=5, nslots=3, mu=0.41, sigma=0.25, lambdas=lambdas2, myClickProb=probClick[4])
+a1 = Auction(nBidders=5, nSlots=5, mu=0.49, sigma=0.18, lambdas=lambdas1, myClickProb=probClick[0])
+a2 = Auction(nBidders=6, nSlots=5, mu=0.33, sigma=0.22, lambdas=lambdas1, myClickProb=probClick[1])
+a3 = Auction(nBidders=4, nSlots=3, mu=0.79, sigma=0.32, lambdas=lambdas2, myClickProb=probClick[2])
+a4 = Auction(nBidders=7, nSlots=7, mu=0.29, sigma=0.4, lambdas=lambdas3, myClickProb=probClick[3])
+a5 = Auction(nBidders=5, nSlots=3, mu=0.41, sigma=0.25, lambdas=lambdas2, myClickProb=probClick[4])
 
 
 campaigns = []
