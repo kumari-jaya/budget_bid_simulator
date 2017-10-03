@@ -15,7 +15,7 @@ import time as time
 
 
 
-class AgentUCB:
+class AgentGPUCB:
 
     def __init__(self,budgetTot,deadline,ncampaigns,nIntervals,nBids,maxBudget=100.0,maxBid=1.0):
         self.budgetTot = budgetTot

@@ -9,6 +9,7 @@ from Auction import *
 from AgentZoom import *
 from AgentUCB import *
 from AgentFactored import *
+from AgentGPUCB import *
 from Core import *
 from matplotlib import pyplot as plt
 from PlotterFinal import *
@@ -18,7 +19,8 @@ import copy
 def experiment(k):
     np.random.seed()
     print "Esperimento: ", k
-    agentDisc = AgentFactored(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget,1.0)
+    #agentDisc = AgentFactored(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget,1.0)
+    agentDisc = AgentGPUCB(1000, deadline, ncampaigns,nIntervals,nBids,maxBudget,1.0)
     agentCont  = AgentZoom(1000, deadline, ncampaigns,nIntervals,maxBudget)
     agentDisc.initGPs()
     envDisc = Environment(copy.copy(campaigns))
@@ -26,13 +28,14 @@ def experiment(k):
     coreDisc = Core(agentDisc, envDisc, deadline)
     coreCont = Core(agentCont,envCont,deadline)
     coreDisc.runEpisode()
-    coreCont.runEpisode()
+    #coreCont.runEpisode()
     convDisc=np.sum(agentDisc.prevConversions,axis=1)
-    convCont= np.sum(agentCont.prevConversions,axis=1)
-    position2d =  "/home/mmm/cartella_guglielmo/dati/zooming/valori_disc_" + str(k)
+    #convCont= np.sum(agentCont.prevConversions,axis=1)
+    convCont = 0
+    position2d =  "/home/mmm/cartella_guglielmo/dati/zooming/valori_disc_GPUCB_" + str(k)
     np.save(position2d,convDisc)
-    position3d =  "/home/mmm/cartella_guglielmo/dati/zooming/valori_cont_" + str(k)
-    np.save(position3d,convCont)
+    #position3d =  "/home/mmm/cartella_guglielmo/dati/zooming/valori_cont_" + str(k)
+    #np.save(position3d,convCont)
     return convDisc,convCont
 
 
@@ -103,7 +106,7 @@ resultsCont = np.zeros(shape=(nexperiments,deadline))
 
 out = Parallel(n_jobs=20)(
         delayed(experiment)(k) for k in xrange(nexperiments))
-
+"""
 for i in range(nexperiments):
     resultsDisc[i,:] = out[i][0]
     resultsCont[i,:] = out[i][1]
@@ -130,3 +133,4 @@ plt.ylim(-100, np.max(meansDisc)*2)
 plt.legend(loc='upper left')
 plt.savefig("/home/mmm/cartella_guglielmo/figure/zooming/test_zooming.pdf",bbox_inches='tight')
 #plt.show()
+"""
