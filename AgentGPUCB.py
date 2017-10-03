@@ -10,7 +10,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from matplotlib import pyplot as plt
 from scipy.stats import norm
-from math import pi
+import math
 import time as time
 
 
@@ -181,7 +181,7 @@ class AgentGPUCB:
                 [means,sigmas] = self.gps[c].predict(x,return_std=True)
                 means = self.denormalizeOutput(means,c)
                 sigmas = self.denormalizeOutput(sigmas,c)
-                beta = 2 * np.log((self.nBids*self.t^2*math.pi^2)/(6*delta))
+                beta = 2 * np.log((self.nBids*math.pow(self.t+1,2)*math.pow(math.pi,2))/(6*delta))
                 estimatedClicksforBids = means + np.sqrt(beta)*sigmas
                 idxs = np.argwhere(estimatedClicksforBids == estimatedClicksforBids.max()).reshape(-1)
                 idx = np.random.choice(idxs)
