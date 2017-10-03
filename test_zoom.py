@@ -91,7 +91,7 @@ for i in range(0,ncampaigns):
 optValue = 0
 for i in range(0,ncampaigns):
     print i
-    index = np.argwhere(np.isclose(agent.budgets,newBudgets[i]))
+    0index = np.argwhere(np.isclose(agent.budgets,newBudgets[i]))
     tempValue = listMatrices[i][index,:].max()
     optValue += tempValue
 optValue = optValue * convparams[0]  #converto i click in conversioni
