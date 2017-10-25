@@ -1,22 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed May 24 10:44:49 2017
 
-@author: alessandro
-"""
 
 import numpy as np
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from matplotlib import pyplot as plt
 import time as time
 from Agent import *
 from Utils import *
 import copy
 
-class AgentFactored:
+class AgentCUCB:
 
-    def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=2.0, method='Sampling'):
+    def __init__(self, budgetTot, deadline, nCampaigns, nBudget, nBids, maxBudget=100.0, maxBid=1.0):
         self.budgetTot = budgetTot
         self.deadline = deadline
         self.nCampaigns = nCampaigns
@@ -24,9 +18,6 @@ class AgentFactored:
         self.revenues = np.array([])
         self.t = 0
 
-        # Historical data: GP prediction
-        self.gpsClicks = []
-        self.gpsCosts = []
 
         # Historical data: realizations
         self.prevBudgets = np.array([])
@@ -41,22 +32,23 @@ class AgentFactored:
 
         self.maxTotDailyBudget = maxBudget
         self.maxBid = maxBid
+        self.maxBudget = maxBudget
         self.nBudget = nBudget
         self.nBids = nBids
         self.bidBudgetMatrix = np.zeros(shape=(self.nCampaigns, self.nBids, self.nBudget))
 
         self.budgets = np.linspace(0, maxBudget, nBudget)
         self.bids = np.linspace(0, maxBid, nBids)
+
+        self.ntimeplayed = list()
+        self.meanClicks = list()
+        self.meanCosts = list()
         self.optimalBidPerBudget = np.zeros((nCampaigns, nBudget))
 
         self.campaignsValues = np.zeros(shape=(self.nCampaigns, nBudget))
         self.clicksPerBid = np.zeros(shape=(self.nCampaigns, nBids))
         self.costsPerBid = np.zeros(shape=(self.nCampaigns, nBids))
         self.budgetPerBid =  np.zeros(shape=(self.nCampaigns, nBids))
-        self.ymax = np.ones((nCampaigns))
-
-        self.method = method
-
 
 
     def updateValuesPerClick(self):
@@ -71,144 +63,20 @@ class AgentFactored:
             else:
                 self.valuesPerClick[c] = value
 
-    def initGPs(self, ):
+    def updateEstimates(self,bids,clicks,costs,budgets):
+        bids = bids.reshape(-1)
+        clicks = clicks.reshape(-1)
+        costs = costs.reshape(-1)
+        budgets = budgets.reshape(-1)
         for c in range(0, self.nCampaigns):
+            if budgets.reshape(-1)[c] != 0:
+                index = np.argwhere(self.bids[c] == bids[c])
+                self.ntimeplayed[c][index] += 1
+                meanupdateclicks = ((self.meanClicks[c][index] * (self.ntimeplayed[c][index]-1)) + clicks[c])/self.ntimeplayed[c][index]
+                meanupdatecosts = ((self.meanCosts[c][index] * (self.ntimeplayed[c][index]-1)) + costs[c])/self.ntimeplayed[c][index]
+                self.meanClicks[c][index] = meanupdateclicks
+                self.meanCosts[c][index] = meanupdatecosts
 
-            # Number of clicks
-            lClick = np.array([1.0])
-            kernelClick = C(1.0, (1e-3, 1e3)) * RBF(lClick, (1e-3, 1e3))
-            alphaClick = 200
-            self.gpsClicks.append(GaussianProcessRegressor(kernel=kernelClick, alpha=alphaClick, n_restarts_optimizer=10, normalize_y=True))
-
-            # Costs
-            lCost = np.array([1.0])
-            kernelCost = C(1.0, (1e-3, 1e3)) * RBF(lCost,(1e-3, 1e3))
-            alphaCost = 200
-            self.gpsCosts.append(GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCost, n_restarts_optimizer=10, normalize_y=True))
-
-    def updateClickGP(self, c):
-        """
-        Updates the number of click GP with incoming data
-        :param c:
-        :return:
-        """
-        # Format data for the GP (2D vector)
-        self.prevBids = np.atleast_2d(self.prevBids)
-        self.prevClicks = np.atleast_2d(self.prevClicks)
-        self.prevBudgets = np.atleast_2d(self.prevBudgets)
-
-        bud = self.prevBudgets.T[c, :]
-        bid = self.prevBids.T[c, :]
-
-        # Click for unlimited budget
-        bidNorm = self.normalize(bid)
-        idxsNoZero = np.argwhere(bud != 0).reshape(-1)
-        bidNorm = bidNorm[idxsNoZero]
-        bidNorm = np.atleast_2d(bidNorm)
-        potentialClicks = dividePotentialClicks(self.prevClicks * 24.0, self.prevHours)
-        potentialClicks = potentialClicks.T[c, :].ravel()
-
-        # remove 0 in training
-        potentialClicks = potentialClicks[idxsNoZero]
-        if len(potentialClicks) > 0:
-            self.gpsClicks[c].fit(bidNorm.T, potentialClicks)
-
-
-
-    def setGPparameters(self, sigmaClick, sigmaCost, lClick, lCost, alphaClick, alphaCost):
-        """
-        Set customized parameters to the GP
-        :param sigmaClick:
-        :param sigmaCost:
-        :param lClick:
-        :param lCost:
-        :param alphaClick:
-        :param alphaCost:
-        :return:
-        """
-        for c in range(0, self.nCampaigns):
-            kernelClick = C(sigmaClick[c], (1e-3, 1e3)) * RBF(lClick[c], (1e-3, 1e3))
-            kernelCost = C(sigmaCost[c], (1e-3, 1e3)) * RBF(lCost[c], (1e-3, 1e3))
-            self.gpsClicks[c] = GaussianProcessRegressor(kernel=kernelClick, alpha=alphaClick, optimizer=None,
-                                                         normalize_y=True)
-            self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alphaCost, optimizer=None,
-                                                        normalize_y=True)
-
-    def setGPKernel(self, c, kernelClick, kernelCost, alpha=200):
-        """
-        Set customized kernel to the c-th GP
-        :param c: index of the GP to set
-        :param kernelClick:
-        :param kernelCost:
-        :param alpha:
-        :return:
-        """
-        self.gpsClicks[c] = GaussianProcessRegressor(kernel=kernelClick, alpha=alpha, optimizer=None, normalize_y=True)
-        self.gpsCosts[c] = GaussianProcessRegressor(kernel=kernelCost, alpha=alpha, optimizer=None, normalize_y=True)
-
-    def updateCostGP(self, c):
-        """
-        prevBids = copy.copy(self.prevBids)
-        prevCosts = copy.copy(self.prevCosts)
-        prevBudgets = copy.copy(self.prevBudgets)
-        prevHours = copy.copy(self.prevHours)
-
-        prevBids = np.append(prevBids,0.0)
-        prevCosts = np.append(prevCosts, 0.0)
-        prevBudgets = np.append(prevBudgets,10)
-        prevHours = np.append(prevHours,10)
-
-        prevBids = np.atleast_2d(prevBids)
-        prevCosts = np.atleast_2d(prevCosts)
-        prevBudgets = np.atleast_2d(prevBudgets)
-        """
-
-        self.prevBids = np.atleast_2d(self.prevBids)
-        self.prevCosts = np.atleast_2d(self.prevCosts)
-        self.prevBudgets = np.atleast_2d(self.prevBudgets)
-
-
-        bud = self.prevBudgets.T[c, :]
-        bid = self.prevBids.T[c,:]
-
-
-
-        bidNorm = self.normalize(bid)
-
-        idxsNoZero = np.argwhere(bud != 0).reshape(-1)
-        bidNorm = bidNorm[idxsNoZero]
-
-        bidNorm = np.append(bidNorm,0.0)
-
-        bidNorm = np.atleast_2d(bidNorm)
-
-        potentialCosts = dividePotentialClicks(self.prevCosts * 24.0, self.prevHours)
-        potentialCosts = potentialCosts.T[c, :].ravel()
-        potentialCosts = potentialCosts[idxsNoZero]
-
-
-        potentialCosts = np.append(potentialCosts,0.0)
-
-        if len(potentialCosts) > 0:
-            self.gpsCosts[c].fit(bidNorm.T, potentialCosts)
-
-    """
-    def updateGPCostZero(self):
-        for c in range(0,self.nCampaigns):
-            bid = np.array([0.0])
-            cost = np.array([0.0]).ravel()
-            self.gpsCosts[c].fit(bid.T,cost)
-    """
-
-
-
-    def updateGP(self, c):
-        self.updateCostGP(c)
-        self.updateClickGP(c)
-
-    def updateMultiGP(self):
-        for c in range(0, self.nCampaigns):
-            self.updateGP(c)
 
     def updateState(self, bids, budgets, clicks, conversions, costs, revenues, hours):
         bids = np.atleast_2d(bids)
@@ -236,7 +104,7 @@ class AgentFactored:
             self.prevCosts = np.append(self.prevCosts, costs, axis=0)
             self.prevRevenues = np.append(self.prevRevenues, revenues, axis=0)
 
-        self.updateMultiGP()
+        self.updateEstimates(bids,clicks,costs,budgets)
         self.updateValuesPerClick()
         self.t += 1
 
@@ -248,16 +116,16 @@ class AgentFactored:
         :param values:
         :return:
         """
-        idx = np.isclose(budget, self.budgets)
+        idx = np.isclose(budget, self.normbudgets)
         if len(idx) > 0:
             return values[itemIdx, idx]
         else:
-            idx = np.argwhere(budget >= self.budgets)
+            idx = np.argwhere(budget >= self.normbudgets)
             return values[itemIdx, idx.max()]
 
     def firstRow(self, values):
         res = np.zeros(len(self.budgets)).tolist()
-        for budIdx, bud in enumerate(self.budgets):
+        for budIdx, bud in enumerate(self.normbudgets):
             res[budIdx] = [[values[0, budIdx]], [0], [bud]] # (cumulate value, indexes, list of budgets)
         return res
 
@@ -271,39 +139,31 @@ class AgentFactored:
         h = h.tolist()
         h[0] = self.firstRow(values)
         for i in range(1, self.nCampaigns):
-            for j, b in enumerate(self.budgets):
+            for j, b in enumerate(self.normbudgets):
                 h[i][j] = h[i-1][j][:]
                 maxVal = 0
                 for bi in range(0,j+1):
-                    if ((np.sum(h[i-1][bi][valIdx]) + self.valueForBudget(i,b - self.budgets[bi],values)) >maxVal):
+                    if ((np.sum(h[i-1][bi][valIdx]) + self.valueForBudget(i,b - self.normbudgets[bi],values)) >maxVal):
                         val = h[i-1][bi][valIdx][:]
-                        val.append(self.valueForBudget(i,b - self.budgets[bi],values))
+                        val.append(self.valueForBudget(i,b - self.normbudgets[bi],values))
                         newValues = val[:]
                         items = h[i-1][bi][itIdx][:]
                         items.append(i)
                         newItems = items[:]
                         selBudgets = h[i-1][bi][bIdx][:]
-                        selBudgets.append(b - self.budgets[bi])
+                        selBudgets.append(b - self.normbudgets[bi])
                         newSelBudgets = selBudgets[:]
                         h[i][j] = [newValues, newItems, newSelBudgets]
                         maxVal = np.sum(newValues)
         newBudgets = h[-1][-1][2]
         newCampaigns = h[-1][-1][1]
-        if len(newBudgets) < self.nCampaigns:
-            temp = np.zeros(self.nCampaigns)
-            temp[newCampaigns] = newBudgets
-            newBudgets = temp
-            newCampaigns = np.array(range(0,self.nCampaigns))
         return [newBudgets, newCampaigns]
+
 
     def updateCostsPerBids(self):
         for c in range(0, self.nCampaigns):
-            bidPoints = self.bids[:]
-            x = np.array([bidPoints.T])
-            x = np.atleast_2d(x).T
-            x = self.normalize(x)
-            [mean, sigma] = self.gpsCosts[c].predict(x,return_std=True)
-            self.costsPerBid[c, :] = self.sampleCost(mean,sigma)
+            upperbound = np.sqrt(3*np.log(self.t+1)/(2*self.ntimeplayed[c]))
+            self.costsPerBid[c, :] = np.max(self.meanCosts[c] - upperbound, 0)
 
             # Reasonable assumption that if bid is zero also costs are null
             idxs = np.argwhere(self.bids == 0).reshape(-1)
@@ -314,41 +174,13 @@ class AgentFactored:
 
     def updateClicksPerBids(self):
         for c in range(0, self.nCampaigns):
-            bidPoints = self.bids[:]
-            x = np.array([bidPoints.T])
-            x = np.atleast_2d(x).T
-            x = self.normalize(x)
-
-            [mean, sigma] = self.gpsClicks[c].predict(x,return_std=True)
-            self.clicksPerBid[c,:] = self.sampleClick(mean,sigma)
+            upperbound = np.sqrt(3*np.log(self.t+1)/(2*self.ntimeplayed[c]))
+            self.clicksPerBid[c,:] = self.meanClicks[c] + upperbound
 
             idxs = np.argwhere(self.bids == 0).reshape(-1)
             for i in idxs:
                 self.clicksPerBid[c, i] = 0.0
         return self.clicksPerBid
-
-
-    def sampleClick(self, mean, sigma, delta=0.1):
-        if self.method == "Sampling":
-            return np.random.normal(mean,sigma)
-        if self.method == "Mean":
-            return mean
-        if self.method =="UCB":
-            return mean + 3.0*sigma
-        if self.method =="GPUCB":
-            beta = 2 * np.log((self.nBids*math.pow(self.t+1,2)*math.pow(math.pi,2))/(6*delta))
-            return mean + np.sqrt(beta)*sigma
-
-    def sampleCost(self,mean,sigma,delta=0.1):
-        if self.method == "Sampling":
-            return np.random.normal(mean,sigma)
-        if self.method == "Mean":
-            return mean
-        if self.method =="UCB":
-            return np.maximum(mean - 3.0*sigma,0.0)
-        if self.method =="GPUCB":
-            beta = 2 * np.log((self.nBids*math.pow(self.t+1,2)*math.pow(math.pi,2))/(6*delta))
-            return np.maximum(mean - np.sqrt(beta)*sigma,0.0)
 
     def generateBidBudgetMatrix(self):
         """
@@ -380,6 +212,8 @@ class AgentFactored:
 
     def chooseAction(self, initialExploration=4):
         if self.t <= initialExploration:
+            if self.t == 0:
+                self.initlists()
             # Equally shared budget and random bid for each subcampaign
             equalBud = self.maxTotDailyBudget / self.nCampaigns
             bud = self.budgets[np.max(np.argwhere(self.budgets <= equalBud))] #prendo il primo budget più piccolo della ripartiizone equa
@@ -402,5 +236,9 @@ class AgentFactored:
                 finalBids[c] = self.optimalBidPerBudget[c, idx]
             return [finalBudgets, finalBids]
 
-    def normalize(self, X):
-       return X / self.maxBid
+    def initlists(self):
+        for c in range(self.nCampaigns):
+            zero = np.zeros(self.nBids)
+            self.ntimeplayed.append(zero)
+            self.meanClicks.append(zero)
+            self.meanCosts.append(zero)

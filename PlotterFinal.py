@@ -264,17 +264,20 @@ class PlotterFinal:
     def oracleMatrix(self,indexCamp,nsimul=1):
         budgets = self.agent.budgets
         bids = self.agent.bids
-        trueMatrix = np.zeros((len(budgets),len(bids)))
+        trueMeans = np.zeros((len(budgets),len(bids)))
+        trueVar = np.zeros((len(budgets),len(bids)))
         print "Simulation campaign: ",indexCamp+1
         for i in range(0,len(budgets)):
             print "Simulation budget: ",i+1," out of ",len(budgets)
             for j in range(0,len(bids)):
                 observations = np.zeros((nsimul))
                 for k in range(0,nsimul):
-                    observations[k] = self.environment.campaigns[indexCamp].generateObservations(bids[j],budgets[i])[0]
+                    observations[k] = self.environment.campaigns[indexCamp].generateObservations(bids[j],budgets[i])[1]
                 meanValue = np.mean(observations)
-                trueMatrix[i,j] = meanValue
-        return trueMatrix
+                variance = np.sqrt(np.var(observations))
+                trueMeans[i,j] = meanValue
+                trueVar[i,j] = variance
+        return trueMeans,trueVar
 
     def performancePlot(self, optValue, choiceValues, estValues, nomefile):
         optArray = np.repeat(optValue,len(choiceValues))
