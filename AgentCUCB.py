@@ -116,18 +116,18 @@ class AgentCUCB:
         :param values:
         :return:
         """
-        idx = np.isclose(budget, self.normbudgets)
+        idx = np.isclose(budget, self.budgets)
         if len(idx) > 0:
             return values[itemIdx, idx]
         else:
-            idx = np.argwhere(budget >= self.normbudgets)
+            idx = np.argwhere(budget >= self.budgets)
             return values[itemIdx, idx.max()]
 
     def firstRow(self, values):
         res = np.zeros(len(self.budgets)).tolist()
-        for budIdx, bud in enumerate(self.normbudgets):
+        for budIdx, bud in enumerate(self.budgets):
             res[budIdx] = [[values[0, budIdx]], [0], [bud]] # (cumulate value, indexes, list of budgets)
-        return res
+            return res
 
     def optimize(self, values):
         # Inded in the results where the data are
@@ -139,25 +139,30 @@ class AgentCUCB:
         h = h.tolist()
         h[0] = self.firstRow(values)
         for i in range(1, self.nCampaigns):
-            for j, b in enumerate(self.normbudgets):
+            for j, b in enumerate(self.budgets):
                 h[i][j] = h[i-1][j][:]
                 maxVal = 0
                 for bi in range(0,j+1):
-                    if ((np.sum(h[i-1][bi][valIdx]) + self.valueForBudget(i,b - self.normbudgets[bi],values)) >maxVal):
+                    if ((np.sum(h[i-1][bi][valIdx]) + self.valueForBudget(i,b - self.budgets[bi],values)) >maxVal):
                         val = h[i-1][bi][valIdx][:]
-                        val.append(self.valueForBudget(i,b - self.normbudgets[bi],values))
+                        val.append(self.valueForBudget(i,b - self.budgets[bi],values))
                         newValues = val[:]
                         items = h[i-1][bi][itIdx][:]
                         items.append(i)
                         newItems = items[:]
                         selBudgets = h[i-1][bi][bIdx][:]
-                        selBudgets.append(b - self.normbudgets[bi])
+                        selBudgets.append(b - self.budgets[bi])
                         newSelBudgets = selBudgets[:]
                         h[i][j] = [newValues, newItems, newSelBudgets]
                         maxVal = np.sum(newValues)
-        newBudgets = h[-1][-1][2]
-        newCampaigns = h[-1][-1][1]
-        return [newBudgets, newCampaigns]
+                        newBudgets = h[-1][-1][2]
+                        newCampaigns = h[-1][-1][1]
+                        if len(newBudgets) < self.nCampaigns:
+                            temp = np.zeros(self.nCampaigns)
+                            temp[newCampaigns] = newBudgets
+                            newBudgets = temp
+                            newCampaigns = np.array(range(0,self.nCampaigns))
+                            return [newBudgets, newCampaigns]
 
 
     def updateCostsPerBids(self):

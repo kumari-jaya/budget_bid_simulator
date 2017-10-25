@@ -36,6 +36,7 @@ def experiment(k):
 
     # in questo ciclo mi salvo le conversioni medie in ogni istante
     for t in range(deadline):
+        print "Day: ", t+1
         coreCUCB.step()
         coreGPUCB.step()
         coreThomp.step()
