@@ -13,6 +13,7 @@ import time as time
 from Agent import *
 from Utils import *
 import copy
+import math
 
 class AgentFactored:
 

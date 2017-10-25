@@ -37,10 +37,10 @@ def experiment(k):
     # in questo ciclo mi salvo le conversioni medie in ogni istante
     for t in range(deadline):
         print "Day: ", t+1
-        coreCUCB.step()
+        #coreCUCB.step()
         coreGPUCB.step()
         coreThomp.step()
-        meanConvCUCB[t] = lastMeanConv(agentCUCB)
+        #meanConvCUCB[t] = lastMeanConv(agentCUCB)
         meanConvGPUCB[t] = lastMeanConv(agentGPUCB)
         meanConvThomp[t] = lastMeanConv(agentThomp)
 
@@ -49,11 +49,12 @@ def experiment(k):
     instconvGPUCB = np.sum(agentGPUCB.prevConversions, axis=1)
     instConvThomp = np.sum(agentThomp.prevConversions, axis=1)
 
-
+    """
     positionCUCB1 =  path_dati + "inst_conv_CUCB_" + str(k)
     positionCUCB2 =  path_dati + "mean_conv_CUCB_" + str(k)
     np.save(positionCUCB1,instConvCUCB)
     np.save(positionCUCB2,meanConvCUCB)
+    """
     positionGPUCB1 =  path_dati + "inst_conv_GPUCB_" + str(k)
     positionGPUCB2 =  path_dati + "mean_conv_GPUCB_" + str(k)
     np.save(positionGPUCB1,instConvGPUCB)
