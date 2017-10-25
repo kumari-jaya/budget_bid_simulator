@@ -73,7 +73,7 @@ def lastMeanConv(agent):
         indBud = np.argwhere(np.isclose(agent.budgets, lastBudgets[i]))
         indBid = np.argwhere(np.isclose(agent.bids, lastBids[i]))
         # il valore dei click medio relativi ai bid e budget scelti li prendo dalle matrici dell'oracolo!
-        chosenValue += listMatrices[i][indBud,indBid]
+        chosenValue += listMeans[i][indBud,indBid]
     return chosenValue
 
 convparams = np.array([0.4, 100, 200])
