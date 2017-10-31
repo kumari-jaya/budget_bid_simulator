@@ -30,7 +30,7 @@ def experiment(k):
     coreCUCB = Core(agentCUCB, envCUCB, deadline)
     coreGPUCB = Core(agentGPUCB, envGPUCB, deadline)
     coreThomp = Core(agentThomp, envThomp, deadline)
-    meanConvCUCB = np.zeros(deadline)
+    #meanConvCUCB = np.zeros(deadline)
     meanConvGPUCB = np.zeros(deadline)
     meanConvThomp = np.zeros(deadline)
 
@@ -45,8 +45,8 @@ def experiment(k):
         meanConvThomp[t] = lastMeanConv(agentThomp)
 
     # ora invece mi salvo le conversioni istantanee
-    instConvCUCB = np.sum(agentCUCB.prevConversions, axis=1)
-    instconvGPUCB = np.sum(agentGPUCB.prevConversions, axis=1)
+    #instConvCUCB = np.sum(agentCUCB.prevConversions, axis=1)
+    instConvGPUCB = np.sum(agentGPUCB.prevConversions, axis=1)
     instConvThomp = np.sum(agentThomp.prevConversions, axis=1)
 
     """
@@ -139,7 +139,7 @@ for i in range(0,ncampaigns):
     optVar += listVar[i][index,indMax]
 
 ottimo = np.array([optValue,optVar])
-np.save(path_dati + "ottimo",ottimo)
+#np.save(path_dati + "ottimo",ottimo)
 
 
 nexperiments = 50
