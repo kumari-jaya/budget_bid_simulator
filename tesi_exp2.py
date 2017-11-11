@@ -34,8 +34,8 @@ def experiment(k):
     instConvGPUCB = np.sum(agentGPUCB.prevConversions, axis=1)
 
 
-    positionGPUCB1 =  path_dati + "inst_conv_7camp_" + str(k)
-    positionGPUCB2 =  path_dati + "mean_conv_7camp_" + str(k)
+    positionGPUCB1 =  path_dati + "inst_conv_3camp_" + str(k)
+    positionGPUCB2 =  path_dati + "mean_conv_3camp_" + str(k)
     np.save(positionGPUCB1,instConvGPUCB)
     np.save(positionGPUCB2,meanConvGPUCB)
 
@@ -70,13 +70,13 @@ a7 = Auction(nBidders=6, nSlots=5, mu=0.32, sigma=0.25, lambdas=lambdas1, myClic
 
 
 campaigns = []
-campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=probClick[0], convParams=convparams))
+#campaigns.append(Campaign(a1, nMeanResearch=1000.0, nStdResearch=50.0, probClick=probClick[0], convParams=convparams))
 campaigns.append(Campaign(a2, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[1], convParams=convparams))
 campaigns.append(Campaign(a3, nMeanResearch=1500.0, nStdResearch=50.0, probClick=probClick[2], convParams=convparams))
 campaigns.append(Campaign(a4, nMeanResearch=1250.0, nStdResearch=50.0, probClick=probClick[3], convParams=convparams))
-campaigns.append(Campaign(a5, nMeanResearch=1450.0, nStdResearch=50.0, probClick=probClick[4], convParams=convparams))
-campaigns.append(Campaign(a6, nMeanResearch=1480.0, nStdResearch=50.0, probClick=probClick[5], convParams=convparams))
-campaigns.append(Campaign(a7, nMeanResearch=1550.0, nStdResearch=50.0, probClick=probClick[6], convParams=convparams))
+#campaigns.append(Campaign(a5, nMeanResearch=1450.0, nStdResearch=50.0, probClick=probClick[4], convParams=convparams))
+#campaigns.append(Campaign(a6, nMeanResearch=1480.0, nStdResearch=50.0, probClick=probClick[5], convParams=convparams))
+#campaigns.append(Campaign(a7, nMeanResearch=1550.0, nStdResearch=50.0, probClick=probClick[6], convParams=convparams))
 
 
 ncampaigns = len(campaigns)
@@ -118,11 +118,11 @@ for i in range(0,ncampaigns):
     optVar += listVar[i][index,indMax]
 
 ottimo = np.array([optValue,optVar])
-np.save(path_dati + "ottimo",ottimo)
+np.save(path_dati + "ottimo_3camp",ottimo)
 
 
 nexperiments = 50
 
 
-out = Parallel(n_jobs=20)(
+out = Parallel(n_jobs=2)(
        delayed(experiment)(k) for k in xrange(nexperiments))
