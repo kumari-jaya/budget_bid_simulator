@@ -30,26 +30,26 @@ def experiment(k):
     coreCUCB = Core(agentCUCB, envCUCB, deadline)
     coreGPUCB = Core(agentGPUCB, envGPUCB, deadline)
     coreThomp = Core(agentThomp, envThomp, deadline)
-    #meanConvCUCB = np.zeros(deadline)
-    meanConvGPUCB = np.zeros(deadline)
-    meanConvThomp = np.zeros(deadline)
+    meanConvCUCB = np.zeros(deadline)
+    #meanConvGPUCB = np.zeros(deadline)
+    #meanConvThomp = np.zeros(deadline)
 
     # in questo ciclo mi salvo le conversioni medie in ogni istante
     for t in range(deadline):
         print "Day: ", t+1
-        #coreCUCB.step()
-        coreGPUCB.step()
-        coreThomp.step()
-        #meanConvCUCB[t] = lastMeanConv(agentCUCB)
-        meanConvGPUCB[t] = lastMeanConv(agentGPUCB)
-        meanConvThomp[t] = lastMeanConv(agentThomp)
+        coreCUCB.step()
+        #coreGPUCB.step()
+        #coreThomp.step()
+        meanConvCUCB[t] = lastMeanConv(agentCUCB)
+        #meanConvGPUCB[t] = lastMeanConv(agentGPUCB)
+        #meanConvThomp[t] = lastMeanConv(agentThomp)
 
     # ora invece mi salvo le conversioni istantanee
-    #instConvCUCB = np.sum(agentCUCB.prevConversions, axis=1)
-    instConvGPUCB = np.sum(agentGPUCB.prevConversions, axis=1)
-    instConvThomp = np.sum(agentThomp.prevConversions, axis=1)
+    instConvCUCB = np.sum(agentCUCB.prevConversions, axis=1)
+    #instConvGPUCB = np.sum(agentGPUCB.prevConversions, axis=1)
+    #instConvThomp = np.sum(agentThomp.prevConversions, axis=1)
 
-    """
+
     positionCUCB1 =  path_dati + "inst_conv_CUCB_" + str(k)
     positionCUCB2 =  path_dati + "mean_conv_CUCB_" + str(k)
     np.save(positionCUCB1,instConvCUCB)
@@ -63,7 +63,7 @@ def experiment(k):
     positionThomp2 =  path_dati + "mean_conv_Thomp_" + str(k)
     np.save(positionThomp1,instConvThomp)
     np.save(positionThomp2,meanConvThomp)
-
+    """
     return
 
 
@@ -145,5 +145,5 @@ ottimo = np.array([optValue,optVar])
 nexperiments = 50
 
 
-out = Parallel(n_jobs=20)(
+out = Parallel(n_jobs=5)(
         delayed(experiment)(k) for k in xrange(nexperiments))

@@ -70,8 +70,8 @@ class AgentCUCB:
         budgets = budgets.reshape(-1)
         for c in range(0, self.nCampaigns):
             if budgets.reshape(-1)[c] != 0:
-                index = np.argwhere(self.bids[c] == bids[c])
-                self.ntimeplayed[c][index] += 1
+                index = np.argwhere(self.bids == bids[c]).reshape(-1)[0]
+                self.ntimeplayed[c][index] =  self.ntimeplayed[c][index] + 1
                 meanupdateclicks = ((self.meanClicks[c][index] * (self.ntimeplayed[c][index]-1)) + clicks[c])/self.ntimeplayed[c][index]
                 meanupdatecosts = ((self.meanCosts[c][index] * (self.ntimeplayed[c][index]-1)) + costs[c])/self.ntimeplayed[c][index]
                 self.meanClicks[c][index] = meanupdateclicks
@@ -127,7 +127,7 @@ class AgentCUCB:
         res = np.zeros(len(self.budgets)).tolist()
         for budIdx, bud in enumerate(self.budgets):
             res[budIdx] = [[values[0, budIdx]], [0], [bud]] # (cumulate value, indexes, list of budgets)
-            return res
+        return res
 
     def optimize(self, values):
         # Inded in the results where the data are
@@ -155,14 +155,14 @@ class AgentCUCB:
                         newSelBudgets = selBudgets[:]
                         h[i][j] = [newValues, newItems, newSelBudgets]
                         maxVal = np.sum(newValues)
-                        newBudgets = h[-1][-1][2]
-                        newCampaigns = h[-1][-1][1]
-                        if len(newBudgets) < self.nCampaigns:
-                            temp = np.zeros(self.nCampaigns)
-                            temp[newCampaigns] = newBudgets
-                            newBudgets = temp
-                            newCampaigns = np.array(range(0,self.nCampaigns))
-                            return [newBudgets, newCampaigns]
+        newBudgets = h[-1][-1][2]
+        newCampaigns = h[-1][-1][1]
+        if len(newBudgets) < self.nCampaigns:
+            temp = np.zeros(self.nCampaigns)
+            temp[newCampaigns] = newBudgets
+            newBudgets = temp
+            newCampaigns = np.array(range(0,self.nCampaigns))
+        return [newBudgets, newCampaigns]
 
 
     def updateCostsPerBids(self):
@@ -215,8 +215,9 @@ class AgentCUCB:
 
         return self.campaignsValues
 
-    def chooseAction(self, initialExploration=4):
-        if self.t <= initialExploration:
+    def chooseAction(self):
+        if self.t < self.nBids:
+            # i primi nBids turni gioco ogni bid una volta
             if self.t == 0:
                 self.initlists()
             # Equally shared budget and random bid for each subcampaign
@@ -224,7 +225,8 @@ class AgentCUCB:
             bud = self.budgets[np.max(np.argwhere(self.budgets <= equalBud))] #prendo il primo budget più piccolo della ripartiizone equa
             buds = np.ones(self.nCampaigns) * bud
             buds[-1] = (self.maxTotDailyBudget - (self.nCampaigns - 1) * bud)
-            return [buds, np.random.choice(self.bids, self.nCampaigns)]
+            bids = np.repeat(self.bids[self.t],self.nCampaigns)
+            return [buds, bids]
         else:
             self.updateCostsPerBids()
             self.updateClicksPerBids()
@@ -243,7 +245,6 @@ class AgentCUCB:
 
     def initlists(self):
         for c in range(self.nCampaigns):
-            zero = np.zeros(self.nBids)
-            self.ntimeplayed.append(zero)
-            self.meanClicks.append(zero)
-            self.meanCosts.append(zero)
+            self.ntimeplayed.append(np.zeros(self.nBids))
+            self.meanClicks.append(np.zeros(self.nBids))
+            self.meanCosts.append(np.zeros(self.nBids))
